@@ -58,7 +58,8 @@ let player_health, player_health_bg, pl_health_con = [];
 
 // let g = new PIXI.Graphics();
 
-let stage = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+// creating stage
+let stage = new Phaser.Game(736, 736, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
 class Tile {
   constructor(x, y, z_index, texture_path, name){
@@ -174,7 +175,7 @@ class Player extends Tile{
     this.fov = [];
     this.battleRadius = 1;
     this.moveTimer;
-    this.moveDelay = 85; // default - 85
+    this.moveDelay = 45; // default - 85, fast - 45
     this.isDetected = false;
     this.health = 100;
     this.attack = 10;
@@ -184,8 +185,9 @@ class Player extends Tile{
   }
 
   centerCamera(){
-    stage.camera.x = this.sprite.x - window.innerWidth/2;
-    stage.camera.y = this.sprite.y - window.innerHeight/2;
+
+    stage.camera.x = this.sprite.x - 736/2;
+    stage.camera.y = this.sprite.y - 736/2;
   }
 
   removePathAfter(path_length){
@@ -216,7 +218,8 @@ class Player extends Tile{
       console.log(target.name, "HP:", target.health);
       if(target.name == "player"){
         var hp = $("#health");
-        hp.width((hp.width()*target.health)/100 - this.attack);
+        var hp_c = $("#health_container");
+        hp.width(target.health*hp_c.width()/100 - this.attack);
         // console.log(hp);
       }
     }
@@ -409,10 +412,11 @@ class Enemy extends Player{
   detectPlayer(){
 
     for(let i in this.fov){
-      if(this.fov[i].x == player.x*32 && this.fov[i].y == player.y*32){
+      if(this.fov[i].x == player.x*this.tile_size.w && this.fov[i].y == player.y*this.tile_size.h){
         if(!this.targetFound)
           this.hasActiveSigns = false;
         this.targetFound = true;
+        gameIsPaused = true;
         // console.log("%c DETECTED! ", "background-color: red; color: #fff");
         break;
         return 0;
@@ -471,11 +475,13 @@ function doStep(pl, path){
   clearInterval(pl.moveTimer);
   pl.moveTimer = setInterval(function(){
     if(!gameIsPaused){
+      grid.setWalkableAt(pl.sprite.x/pl.tile_size.w, pl.sprite.y/pl.tile_size.h, true);
       // move player to the next path section
       pl.sprite.x = path[i][0] * pl.tile_size.w;
       pl.sprite.y = path[i][1] * pl.tile_size.h;
       pl.x = path[i][0];
       pl.y = path[i][1];
+
       pl.setVisible();
       pl.doFOV();
       pl.removePathAfter(i);
@@ -489,14 +495,21 @@ function doStep(pl, path){
         if(enemy.targetFound){
           let epath = enemy.moveToPoint(pl.sprite.x, pl.sprite.y);
           if(epath && enemy.counter < epath.length - 1){
+
+            grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, true);
+
             enemy.sprite.x = epath[enemy.counter][0] * enemy.tile_size.w;
             enemy.sprite.y = epath[enemy.counter][1] * enemy.tile_size.h;
             enemy.x = epath[enemy.counter][0];
             enemy.y = epath[enemy.counter][1];
+
+            grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, false);
             enemy.counter++;
           }
         }
       }
+
+      grid.setWalkableAt(pl.sprite.x/pl.tile_size.w, pl.sprite.y/pl.tile_size.h, false);
 
       // if(i < path.length-1 && path[i][0] > path[i+1][0] && path[i][1] == path[i+1][1]){
       //   pl.sprite.play("left");
@@ -523,23 +536,23 @@ function doStep(pl, path){
 }
 
 function countStep(){
-  if(!gameIsPaused){
-    step_count++;
-    for(let j in enemies){
-      enemies[j].hitTarget(player);
 
-      if(enemies[j].hasActiveSigns)
-        enemies[j].showSignAbove('t_alert', alert_s);
-      if(enemies[j].health <= 0){ // remove enemy from the game if it's health <= 0
-        enemies[j].sprite.destroy();
-        var z = enemies.indexOf(enemies[j]);
-        if(z != -1) {
-        	enemies.splice(z, 1);
-        }
+  step_count++;
+  for(let j in enemies){
+    enemies[j].hitTarget(player);
+
+    if(enemies[j].hasActiveSigns)
+      enemies[j].showSignAbove('t_alert', alert_s);
+    if(enemies[j].health <= 0){ // remove enemy from the game if it's health <= 0
+      enemies[j].sprite.destroy();
+      grid.setWalkableAt(enemies[j].sprite.x/enemies[j].tile_size.w, enemies[j].sprite.y/enemies[j].tile_size.h, true);
+      var z = enemies.indexOf(enemies[j]);
+      if(z != -1) {
+      	enemies.splice(z, 1);
       }
     }
-
   }
+
 }
 
 function unique(arr) {
@@ -686,7 +699,7 @@ function create() {
     }
 
     // player = new Player(1, 1, 3, "mc_player", 8, "player");
-    player = new Player(1, 1, 3, "t_player", 8, "player");
+    player = new Player(1, 1, 3, "t_player", 4, "player");
     player.addToStage();
 
     // player_health = new Phaser.Rectangle(player.sprite.x - 11, player.sprite.y - 5, 50, 5);
@@ -696,7 +709,7 @@ function create() {
     player.doFOV();
     player.centerCamera();
 
-    let en_02 = new Enemy(pos.x/32, pos.y/32, 3, "dummy", 8, "enemy");
+    let en_02 = new Enemy(pos.x/32, pos.y/32, 3, "dummy", 4, "enemy");
     en_02.addToStage();
 
     // player movement animation

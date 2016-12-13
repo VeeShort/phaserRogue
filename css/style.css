@@ -5,13 +5,12 @@
 canvas{
   position: absolute;
   top: 0;
-  bottom: 0;
-  left: 0;
   right: 0;
   margin: auto;
 }
 body{
   font-family: "Helvetica", sans-serif;
+  background: #000;
 }
 #container{
   width: 256px;
@@ -32,4 +31,27 @@ body{
 #container .item_cell:hover{
   background-size: cover!important;
   cursor: pointer;
+}
+
+@font-face {
+  font-family: "8bit";
+  src: url("/fonts/Pxlvetica.ttf");
+}
+#health_container{
+  position: absolute;
+  width: 264px;
+  height: 16px;
+  right: 10px;
+  top: 10px;
+  background: #c55656;
+  z-index: 999;
+  text-align: center;
+  color: #fff;
+  font-family: "8bit";
+  line-height: 32px;
+}
+#health{
+  height: 100%;
+  width: 100%;
+  background: #a81e1e;
 }

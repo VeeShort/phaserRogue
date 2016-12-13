@@ -517,6 +517,7 @@ function doStep(path){
         enemy.detectPlayer();
         enemy.moved = false;
         if(enemy.targetFound){
+          player.removePathAfter(path.length);
           let epath = enemy.moveToPoint(player.sprite.x, player.sprite.y);
           if(epath && enemy.counter < epath.length - 1){
             grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, true);
@@ -559,7 +560,6 @@ function doStep(path){
 }
 
 function countStep(){
-
   step_count++;
   for(let j in enemies){
     if(!enemies[j].moved)

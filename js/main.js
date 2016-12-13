@@ -130,11 +130,16 @@ class Tile {
     this.sprite.events.onInputDown.add(function(){
       if(self.state != 0){
         gameIsPaused = false;
-        player.moveToPoint(this.x, this.y);
+        if(this.name && this.name != "enemy" && this.name != "player")
+          doStep(player.moveToPoint(this.x, this.y));
         if(this.name && this.name == "enemy"){
           player.hitTarget(this);
-          countStep();
+          doStep(false);
         }
+        if(this.name && this.name == "player"){
+          doStep(false);
+        }
+
       }
     }, this);
   }
@@ -173,6 +178,7 @@ class Player extends Tile{
     this.sprite.alpha = 1;
     this.fovRadius = fovRadius;
     this.fov = [];
+    this.state = 3;
     this.battleRadius = 1;
     this.moveTimer;
     this.moveDelay = 45; // default - 85, fast - 45
@@ -180,6 +186,7 @@ class Player extends Tile{
     this.health = 100;
     this.attack = 10;
     this.sign;
+    this.moved = false;
 
     this.hasActiveSigns = false;
   }
@@ -304,7 +311,7 @@ class Player extends Tile{
     }
 
     if(this.name == "player" && path.length > 1){
-      doStep(this, path);
+      doStep(path);
     }
     if(path.length > 1)
       return path;
@@ -479,22 +486,27 @@ function detectStateChange(tile){
   }
 }
 
-function doStep(pl, path){
+function doStep(path){
   let i = 1;
+  player.moved = false;
 
-  clearInterval(pl.moveTimer);
-  pl.moveTimer = setInterval(function(){
+  clearInterval(player.moveTimer);
+  player.moveTimer = setInterval(function(){
     if(!gameIsPaused){
-      // move player to the next path section
-      pl.sprite.x = path[i][0] * pl.tile_size.w;
-      pl.sprite.y = path[i][1] * pl.tile_size.h;
-      pl.x = path[i][0];
-      pl.y = path[i][1];
+      // move playerayer to the next path section
+      if(path){
+        // let path = player.moveToPoint(px, py);
+        player.sprite.x = path[i][0] * player.tile_size.w;
+        player.sprite.y = path[i][1] * player.tile_size.h;
+        player.x = path[i][0];
+        player.y = path[i][1];
 
-      pl.setVisible();
-      pl.doFOV();
-      pl.removePathAfter(i);
-      pl.centerCamera();
+        player.setVisible();
+        player.doFOV();
+        player.removePathAfter(i);
+        player.centerCamera();
+        player.moved = true;
+      }
 
 
 
@@ -503,8 +515,9 @@ function doStep(pl, path){
         enemy.counter = 1;
         enemy.doFOV();
         enemy.detectPlayer();
+        enemy.moved = false;
         if(enemy.targetFound){
-          let epath = enemy.moveToPoint(pl.sprite.x, pl.sprite.y);
+          let epath = enemy.moveToPoint(player.sprite.x, player.sprite.y);
           if(epath && enemy.counter < epath.length - 1){
             grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, true);
 
@@ -513,6 +526,8 @@ function doStep(pl, path){
             enemy.x = epath[enemy.counter][0];
             enemy.y = epath[enemy.counter][1];
 
+            enemy.moved = true;
+
             grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, false);
             enemy.counter++;
           }
@@ -520,36 +535,37 @@ function doStep(pl, path){
       }
 
       // if(i < path.length-1 && path[i][0] > path[i+1][0] && path[i][1] == path[i+1][1]){
-      //   pl.sprite.play("left");
+      //   player.sprite.play("left");
       // }
       // if(i < path.length-1 && path[i][0] < path[i+1][0] && path[i][1] == path[i+1][1]){
-      //   pl.sprite.play("right");
+      //   player.sprite.play("right");
       // }
       // if(i < path.length-1 && path[i][0] == path[i+1][0] && path[i][1] > path[i+1][1]){
-      //   pl.sprite.play("up");
+      //   player.sprite.play("up");
       // }
       // if(i < path.length-1 && path[i][0] == path[i+1][0] && path[i][1] < path[i+1][1]){
-      //   pl.sprite.play("down");
+      //   player.sprite.play("down");
       // }
-
+      countStep();
       if(i == path.length - 1){
-        clearInterval(pl.moveTimer);
-        // pl.sprite.animations.stop();
+        clearInterval(player.moveTimer);
+        // player.sprite.animations.stop();
       }
 
-      countStep();
       i++;
+
     }
-  }, pl.moveDelay);
+  }, player.moveDelay);
 }
 
 function countStep(){
 
   step_count++;
   for(let j in enemies){
-    setTimeout(function(){
-      enemies[j].hitTarget(player);
-    }, 150);
+    if(!enemies[j].moved)
+      setTimeout(function(){
+        enemies[j].hitTarget(player);
+      }, 150);
     if(enemies[j].hasActiveSigns)
       enemies[j].showSignAbove('t_alert', alert_s);
     if(enemies[j].health <= 0){ // remove enemy from the game if it's health <= 0

@@ -52,10 +52,10 @@ let step_count = 0;
 let gameIsPaused = false;
 
 // SOUNDS
-let alert_s;
+let alert_s, pl_hit, en_hit, dead;
 
 let player_health, player_health_bg, pl_health_con = [];
-
+let emitter;
 // let g = new PIXI.Graphics();
 
 // creating stage
@@ -214,13 +214,20 @@ class Player extends Tile{
 
   hitTarget(target){
     if(this.checkHitAvailability(target)){
+      emitter.x = target.sprite.x + target.tile_size.w/2;
+      emitter.y = target.sprite.y + target.tile_size.h/2;
+
+      emitter.start(true, 800, null, 5);
       target.health -= this.attack;
       console.log(target.name, "HP:", target.health);
       if(target.name == "player"){
+        en_hit.play();
         var hp = $("#health");
         var hp_c = $("#health_container");
         hp.width(target.health*hp_c.width()/100 - this.attack);
         // console.log(hp);
+      }else{
+        pl_hit.play();
       }
     }
   }
@@ -280,7 +287,10 @@ class Player extends Tile{
     }
     this.player_path_map = [];
 
-    let finder = new PF.AStarFinder();
+    let finder = new PF.AStarFinder({
+      allowDiagonal: true,
+      dontCrossCorners: true
+    });
     let path = finder.findPath(Math.floor(this.sprite.x/this.tile_size.w), Math.floor(this.sprite.y/this.tile_size.h), Math.floor(px/this.tile_size.w), Math.floor(py/this.tile_size.h), grid.clone());
 
     if(path.length > 0 && this.name == "player"){
@@ -475,7 +485,6 @@ function doStep(pl, path){
   clearInterval(pl.moveTimer);
   pl.moveTimer = setInterval(function(){
     if(!gameIsPaused){
-      grid.setWalkableAt(pl.sprite.x/pl.tile_size.w, pl.sprite.y/pl.tile_size.h, true);
       // move player to the next path section
       pl.sprite.x = path[i][0] * pl.tile_size.w;
       pl.sprite.y = path[i][1] * pl.tile_size.h;
@@ -487,6 +496,8 @@ function doStep(pl, path){
       pl.removePathAfter(i);
       pl.centerCamera();
 
+
+
       for(let j in enemies){
         let enemy = enemies[j];
         enemy.counter = 1;
@@ -495,7 +506,6 @@ function doStep(pl, path){
         if(enemy.targetFound){
           let epath = enemy.moveToPoint(pl.sprite.x, pl.sprite.y);
           if(epath && enemy.counter < epath.length - 1){
-
             grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, true);
 
             enemy.sprite.x = epath[enemy.counter][0] * enemy.tile_size.w;
@@ -508,8 +518,6 @@ function doStep(pl, path){
           }
         }
       }
-
-      grid.setWalkableAt(pl.sprite.x/pl.tile_size.w, pl.sprite.y/pl.tile_size.h, false);
 
       // if(i < path.length-1 && path[i][0] > path[i+1][0] && path[i][1] == path[i+1][1]){
       //   pl.sprite.play("left");
@@ -539,12 +547,14 @@ function countStep(){
 
   step_count++;
   for(let j in enemies){
-    enemies[j].hitTarget(player);
-
+    setTimeout(function(){
+      enemies[j].hitTarget(player);
+    }, 150);
     if(enemies[j].hasActiveSigns)
       enemies[j].showSignAbove('t_alert', alert_s);
     if(enemies[j].health <= 0){ // remove enemy from the game if it's health <= 0
       enemies[j].sprite.destroy();
+      dead.play();
       grid.setWalkableAt(enemies[j].sprite.x/enemies[j].tile_size.w, enemies[j].sprite.y/enemies[j].tile_size.h, true);
       var z = enemies.indexOf(enemies[j]);
       if(z != -1) {
@@ -589,9 +599,13 @@ function preload() {
     stage.load.image("path_end", "/images/path_end.png")
     stage.load.image('walls', "/images/spritesheet/Objects/Wall.png");
     stage.load.image('t_alert', "/images/alert.png");
+    stage.load.image("t_hit", "/images/hit_particle.png");
 
     //AUDIO
     stage.load.audio('alert', "/sound/alert.wav");
+    stage.load.audio('pl_hit', "/sound/pl_hit.wav");
+    stage.load.audio('en_hit', "/sound/en_hit.wav");
+    stage.load.audio('dead', "/sound/dead.wav");
 
 }
 
@@ -681,6 +695,9 @@ function create() {
     // SOUNDS
 
     alert_s = stage.add.audio('alert');
+    en_hit = stage.add.audio('en_hit');
+    pl_hit = stage.add.audio('pl_hit');
+    dead = stage.add.audio('dead');
 
     target_sp = new Phaser.Sprite();
     stage.add.sprite(target_sp);
@@ -688,15 +705,15 @@ function create() {
     // let en_01 = new Enemy(8, 5, 3, "/images/test_dragon.png", 3, "enemy");
     // // en_01.addToStage();
     //
-    let rname;
-    let pos;
-    while(rname != "floor"){
+    let rand_pos = [];
+    for(let i = 0; i < 10; i++){
       let ri = getRandomInt(0, all_sprites.length);
       if(all_sprites[ri] && all_sprites[ri].name && all_sprites[ri].name == "floor"){
-        rname = "floor";
-        pos = all_sprites[ri];
+        rand_pos.push(all_sprites[ri]);
       }
     }
+
+    stage.physics.startSystem(Phaser.Physics.ARCADE);
 
     // player = new Player(1, 1, 3, "mc_player", 8, "player");
     player = new Player(1, 1, 3, "t_player", 4, "player");
@@ -709,8 +726,15 @@ function create() {
     player.doFOV();
     player.centerCamera();
 
-    let en_02 = new Enemy(pos.x/32, pos.y/32, 3, "dummy", 4, "enemy");
-    en_02.addToStage();
+    for(let i = 0; i < rand_pos.length; i++){
+      let dragon = new Enemy(rand_pos[i].x/32, rand_pos[i].y/32, 3, "dummy", 4, "enemy");
+      dragon.addToStage();
+    }
+
+    emitter = stage.add.emitter(0, 0, 100);
+
+    emitter.makeParticles('t_hit');
+    emitter.gravity = 200;
 
     // player movement animation
     // player.sprite.animations.add('left', [4, 5, 6, 7], 10, true);
@@ -720,7 +744,7 @@ function create() {
 }
 
 function update(){
-
+  emitter.forEachAlive(function(p){		p.alpha= p.lifespan / emitter.lifespan;	});
 }
 
 function render(){

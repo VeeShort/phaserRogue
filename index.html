@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rogue</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+  *{
+    padding: 0;
+    margin: 0;
+  }
+  @font-face {
+    font-family: "8bit";
+    src: url("/fonts/Pxlvetica.ttf");
+  }
+  #health_container{
+    position: absolute;
+    width: 264px;
+    height: 32px;
+    left: 10px;
+    top: 10px;
+    border: 3px solid #d6d6d6;
+    background: #000;
+    z-index: 999;
+    text-align: center;
+    color: #fff;
+    font-family: "8bit";
+    line-height: 32px;
+  }
+  #health{
+    height: 100%;
+    width: 100%;
+    background: #a81e1e;
+  }
+  </style>
+</head>
+<body>
+
+  <div id="container" class="inventory"></div>
+  <div id="health_container">
+    <div id="health"></div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+  <script src="js/phaser.min.js"></script>
+  <script src="js/pathfinding/visual/lib/pathfinding-browser.min.js"></script>
+  <script src="js/dungeon.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

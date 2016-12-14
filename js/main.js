@@ -59,7 +59,7 @@ let emitter;
 // let g = new PIXI.Graphics();
 
 // creating stage
-let stage = new Phaser.Game(736, 736, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+let stage = new Phaser.Game(608, 608, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
 class Tile {
   constructor(x, y, z_index, texture_path, name){
@@ -193,8 +193,8 @@ class Player extends Tile{
 
   centerCamera(){
 
-    stage.camera.x = this.sprite.x - 736/2;
-    stage.camera.y = this.sprite.y - 736/2;
+    stage.camera.x = this.sprite.x - 608/2 + this.tile_size.w/2 ;
+    stage.camera.y = this.sprite.y - 608/2 + this.tile_size.h/2;
   }
 
   removePathAfter(path_length){
@@ -419,6 +419,11 @@ class Enemy extends Player{
     this.health = 50;
     this.attack = 5;
     this.collectEnemies();
+
+    this.counter = 1;
+    this.doFOV();
+    this.detectPlayer();
+    this.moved = true;
   }
 
   // push all created enemies to the enemy array

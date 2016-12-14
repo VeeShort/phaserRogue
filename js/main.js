@@ -227,7 +227,7 @@ class Player extends Tile{
 
       emitter.start(true, 800, null, 5);
       target.health -= this.attack;
-      console.log(target.name, "HP:", target.health);
+      // console.log(target.name, "HP:", target.health);
       if(target.name == "player"){
         en_hit.play();
         var hp = $("#health");
@@ -484,9 +484,11 @@ function detectStateChange(tile){
       break;
       case 1:
         tile.sprite.alpha = 0.5;
+        // tile.sprite.tint = 0x333333;
       break;
       case 2:
         tile.sprite.alpha = 1;
+        // tile.sprite.tint = 0xFFFFFF;
       break;
     }
   }

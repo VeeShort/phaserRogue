@@ -52,7 +52,7 @@ let step_count = 0;
 let gameIsPaused = false;
 
 // SOUNDS
-let alert_s, pl_hit, en_hit, dead;
+let alert_s, pl_hit, en_hit, dead, pl_dead, game_over;
 
 let player_health, player_health_bg, pl_health_con = [];
 let emitter;
@@ -79,7 +79,7 @@ class Tile {
 
     // layer index
     this.z_index = z_index;
-
+    this.disableControl = false;
     // texture and sprite
     this.texture_path = texture_path;
     // this.sprite = new PIXI.Sprite(new PIXI.Texture.fromImage(this.texture_path));
@@ -129,7 +129,7 @@ class Tile {
   tileOnClick(){
     let self = this;
     this.sprite.events.onInputDown.add(function(){
-      if(self.state != 0){
+      if(self.state != 0 && !player.disableControl){
         gameIsPaused = false;
         if(this.name && this.name != "enemy" && this.name != "player")
           doStep(player.moveToPoint(this.x, this.y));
@@ -221,7 +221,7 @@ class Player extends Tile{
   }
 
   hitTarget(target){
-    if(this.checkHitAvailability(target)){
+    if(this.checkHitAvailability(target) && this.health > 0){
       emitter.x = target.sprite.x + target.tile_size.w/2;
       emitter.y = target.sprite.y + target.tile_size.h/2;
 
@@ -237,6 +237,13 @@ class Player extends Tile{
       }else{
         pl_hit.play();
       }
+      this.moved = true;
+    }
+    if(target.health <= 0 && target.name == "player"){
+      pl_dead.play();
+      target.sprite.loadTexture("pl_dead");
+      target.disableControl = true;
+      game_over.play();
     }
   }
 
@@ -436,8 +443,6 @@ class Enemy extends Player{
 
     for(let i in this.fov){
       if(this.fov[i].x == player.x*this.tile_size.w && this.fov[i].y == player.y*this.tile_size.h){
-        if(!this.targetFound)
-          this.hasActiveSigns = false;
         this.targetFound = true;
         gameIsPaused = true;
         // console.log("%c DETECTED! ", "background-color: red; color: #fff");
@@ -449,8 +454,8 @@ class Enemy extends Player{
       }
     }
 
-    if(!this.hasActiveSigns)
-      this.removeSignAbove(this.sign);
+    // if(!this.hasActiveSigns)
+    //   this.removeSignAbove(this.sign);
 
   }
 
@@ -490,6 +495,10 @@ function detectStateChange(tile){
         tile.sprite.alpha = 1;
         // tile.sprite.tint = 0xFFFFFF;
       break;
+      case 3:
+        tile.sprite.alpha = 0.2;
+        // tile.sprite.tint = 0xFFFFFF;
+      break;
     }
   }
 }
@@ -508,22 +517,21 @@ function doStep(path){
         player.sprite.y = path[i][1] * player.tile_size.h;
         player.x = path[i][0];
         player.y = path[i][1];
-
-        player.setVisible();
-        player.doFOV();
-        player.removePathAfter(i);
-        player.centerCamera();
-        player.moved = true;
       }
+      // player.setVisible();
+      player.doFOV();
+      player.removePathAfter(i);
+      player.centerCamera();
+      player.moved = true;
 
 
 
       for(let j in enemies){
         let enemy = enemies[j];
         enemy.counter = 1;
+        enemy.moved = false;
         enemy.doFOV();
         enemy.detectPlayer();
-        enemy.moved = false;
         if(enemy.targetFound){
           let epath = enemy.moveToPoint(player.sprite.x, player.sprite.y);
 
@@ -541,7 +549,27 @@ function doStep(path){
             enemy.counter++;
           }
         }
+
+        if(!enemy.moved){
+          setTimeout(function(){
+            enemy.hitTarget(player);
+          }, 150);
+          if(enemy.hasActiveSigns)
+            enemy.showSignAbove('t_alert', alert_s);
+          if(enemy.health <= 0){ // remove enemy from the game if it's health <= 0
+            enemy.sprite.loadTexture("loot");
+            dead.play();
+            grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, true);
+            var z = enemies.indexOf(enemy);
+            if(z != -1) {
+            	enemies.splice(z, 1);
+            }
+          }
+        }
       }
+
+      player.setVisible();
+      player.doFOV();
 
       // if(i < path.length-1 && path[i][0] > path[i+1][0] && path[i][1] == path[i+1][1]){
       //   player.sprite.play("left");
@@ -555,8 +583,8 @@ function doStep(path){
       // if(i < path.length-1 && path[i][0] == path[i+1][0] && path[i][1] < path[i+1][1]){
       //   player.sprite.play("down");
       // }
-      countStep();
-      if(i == path.length - 1){
+      // countStep();
+      if(path && i == path.length - 1){
         clearInterval(player.moveTimer);
         // player.sprite.animations.stop();
       }
@@ -569,23 +597,23 @@ function doStep(path){
 
 function countStep(){
   step_count++;
-  for(let j in enemies){
-    if(!enemies[j].moved)
-      setTimeout(function(){
-        enemies[j].hitTarget(player);
-      }, 150);
-    if(enemies[j].hasActiveSigns)
-      enemies[j].showSignAbove('t_alert', alert_s);
-    if(enemies[j].health <= 0){ // remove enemy from the game if it's health <= 0
-      enemies[j].sprite.destroy();
-      dead.play();
-      grid.setWalkableAt(enemies[j].sprite.x/enemies[j].tile_size.w, enemies[j].sprite.y/enemies[j].tile_size.h, true);
-      var z = enemies.indexOf(enemies[j]);
-      if(z != -1) {
-      	enemies.splice(z, 1);
-      }
-    }
-  }
+  // for(let j in enemies){
+  //   if(!enemies[j].moved)
+  //     setTimeout(function(){
+  //       enemies[j].hitTarget(player);
+  //     }, 150);
+  //   if(enemies[j].hasActiveSigns)
+  //     enemies[j].showSignAbove('t_alert', alert_s);
+  //   if(enemies[j].health <= 0){ // remove enemy from the game if it's health <= 0
+  //     enemies[j].sprite.destroy();
+  //     dead.play();
+  //     grid.setWalkableAt(enemies[j].sprite.x/enemies[j].tile_size.w, enemies[j].sprite.y/enemies[j].tile_size.h, true);
+  //     var z = enemies.indexOf(enemies[j]);
+  //     if(z != -1) {
+  //     	enemies.splice(z, 1);
+  //     }
+  //   }
+  // }
 
 }
 
@@ -624,12 +652,16 @@ function preload() {
     stage.load.image('walls', "/images/spritesheet/Objects/Wall.png");
     stage.load.image('t_alert', "/images/alert.png");
     stage.load.image("t_hit", "/images/hit_particle.png");
+    stage.load.image("pl_dead", "/images/pl_dead.png");
+    stage.load.image("loot", "/images/loot.png");
 
     //AUDIO
+    stage.load.audio('game_over', "/sound/ascending.mp3");
     stage.load.audio('alert', "/sound/alert.wav");
     stage.load.audio('pl_hit', "/sound/pl_hit.wav");
     stage.load.audio('en_hit', "/sound/en_hit.wav");
     stage.load.audio('dead', "/sound/dead.wav");
+    stage.load.audio('pl_dead', "/sound/pl_dead.wav");
 
 }
 
@@ -722,6 +754,8 @@ function create() {
     en_hit = stage.add.audio('en_hit');
     pl_hit = stage.add.audio('pl_hit');
     dead = stage.add.audio('dead');
+    pl_dead = stage.add.audio('pl_dead');
+    game_over = stage.add.audio('game_over');
 
     target_sp = new Phaser.Sprite();
     stage.add.sprite(target_sp);
@@ -768,7 +802,7 @@ function create() {
 }
 
 function update(){
-  emitter.forEachAlive(function(p){		p.alpha= p.lifespan / emitter.lifespan;	});
+  emitter.forEachAlive(function(p){	p.tint = 0xCC1100;	p.alpha= p.lifespan / emitter.lifespan;	});
 }
 
 function render(){

@@ -8,8 +8,14 @@ canvas{
   top: 15px;
   margin: auto;
 }
+
+@font-face {
+  font-family: "8bit";
+  src: url("/fonts/Pxlvetica.ttf");
+}
+
 body{
-  font-family: "Helvetica", sans-serif;
+  font-family: "Pxlvetica", sans-serif;
   background: #000;
 }
 #container{
@@ -31,11 +37,6 @@ body{
 #container .item_cell:hover{
   background-size: cover!important;
   cursor: pointer;
-}
-
-@font-face {
-  font-family: "8bit";
-  src: url("/fonts/Pxlvetica.ttf");
 }
 #health_container{
   position: absolute;

@@ -56,6 +56,7 @@ let alert_s, pl_hit, en_hit, dead;
 
 let player_health, player_health_bg, pl_health_con = [];
 let emitter;
+let text;
 // let g = new PIXI.Graphics();
 
 // creating stage
@@ -522,8 +523,8 @@ function doStep(path){
         enemy.detectPlayer();
         enemy.moved = false;
         if(enemy.targetFound){
-          player.removePathAfter(path.length);
           let epath = enemy.moveToPoint(player.sprite.x, player.sprite.y);
+
           if(epath && enemy.counter < epath.length - 1){
             grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, true);
 
@@ -752,7 +753,7 @@ function create() {
       dragon.addToStage();
     }
 
-    emitter = stage.add.emitter(0, 0, 100);
+    emitter = stage.add.emitter(0, 0, 20);
 
     emitter.makeParticles('t_hit');
     emitter.gravity = 200;

@@ -177,6 +177,7 @@ class Player extends Tile{
     super(x, y, z_index, texture_path, name);
     this.player_path_map = [];
     this.sprite.alpha = 1;
+    this.state = 2;
     this.fovRadius = fovRadius;
     this.fov = [];
     this.state = 3;
@@ -201,6 +202,12 @@ class Player extends Tile{
   removePathAfter(path_length){
     if(this.player_path_map[path_length-1] && this.x == this.player_path_map[path_length-1].sprite.x/this.tile_size.w && this.y == this.player_path_map[path_length-1].sprite.y/this.tile_size.h)
       this.player_path_map[path_length-1].sprite.destroy();
+  }
+
+  removeWholePath(){
+    for(let i in this.player_path_map){
+      this.player_path_map[i].sprite.destroy();
+    }
   }
 
   checkHitAvailability(target){
@@ -243,7 +250,7 @@ class Player extends Tile{
       pl_dead.play();
       target.sprite.loadTexture("pl_dead");
       target.disableControl = true;
-      game_over.play();
+      // game_over.play();
     }
   }
 
@@ -420,7 +427,6 @@ class Enemy extends Player{
   constructor(x, y, z_index, texture_path, fovRadius, name, objects){
     super(x, y, z_index, texture_path, fovRadius, name);
     this.state = 0;
-    this.sprite.alpha = 0;
     this.targetFound = false;
     this.counter = 1;
 
@@ -445,6 +451,7 @@ class Enemy extends Player{
       if(this.fov[i].x == player.x*this.tile_size.w && this.fov[i].y == player.y*this.tile_size.h){
         this.targetFound = true;
         gameIsPaused = true;
+        player.removeWholePath();
         // console.log("%c DETECTED! ", "background-color: red; color: #fff");
         break;
         return 0;
@@ -482,18 +489,15 @@ class Weapon extends Item{
 
 
 function detectStateChange(tile){
-  if(tile){
+  if(tile && tile.name != "player"){
     switch(tile.state){
       case 0:
-        tile.sprite.alpha = 0;
-        // tile.sprite.tint = 0x000000;
+        tile.sprite.tint = 0x000000;
       break;
       case 1:
-        tile.sprite.alpha = 1;
         tile.sprite.tint = 0x333333;
       break;
       case 2:
-        tile.sprite.alpha = 1;
         tile.sprite.tint = 0xFFFFFF;
       break;
       case 3:
@@ -519,13 +523,11 @@ function doStep(path){
         player.x = path[i][0];
         player.y = path[i][1];
       }
-      // player.setVisible();
+      player.setVisible();
       player.doFOV();
       player.removePathAfter(i);
       player.centerCamera();
       player.moved = true;
-
-
 
       for(let j in enemies){
         let enemy = enemies[j];

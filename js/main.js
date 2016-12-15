@@ -376,7 +376,7 @@ class Player extends Tile{
 
   setVisible(){
     for(let i in all_sprites){
-      if(all_sprites[i].state > 1){
+      if(all_sprites[i] && all_sprites[i].state > 1){
         all_sprites[i].state = 1;
         detectStateChange(all_sprites[i]);
       }
@@ -486,14 +486,15 @@ function detectStateChange(tile){
     switch(tile.state){
       case 0:
         tile.sprite.alpha = 0;
+        // tile.sprite.tint = 0x000000;
       break;
       case 1:
-        tile.sprite.alpha = 0.5;
-        // tile.sprite.tint = 0x333333;
+        tile.sprite.alpha = 1;
+        tile.sprite.tint = 0x333333;
       break;
       case 2:
         tile.sprite.alpha = 1;
-        // tile.sprite.tint = 0xFFFFFF;
+        tile.sprite.tint = 0xFFFFFF;
       break;
       case 3:
         tile.sprite.alpha = 0.2;
@@ -600,7 +601,7 @@ function countStep(){
   // for(let j in enemies){
   //   if(!enemies[j].moved)
   //     setTimeout(function(){
-  //       enemies[j].hitTarget(player);
+  //       enemies[j].hitTarget(playerF);
   //     }, 150);
   //   if(enemies[j].hasActiveSigns)
   //     enemies[j].showSignAbove('t_alert', alert_s);
@@ -686,19 +687,19 @@ function create() {
     for(let i = 0; i < Dungeon.map_size; i++){
       collision_map[i] = [];
       for(let j = 0; j < Dungeon.map_size; j++){
-        if(Dungeon.map[i][j] == "c"){
-          let chest_01 = new Chest(i, j, 2, "/images/test_chest.png", "chest");
-          chest_01.container.push(wpn_01);
-          chest_01.container.push(wpn_02);
-          collision_map[i][j] = chest_01;
-          collision_map[i][j].addToStage();
-          grid.setWalkableAt(i, j, false);
-        }
+        // if(Dungeon.map[i][j] == "c"){
+        //   let chest_01 = new Chest(i, j, 2, "/images/test_chest.png", "chest");
+        //   chest_01.container.push(wpn_01);
+        //   chest_01.container.push(wpn_02);
+        //   collision_map[i][j] = chest_01;
+        //   collision_map[i][j].addToStage();
+        //   grid.setWalkableAt(i, j, false);
+        // }
         if(Dungeon.map[i][j] == 2){
           let wall_01 = new Tile(i, j, 2, 't_wall', "collision");
           collision_map[i][j] = wall_01;
-          collision_map[i][j].sprite.inputEnabled = false;
-          collision_map[i][j].addToStage();
+          wall_01.sprite.inputEnabled = false;
+          wall_01.addToStage();
           grid.setWalkableAt(i, j, false);
         }
 
@@ -746,7 +747,6 @@ function create() {
           all_sprites.push(sprite_map[i][j]);
       }
     }
-
 
     // SOUNDS
 

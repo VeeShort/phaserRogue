@@ -245,13 +245,14 @@ class Player extends Tile{
         pl_hit.play();
       }
       this.moved = true;
+      if(target.health <= 0 && target.name == "player"){
+        pl_dead.play();
+        target.sprite.loadTexture("pl_dead");
+        target.disableControl = true;
+        // game_over.play();
+      }
     }
-    if(target.health <= 0 && target.name == "player"){
-      pl_dead.play();
-      target.sprite.loadTexture("pl_dead");
-      target.disableControl = true;
-      // game_over.play();
-    }
+
   }
 
   //
@@ -434,7 +435,6 @@ class Enemy extends Player{
     this.attack = 5;
     this.collectEnemies();
 
-    this.counter = 1;
     this.doFOV();
     this.detectPlayer();
     this.moved = true;
@@ -533,8 +533,13 @@ function doStep(path){
         let enemy = enemies[j];
         enemy.counter = 1;
         enemy.moved = false;
+
+        // OPTIMIZE THIS FUNCTIONS //
         enemy.doFOV();
         enemy.detectPlayer();
+        // // // // // // // // // //
+
+        console.log("enemies loop");
         if(enemy.targetFound){
           let epath = enemy.moveToPoint(player.sprite.x, player.sprite.y);
 
@@ -553,23 +558,24 @@ function doStep(path){
           }
         }
 
-        if(!enemy.moved){
-          setTimeout(function(){
-            enemy.hitTarget(player);
-          }, 150);
-          if(enemy.hasActiveSigns)
-            enemy.showSignAbove('t_alert', alert_s);
-          if(enemy.health <= 0){ // remove enemy from the game if it's health <= 0
-            enemy.sprite.loadTexture("loot");
-            dead.play();
-            grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, true);
-            var z = enemies.indexOf(enemy);
-            if(z != -1) {
-            	enemies.splice(z, 1);
+
+          if(!enemy.moved){
+            setTimeout(function(){
+              enemy.hitTarget(player);
+            }, 150);
+            if(enemy.hasActiveSigns)
+              enemy.showSignAbove('t_alert', alert_s);
+            if(enemy.health <= 0){ // remove enemy from the game if it's health <= 0
+              enemy.sprite.destroy();
+              dead.play();
+              grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, true);
+              var z = enemies.indexOf(enemy);
+              if(z != -1) {
+              	enemies.splice(z, 1);
+              }
             }
           }
-        }
-      }
+    }
 
       player.setVisible();
       player.doFOV();
@@ -590,6 +596,9 @@ function doStep(path){
       if(path && i == path.length - 1){
         clearInterval(player.moveTimer);
         // player.sprite.animations.stop();
+      }
+      if(!path){
+        clearInterval(player.moveTimer);
       }
 
       i++;
@@ -639,6 +648,17 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
+function setRandomPos(){
+  let rand_pos;
+  while(rand_pos === undefined){
+    let point = all_sprites[getRandomInt(0, all_sprites.length-1)];
+    if(point && point.name && point.name == "floor" && point.sprite.x != player.sprite.x && point.sprite.y != player.sprite.x){
+      rand_pos = point;
+    }
+  }
+  return rand_pos;
+}
+
 
 function preload() {
     // SPRITSHEET
@@ -657,6 +677,7 @@ function preload() {
     stage.load.image("t_hit", "/images/hit_particle.png");
     stage.load.image("pl_dead", "/images/pl_dead.png");
     stage.load.image("loot", "/images/loot.png");
+    stage.load.image("skeleton", "/images/skeleton.png");
 
     //AUDIO
     stage.load.audio('game_over', "/sound/ascending.mp3");
@@ -765,13 +786,6 @@ function create() {
     // let en_01 = new Enemy(8, 5, 3, "/images/test_dragon.png", 3, "enemy");
     // // en_01.addToStage();
     //
-    let rand_pos = [];
-    for(let i = 0; i < 10; i++){
-      let ri = getRandomInt(0, all_sprites.length);
-      if(all_sprites[ri] && all_sprites[ri].name && all_sprites[ri].name == "floor"){
-        rand_pos.push(all_sprites[ri]);
-      }
-    }
 
     stage.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -786,8 +800,19 @@ function create() {
     player.doFOV();
     player.centerCamera();
 
-    for(let i = 0; i < rand_pos.length; i++){
-      let dragon = new Enemy(rand_pos[i].x/32, rand_pos[i].y/32, 3, "dummy", 4, "enemy");
+    for(let i = 0; i < 10; i++){
+      var rand_pos = setRandomPos();
+      var skeleton = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "skeleton", 4, "enemy");
+      skeleton.attack = 3;
+      skeleton.health = 25;
+      skeleton.addToStage();
+    }
+
+    for(let i = 0; i < 3; i++){
+      var rand_pos = setRandomPos();
+      var dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy");
+      dragon.attack = 10;
+      dragon.health = 45;
       dragon.addToStage();
     }
 
@@ -795,6 +820,8 @@ function create() {
 
     emitter.makeParticles('t_hit');
     emitter.gravity = 200;
+
+    doStep(false);
 
     // player movement animation
     // player.sprite.animations.add('left', [4, 5, 6, 7], 10, true);

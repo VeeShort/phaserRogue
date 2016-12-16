@@ -187,7 +187,6 @@ class Player extends Tile{
     this.moveDelay = 45; // default - 85, fast - 45
     this.isDetected = false;
     this.health = 100;
-    this.attack = 10;
     this.sign;
     this.moved = false;
     this.fovLines = 56;
@@ -453,15 +452,15 @@ class Enemy extends Player{
     super(x, y, z_index, texture_path, fovRadius, name, hero_name);
     this.state = 0;
     this.targetFound = false;
-    this.counter = 1;
     this.hasRanged = false;
     this.health = 50;
     this.attack = 5;
     this.collectEnemies();
 
+    this.counter = 1;
+    this.moved = false;
     this.doFOV();
     this.detectPlayer();
-    this.moved = true;
   }
 
   // push all created enemies to the enemy array
@@ -586,8 +585,8 @@ function doStep(path){
           setTimeout(function(){
             enemy.hitTarget(player);
           }, 150);
-          if(enemy.hasActiveSigns)
-            enemy.showSignAbove('t_alert', alert_s);
+          // if(enemy.hasActiveSigns)
+          //   enemy.showSignAbove('t_alert', alert_s);
           if(enemy.health <= 0){ // remove enemy from the game if it's health <= 0
             enemy.sprite.destroy();
             dead.play();
@@ -685,6 +684,7 @@ function preload() {
     stage.load.image("pl_dead", "/images/pl_dead.png");
     stage.load.image("loot", "/images/loot.png");
     stage.load.image("skeleton", "/images/skeleton.png");
+    stage.load.image("skeleton2", "/images/skeleton_2.png");
 
     //AUDIO
     stage.load.audio('game_over', "/sound/ascending.mp3");
@@ -732,35 +732,6 @@ function create() {
           wall_01.addToStage();
           grid.setWalkableAt(i, j, false);
         }
-
-        // if(Dungeon.map[i][j] == 2  && Dungeon.map[i][j+1] == 1){
-        //   let wall_01 = new Tile(i, j, 2, 'wall-t', "collision");
-        //   collision_map[i][j] = wall_01;
-        //   collision_map[i][j].sprite.inputEnabled = false;
-        //   collision_map[i][j].addToStage();
-        //   grid.setWalkableAt(i, j, false);
-        // }
-        // if(Dungeon.map[i][j] == 2  && Dungeon.map[i+1][j] == 2 && Dungeon.map[i][j+1] == 2){
-        //   let wall_01 = new Tile(i, j, 2, 'wall-t-c', "collision");
-        //   collision_map[i][j] = wall_01;
-        //   collision_map[i][j].sprite.inputEnabled = false;
-        //   collision_map[i][j].addToStage();
-        //   grid.setWalkableAt(i, j, false);
-        // }
-        // if(i > 0 && Dungeon.map[i][j] == 2  && (Dungeon.map[i+1][j] == 1 || Dungeon.map[i-1][j] == 1)){
-        //   let wall_01 = new Tile(i, j, 2, 'wall-side', "collision");
-        //   collision_map[i][j] = wall_01;
-        //   collision_map[i][j].sprite.inputEnabled = false;
-        //   collision_map[i][j].addToStage();
-        //   grid.setWalkableAt(i, j, false);
-        // }
-        // if(i > 0 && Dungeon.map[i][j] == 2 && Dungeon.map[i-1][j] == 1 && Dungeon.map[i][j+1] == 1){
-        //   let wall_01 = new Tile(i, j, 2, 'wall-t', "collision");
-        //   collision_map[i][j] = wall_01;
-        //   collision_map[i][j].sprite.inputEnabled = false;
-        //   collision_map[i][j].addToStage();
-        //   grid.setWalkableAt(i, j, false);
-        // }
       }
     }
 
@@ -778,8 +749,7 @@ function create() {
       }
     }
 
-    // SOUNDS
-
+    // // SOUNDS
     alert_s = stage.add.audio('alert');
     en_hit = stage.add.audio('en_hit');
     pl_hit = stage.add.audio('pl_hit');
@@ -790,29 +760,21 @@ function create() {
     target_sp = new Phaser.Sprite();
     stage.add.sprite(target_sp);
 
-    // let en_01 = new Enemy(8, 5, 3, "/images/test_dragon.png", 3, "enemy");
-    // // en_01.addToStage();
-    //
-
     // // ITEMS
     // WEAPONS
     // name, price, weight, description, icon, damage, type, equipable
     let dragon_claws = new Weapon("Dragon Claws", 0, 0, "These are very sharp", "n/a", 7, 10, "melee", true);
-    let fireball_sp = new Weapon("Spehere of Fire", 0, 0, "Regular fireball", "n/a", 10, 15, "ranged", true);
+    let fireball_sp = new Weapon("Sphere of Fire", 0, 0, "Regular fireball", "n/a", 10, 15, "ranged", true);
     let bone = new Weapon("Bone fists", 0 ,0, "Skeletons have these", "n/a", 1, 3, "melee", true);
-    let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 8, 10, "melee", true);
+    let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 10, 15, "melee", true);
+    let rusty_sword = new Weapon("Rusty Sword", 0, 0, "Ancient sword covered with rust", "n/a", 3, 6, "melee", true);
 
     stage.physics.startSystem(Phaser.Physics.ARCADE);
 
-    // player = new Player(1, 1, 3, "mc_player", 8, "player");
+    // SPAWN PLAYERS
     player = new Player(1, 1, 3, "t_player", 4, "player", "Hero");
     player.addToStage();
-
     player.equipItem(iron_sword, "main_hand");
-
-    // player_health = new Phaser.Rectangle(player.sprite.x - 11, player.sprite.y - 5, 50, 5);
-    // player_health_bg = new Phaser.Rectangle(player.sprite.x - 11, player.sprite.y - 5, 50, 5);
-
     player.setVisible();
     player.doFOV();
     player.centerCamera();
@@ -823,6 +785,14 @@ function create() {
       skeleton.health = 25;
       skeleton.equipItem(bone, "main_hand");
       skeleton.addToStage();
+    }
+
+    for(let i = 0; i < 5; i++){
+      var rand_pos = getRandomPos();
+      var skeleton2 = new Enemy(rand_pos.x/32, rand_pos.y/32, 4, "skeleton2", 4, "enemy", "angry skeleton");
+      skeleton2.health = 30;
+      skeleton2.equipItem(rusty_sword, "main_hand");
+      skeleton2.addToStage();
     }
 
     for(let i = 0; i < 3; i++){
@@ -854,6 +824,4 @@ function update(){
 }
 
 function render(){
-  // stage.debug.geom(player_health_bg,'#7a0303');
-  // stage.debug.geom(player_health,'#d10202');
 }

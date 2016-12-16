@@ -173,7 +173,7 @@ class Chest extends Tile{
 
 
 class Player extends Tile{
-  constructor(x, y, z_index, texture_path, fovRadius, name, health, attack){
+  constructor(x, y, z_index, texture_path, fovRadius, name, hero_name){
     super(x, y, z_index, texture_path, name);
     this.player_path_map = [];
     this.sprite.alpha = 1;
@@ -191,6 +191,7 @@ class Player extends Tile{
     this.sign;
     this.moved = false;
     this.fovLines = 56;
+    this.hero_name = hero_name;
 
     this.inventory = [];
 
@@ -245,14 +246,17 @@ class Player extends Tile{
       emitter.x = target.sprite.x + target.tile_size.w/2;
       emitter.y = target.sprite.y + target.tile_size.h/2;
 
+      //melee particles
       emitter.start(true, 800, null, 5);
-      target.health -= this.equiped["main_hand"].damage;
-      // console.log(target.name, "HP:", target.health);
+
+      let damage = getRandomInt(this.equiped["main_hand"].minDamage, this.equiped["main_hand"].maxDamage);
+      target.health -= damage;
+      console.log("["+this.hero_name + "]", "hits", "["+target.hero_name+"]", "with", damage, "damage");
       if(target.name == "player"){
         en_hit.play();
         var hp = $("#health");
         var hp_c = $("#health_container");
-        hp.width(target.health*hp_c.width()/100 - this.equiped["main_hand"].damage);
+        hp.width(target.health*hp_c.width()/100 - damage);
         // console.log(hp);
       }else{
         pl_hit.play();
@@ -263,6 +267,9 @@ class Player extends Tile{
         target.sprite.loadTexture("pl_dead");
         target.disableControl = true;
         // game_over.play();
+      }
+      if(target.health <= 0){
+        console.log("["+this.hero_name + "]", "killed", "["+target.hero_name+"]", "with", "["+this.equiped["main_hand"].name+"]");
       }
     }
 
@@ -442,8 +449,8 @@ class Player extends Tile{
 
 
 class Enemy extends Player{
-  constructor(x, y, z_index, texture_path, fovRadius, name, objects){
-    super(x, y, z_index, texture_path, fovRadius, name);
+  constructor(x, y, z_index, texture_path, fovRadius, name, hero_name){
+    super(x, y, z_index, texture_path, fovRadius, name, hero_name);
     this.state = 0;
     this.targetFound = false;
     this.counter = 1;
@@ -499,11 +506,12 @@ class Item{
 
 
 class Weapon extends Item{
-  constructor(name, price, weight, description, icon, damage, type, equipable){
+  constructor(name, price, weight, description, icon, minDamage, maxDamage, type, equipable){
     super(name, price, weight, description, icon);
     this.type = type;
     this.equipable = equipable;
-    this.damage = damage;
+    this.minDamage = minDamage;
+    this.maxDamage = maxDamage;
   }
 };
 
@@ -642,7 +650,9 @@ function unique(arr) {
 }
 
 function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function getRandomPos(){
@@ -787,16 +797,15 @@ function create() {
     // // ITEMS
     // WEAPONS
     // name, price, weight, description, icon, damage, type, equipable
-    let dragon_claws = new Weapon("Dragon Claws", 0, 0, "These are very sharp", "n/a", 10, "melee", true);
-    let fireball_sp = new Weapon("Spehere of Fire", 0, 0, "Regular fireball", "n/a", 15, "ranged", true);
-    let bone = new Weapon("Bone fists", 0 ,0, "Skeletons have these", "n/a", 3, "melee", true);
-
-    let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 10, "melee", true);
+    let dragon_claws = new Weapon("Dragon Claws", 0, 0, "These are very sharp", "n/a", 7, 10, "melee", true);
+    let fireball_sp = new Weapon("Spehere of Fire", 0, 0, "Regular fireball", "n/a", 10, 15, "ranged", true);
+    let bone = new Weapon("Bone fists", 0 ,0, "Skeletons have these", "n/a", 1, 3, "melee", true);
+    let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 8, 10, "melee", true);
 
     stage.physics.startSystem(Phaser.Physics.ARCADE);
 
     // player = new Player(1, 1, 3, "mc_player", 8, "player");
-    player = new Player(1, 1, 3, "t_player", 4, "player");
+    player = new Player(1, 1, 3, "t_player", 4, "player", "Hero");
     player.addToStage();
 
     player.equipItem(iron_sword, "main_hand");
@@ -810,7 +819,7 @@ function create() {
 
     for(let i = 0; i < 10; i++){
       var rand_pos = getRandomPos();
-      var skeleton = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "skeleton", 4, "enemy");
+      var skeleton = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "skeleton", 4, "enemy", "spooky skeleton");
       skeleton.health = 25;
       skeleton.equipItem(bone, "main_hand");
       skeleton.addToStage();
@@ -818,7 +827,7 @@ function create() {
 
     for(let i = 0; i < 3; i++){
       var rand_pos = getRandomPos();
-      var dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy");
+      var dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy", "red fire dragon");
       dragon.attack = 10;
       dragon.health = 45;
       dragon.equipItem(dragon_claws, "main_hand");

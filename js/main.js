@@ -336,6 +336,9 @@ class Player extends Tile{
 
 
   doFOV(){
+    if( this.name == "enemy" && this.fovRadius*this.tile_size.w < Math.sqrt((player.sprite.x - this.sprite.x)*(player.sprite.x - this.sprite.x) + (player.sprite.y - this.sprite.y)*(player.sprite.y - this.sprite.y)) ){
+      return false;
+    }
     this.fov = [];
 
     for(let ray = 0; ray < 64; ray++)
@@ -534,10 +537,8 @@ function doStep(path){
         enemy.counter = 1;
         enemy.moved = false;
 
-        // OPTIMIZE THIS FUNCTIONS //
         enemy.doFOV();
         enemy.detectPlayer();
-        // // // // // // // // // //
 
         console.log("enemies loop");
         if(enemy.targetFound){

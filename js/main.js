@@ -181,7 +181,8 @@ class Player extends Tile{
     this.fovRadius = fovRadius;
     this.fov = [];
     this.state = 3;
-    this.battleRadius = 1;
+    this.closeR = 1;
+    this.rangedR = 4;
     this.moveTimer;
     this.moveDelay = 45; // default - 85, fast - 45
     this.isDetected = false;
@@ -189,12 +190,24 @@ class Player extends Tile{
     this.attack = 10;
     this.sign;
     this.moved = false;
+    this.fovLines = 56;
+
+    this.inventory = [];
+
+    this.equiped = {
+      main_hand: undefined,
+      left_hand: undefined
+    }
 
     this.hasActiveSigns = false;
   }
 
-  centerCamera(){
+  equipItem(item, slot){
+    if(item.equipable)
+      this.equiped[slot] = item;
+  }
 
+  centerCamera(){
     stage.camera.x = this.sprite.x - 608/2 + this.tile_size.w/2 ;
     stage.camera.y = this.sprite.y - 608/2 + this.tile_size.h/2;
   }
@@ -228,18 +241,18 @@ class Player extends Tile{
   }
 
   hitTarget(target){
-    if(this.checkHitAvailability(target) && this.health > 0){
+    if(this.equiped["main_hand"] && this.equiped["main_hand"].type == "melee" && this.checkHitAvailability(target) && this.health > 0){
       emitter.x = target.sprite.x + target.tile_size.w/2;
       emitter.y = target.sprite.y + target.tile_size.h/2;
 
       emitter.start(true, 800, null, 5);
-      target.health -= this.attack;
+      target.health -= this.equiped["main_hand"].damage;
       // console.log(target.name, "HP:", target.health);
       if(target.name == "player"){
         en_hit.play();
         var hp = $("#health");
         var hp_c = $("#health_container");
-        hp.width(target.health*hp_c.width()/100 - this.attack);
+        hp.width(target.health*hp_c.width()/100 - this.equiped["main_hand"].damage);
         // console.log(hp);
       }else{
         pl_hit.play();
@@ -312,7 +325,7 @@ class Player extends Tile{
 
     let finder = new PF.AStarFinder({
       allowDiagonal: true,
-      dontCrossCorners: true
+      dontCrossCorners: false
     });
     let path = finder.findPath(Math.floor(this.sprite.x/this.tile_size.w), Math.floor(this.sprite.y/this.tile_size.h), Math.floor(px/this.tile_size.w), Math.floor(py/this.tile_size.h), grid.clone());
 
@@ -336,15 +349,16 @@ class Player extends Tile{
 
 
   doFOV(){
+    // check if player is in enemy's fov radius
     if( this.name == "enemy" && this.fovRadius*this.tile_size.w < Math.sqrt((player.sprite.x - this.sprite.x)*(player.sprite.x - this.sprite.x) + (player.sprite.y - this.sprite.y)*(player.sprite.y - this.sprite.y)) ){
       return false;
     }
     this.fov = [];
 
-    for(let ray = 0; ray < 64; ray++)
+    for(let ray = 0; ray < this.fovLines; ray++)
   	{
-      let x = Math.cos(ray * 0.0981747704);
-      let y = Math.sin(ray * 0.0981747704);
+      let x = Math.cos(ray * 360/this.fovLines*Math.PI/180);
+      let y = Math.sin(ray * 360/this.fovLines*Math.PI/180);
 
       let ox = this.sprite.x + this.tile_size.w/2;
       let oy = this.sprite.y + this.tile_size.h/2;
@@ -433,7 +447,7 @@ class Enemy extends Player{
     this.state = 0;
     this.targetFound = false;
     this.counter = 1;
-
+    this.hasRanged = false;
     this.health = 50;
     this.attack = 5;
     this.collectEnemies();
@@ -449,18 +463,19 @@ class Enemy extends Player{
   }
 
   detectPlayer(){
-
-    for(let i in this.fov){
-      if(this.fov[i].x == player.x*this.tile_size.w && this.fov[i].y == player.y*this.tile_size.h){
-        this.targetFound = true;
-        gameIsPaused = true;
-        player.removeWholePath();
-        // console.log("%c DETECTED! ", "background-color: red; color: #fff");
-        break;
-        return 0;
-      }else {
-        this.targetFound = false;
-        this.hasActiveSigns = false;
+    if(this.fov.length > 0){
+      for(let i in this.fov){
+        if(this.fov[i].x == player.x*this.tile_size.w && this.fov[i].y == player.y*this.tile_size.h){
+          this.targetFound = true;
+          gameIsPaused = true;
+          player.removeWholePath();
+          // console.log("%c DETECTED! ", "background-color: red; color: #fff");
+          break;
+          return 0;
+        }else {
+          this.targetFound = false;
+          this.hasActiveSigns = false;
+        }
       }
     }
 
@@ -484,8 +499,10 @@ class Item{
 
 
 class Weapon extends Item{
-  constructor(name, price, weight, description, icon, damage){
+  constructor(name, price, weight, description, icon, damage, type, equipable){
     super(name, price, weight, description, icon);
+    this.type = type;
+    this.equipable = equipable;
     this.damage = damage;
   }
 };
@@ -505,7 +522,6 @@ function detectStateChange(tile){
       break;
       case 3:
         tile.sprite.alpha = 0.2;
-        // tile.sprite.tint = 0xFFFFFF;
       break;
     }
   }
@@ -518,7 +534,7 @@ function doStep(path){
   clearInterval(player.moveTimer);
   player.moveTimer = setInterval(function(){
     if(!gameIsPaused){
-      // move playerayer to the next path section
+      // move player to the next path section
       if(path){
         // let path = player.moveToPoint(px, py);
         player.sprite.x = path[i][0] * player.tile_size.w;
@@ -540,7 +556,6 @@ function doStep(path){
         enemy.doFOV();
         enemy.detectPlayer();
 
-        console.log("enemies loop");
         if(enemy.targetFound){
           let epath = enemy.moveToPoint(player.sprite.x, player.sprite.y);
 
@@ -559,23 +574,22 @@ function doStep(path){
           }
         }
 
-
-          if(!enemy.moved){
-            setTimeout(function(){
-              enemy.hitTarget(player);
-            }, 150);
-            if(enemy.hasActiveSigns)
-              enemy.showSignAbove('t_alert', alert_s);
-            if(enemy.health <= 0){ // remove enemy from the game if it's health <= 0
-              enemy.sprite.destroy();
-              dead.play();
-              grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, true);
-              var z = enemies.indexOf(enemy);
-              if(z != -1) {
-              	enemies.splice(z, 1);
-              }
+        if(!enemy.moved){
+          setTimeout(function(){
+            enemy.hitTarget(player);
+          }, 150);
+          if(enemy.hasActiveSigns)
+            enemy.showSignAbove('t_alert', alert_s);
+          if(enemy.health <= 0){ // remove enemy from the game if it's health <= 0
+            enemy.sprite.destroy();
+            dead.play();
+            grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, true);
+            var z = enemies.indexOf(enemy);
+            if(z != -1) {
+            	enemies.splice(z, 1);
             }
           }
+        }
     }
 
       player.setVisible();
@@ -610,24 +624,6 @@ function doStep(path){
 
 function countStep(){
   step_count++;
-  // for(let j in enemies){
-  //   if(!enemies[j].moved)
-  //     setTimeout(function(){
-  //       enemies[j].hitTarget(playerF);
-  //     }, 150);
-  //   if(enemies[j].hasActiveSigns)
-  //     enemies[j].showSignAbove('t_alert', alert_s);
-  //   if(enemies[j].health <= 0){ // remove enemy from the game if it's health <= 0
-  //     enemies[j].sprite.destroy();
-  //     dead.play();
-  //     grid.setWalkableAt(enemies[j].sprite.x/enemies[j].tile_size.w, enemies[j].sprite.y/enemies[j].tile_size.h, true);
-  //     var z = enemies.indexOf(enemies[j]);
-  //     if(z != -1) {
-  //     	enemies.splice(z, 1);
-  //     }
-  //   }
-  // }
-
 }
 
 function unique(arr) {
@@ -649,7 +645,7 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function setRandomPos(){
+function getRandomPos(){
   let rand_pos;
   while(rand_pos === undefined){
     let point = all_sprites[getRandomInt(0, all_sprites.length-1)];
@@ -788,11 +784,22 @@ function create() {
     // // en_01.addToStage();
     //
 
+    // // ITEMS
+    // WEAPONS
+    // name, price, weight, description, icon, damage, type, equipable
+    let dragon_claws = new Weapon("Dragon Claws", 0, 0, "These are very sharp", "n/a", 10, "melee", true);
+    let fireball_sp = new Weapon("Spehere of Fire", 0, 0, "Regular fireball", "n/a", 15, "ranged", true);
+    let bone = new Weapon("Bone fists", 0 ,0, "Skeletons have these", "n/a", 3, "melee", true);
+
+    let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 10, "melee", true);
+
     stage.physics.startSystem(Phaser.Physics.ARCADE);
 
     // player = new Player(1, 1, 3, "mc_player", 8, "player");
     player = new Player(1, 1, 3, "t_player", 4, "player");
     player.addToStage();
+
+    player.equipItem(iron_sword, "main_hand");
 
     // player_health = new Phaser.Rectangle(player.sprite.x - 11, player.sprite.y - 5, 50, 5);
     // player_health_bg = new Phaser.Rectangle(player.sprite.x - 11, player.sprite.y - 5, 50, 5);
@@ -802,18 +809,20 @@ function create() {
     player.centerCamera();
 
     for(let i = 0; i < 10; i++){
-      var rand_pos = setRandomPos();
+      var rand_pos = getRandomPos();
       var skeleton = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "skeleton", 4, "enemy");
-      skeleton.attack = 3;
       skeleton.health = 25;
+      skeleton.equipItem(bone, "main_hand");
       skeleton.addToStage();
     }
 
     for(let i = 0; i < 3; i++){
-      var rand_pos = setRandomPos();
+      var rand_pos = getRandomPos();
       var dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy");
       dragon.attack = 10;
       dragon.health = 45;
+      dragon.equipItem(dragon_claws, "main_hand");
+      dragon.equipItem(fireball_sp);
       dragon.addToStage();
     }
 

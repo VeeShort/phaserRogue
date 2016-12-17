@@ -350,7 +350,7 @@ class Player extends Tile{
         let sm = sprite_map[Math.floor(ox/this.tile_size.w)][Math.floor(oy/this.tile_size.h)];
         let em = collision_map[Math.floor(ox/this.tile_size.w)][Math.floor(oy/this.tile_size.h)];
 
-        //looking for an enemy
+        // looking for an enemy
         if(this.name == "player"){
           this.lookForPlayer(sm);
 
@@ -534,10 +534,10 @@ function doStep(path){
         enemy.counter = 1;
         enemy.moved = false;
 
-        // OPTIMIZE THIS FUNCTIONS //
-        enemy.doFOV();
-        enemy.detectPlayer();
-        // // // // // // // // // //
+        if(enemy.state > 0){
+          enemy.doFOV();
+          enemy.detectPlayer();
+        }
 
         console.log("enemies loop");
         if(enemy.targetFound){

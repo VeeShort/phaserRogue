@@ -4,13 +4,6 @@ let canvas;
 let target_sp;
 let mc;
 
-let KEYS = {
-  W: 87,
-  A: 65,
-  S: 83,
-  D: 68
-}
-
 let chest_inv = document.getElementById("container");
 
 // let test_map = [["w", "w", "w", "w", "w", "w", "w", "w", "w"],
@@ -55,8 +48,12 @@ let gameIsPaused = false;
 let alert_s, pl_hit, en_hit, dead, pl_dead, game_over;
 
 let player_health, player_health_bg, pl_health_con = [];
+// PARTICLES
 let emitter, death_effect;
-let text;
+
+// KEYS
+let rKey;
+
 // let g = new PIXI.Graphics();
 
 // creating stage
@@ -185,18 +182,24 @@ class Player extends Tile{
     this.moveTimer;
     this.moveDelay = 45; // default - 85, fast - 45
     this.isDetected = false;
+
     this.health = undefined;
+    this.maxHealth = undefined;
+
+    this.magic = undefined;
+    this.maxMagic = undefined;
+
     this.sign;
     this.moved = false;
     this.fovLines = 56;
     this.hero_name = hero_name;
-    this.maxHealth = undefined;
+    this.inRangedCombat = false;
 
     this.inventory = [];
 
     this.equiped = {
       main_hand: undefined,
-      left_hand: undefined
+      off_hand: undefined
     }
 
     this.hasActiveSigns = false;
@@ -206,8 +209,15 @@ class Player extends Tile{
     this.health = hp;
     this.maxHealth = hp;
   }
+  setMagic(mp){
+    this.magic = mp;
+    this.maxMagic = mp;
+  }
 
   equipItem(item, slot){
+    if(this.name == "player"){
+      $("#pl-weapon").text(item.name);
+    }
     if(item.equipable)
       this.equiped[slot] = item;
   }
@@ -229,24 +239,32 @@ class Player extends Tile{
   }
 
   checkHitAvailability(target){
-    if(((target.sprite.x == this.sprite.x) && (target.sprite.y == this.sprite.y + this.tile_size.h))||                    // taget is on top
-       ((target.sprite.x == this.sprite.x) && (target.sprite.y == this.sprite.y - this.tile_size.h))||                    // target is on bottom
-       ((target.sprite.y == this.sprite.y) && (target.sprite.x == this.sprite.x - this.tile_size.h))||                    // target is on left
-       ((target.sprite.y == this.sprite.y) && (target.sprite.x == this.sprite.x + this.tile_size.h))||                    // taget is on right
-       ((target.sprite.x == this.sprite.x - this.tile_size.h) && (target.sprite.y == this.sprite.y - this.tile_size.h))|| // top left
-       ((target.sprite.x == this.sprite.x - this.tile_size.h) && (target.sprite.y == this.sprite.y + this.tile_size.h))|| // bottom left
-       ((target.sprite.x == this.sprite.x + this.tile_size.h) && (target.sprite.y == this.sprite.y - this.tile_size.h))|| // top right
-       ((target.sprite.x == this.sprite.x + this.tile_size.h) && (target.sprite.y == this.sprite.y + this.tile_size.h))   // bottom right
-    ){
-      return true;
-    }
-    else{
-      return false;
+    if(this.equiped["main_hand"].type == "melee"){
+      if(((target.sprite.x == this.sprite.x) && (target.sprite.y == this.sprite.y + this.tile_size.h))||                    // taget is on top
+         ((target.sprite.x == this.sprite.x) && (target.sprite.y == this.sprite.y - this.tile_size.h))||                    // target is on bottom
+         ((target.sprite.y == this.sprite.y) && (target.sprite.x == this.sprite.x - this.tile_size.h))||                    // target is on left
+         ((target.sprite.y == this.sprite.y) && (target.sprite.x == this.sprite.x + this.tile_size.h))||                    // taget is on right
+         ((target.sprite.x == this.sprite.x - this.tile_size.h) && (target.sprite.y == this.sprite.y - this.tile_size.h))|| // top left
+         ((target.sprite.x == this.sprite.x - this.tile_size.h) && (target.sprite.y == this.sprite.y + this.tile_size.h))|| // bottom left
+         ((target.sprite.x == this.sprite.x + this.tile_size.h) && (target.sprite.y == this.sprite.y - this.tile_size.h))|| // top right
+         ((target.sprite.x == this.sprite.x + this.tile_size.h) && (target.sprite.y == this.sprite.y + this.tile_size.h))   // bottom right
+      ){
+        return true;
+      }
+      else{
+        return false;
+      }
+    }else if(this.equiped["main_hand"].type == "ranged" && this.equiped["main_hand"].manaCost <= this.magic){
+      if(this.rangedR*this.tile_size.w >= Math.sqrt((target.sprite.x - this.sprite.x)*(target.sprite.x - this.sprite.x) + (target.sprite.y - this.sprite.y)*(target.sprite.y - this.sprite.y))){
+        return true;
+      }else{
+        return false;
+      }
     }
   }
 
   hitTarget(target){
-    if(this.equiped["main_hand"] && this.equiped["main_hand"].type == "melee" && this.checkHitAvailability(target) && this.health > 0){
+    if(this.equiped["main_hand"] && this.checkHitAvailability(target) && this.health > 0){
       emitter.x = target.sprite.x + target.tile_size.w/2;
       emitter.y = target.sprite.y + target.tile_size.h/2;
 
@@ -271,6 +289,13 @@ class Player extends Tile{
         var hp_c = $("#en-health_container");
         $("#en-current-hp").text(target.health);
         hp.width(target.health*hp_c.width()/target.maxHealth);
+
+        this.magic = this.magic - this.equiped["main_hand"].manaCost;
+
+        var mp = $("#magic");
+        var mp_c = $("#magic_container");
+        $("#current-mp").text(this.magic);
+        mp.width(this.magic*mp_c.width()/this.maxMagic);
       }
 
       if(target.health <= 0 && target.name == "player"){
@@ -295,6 +320,7 @@ class Player extends Tile{
       if(target.health <= 0){
         console.log("["+this.hero_name + "]", "killed", "["+target.hero_name+"]", "with", "["+this.equiped["main_hand"].name+"]");
       }
+
 
       // this.moved = true;
       doStep(false);
@@ -544,12 +570,13 @@ class Item{
 
 
 class Weapon extends Item{
-  constructor(name, price, weight, description, icon, minDamage, maxDamage, type, equipable){
+  constructor(name, price, weight, description, icon, minDamage, maxDamage, type, manaCost, equipable){
     super(name, price, weight, description, icon);
     this.type = type;
     this.equipable = equipable;
     this.minDamage = minDamage;
     this.maxDamage = maxDamage;
+    this.manaCost = manaCost;
   }
 };
 
@@ -793,26 +820,32 @@ function create() {
 
     // // ITEMS
     // WEAPONS
-    // name, price, weight, description, icon, damage, type, equipable
-    let dragon_claws = new Weapon("Dragon Claws", 0, 0, "These are very sharp", "n/a", 7, 10, "melee", true);
-    let fireball_sp = new Weapon("Sphere of Fire", 0, 0, "Regular fireball", "n/a", 10, 15, "ranged", true);
-    let bone = new Weapon("Bone fists", 0 ,0, "Skeletons have these", "n/a", 1, 3, "melee", true);
-    let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 10, 15, "melee", true);
-    let rusty_sword = new Weapon("Rusty Sword", 0, 0, "Ancient sword covered with rust", "n/a", 3, 6, "melee", true);
+    // name, price, weight, description, icon, damage, type, mana cost, equipable
+    let dragon_claws = new Weapon("Dragon Claws", 0, 0, "These are very sharp", "n/a", 7, 10, "melee", 0, true);
+    let bone = new Weapon("Bone fists", 0 ,0, "Skeletons have these", "n/a", 1, 3, "melee", 0, true);
+    let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 10, 15, "melee", 0, true);
+    let rusty_sword = new Weapon("Rusty Sword", 0, 0, "Ancient sword covered with rust", "n/a", 3, 6, "melee", 0, true);
+
+    let fireball_sp = new Weapon("Sphere of Fire", 0, 0, "Regular fireball", "n/a", 15, 25, "ranged", 1, true);
 
     // stage.physics.startSystem(Phaser.Physics.ARCADE);
 
     // SPAWN PLAYERS
     player = new Player(1, 1, 3, "t_player", 4, "player", "Hero");
     player.setHealth(50)
+    player.setMagic(5);
     player.addToStage();
     player.equipItem(iron_sword, "main_hand");
     player.setVisible();
     player.doFOV();
     player.centerCamera();
 
-    $("#max-hp").text(player.maxHealth);
     $("#current-hp").text(player.health);
+    $("#max-hp").text(player.maxHealth);
+
+    $("#current-mp").text(player.magic);
+    $("#max-mp").text(player.maxMagic);
+
     $("#pl-name").text(player.hero_name);
     $("#pl-weapon").text(player.equiped["main_hand"].name);
 
@@ -837,7 +870,6 @@ function create() {
       let dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy", "Red fire dragon");
       dragon.setHealth(45);
       dragon.equipItem(dragon_claws, "main_hand");
-      dragon.equipItem(fireball_sp);
       dragon.addToStage();
     }
 
@@ -852,7 +884,19 @@ function create() {
     death_effect.setYSpeed(-40, 10);
 	  death_effect.setXSpeed(-15, 15);
 
+    // INPUTS
+    // enabled ranged mode
+    rKey = stage.input.keyboard.addKey(Phaser.Keyboard.R);
 
+    rKey.onDown.add(function(){
+      if(!player.inRangedCombat){
+        player.inRangedCombat = true;
+        player.equipItem(fireball_sp, "main_hand");
+      }else{
+        player.inRangedCombat = false;
+        player.equipItem(iron_sword, "main_hand");
+      }
+    }, this);
     // player movement animation
     // player.sprite.animations.add('left', [4, 5, 6, 7], 10, true);
     // player.sprite.animations.add('right', [8, 9, 10, 11], 10, true);

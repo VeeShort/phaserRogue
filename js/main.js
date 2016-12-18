@@ -138,6 +138,7 @@ class Tile {
           player.hitTarget(this);
         }
         if(this.name && this.name == "player"){
+          updateLog("You choose to do nothing");
           doStep(false);
         }
 
@@ -864,14 +865,6 @@ function create() {
     for(let i = 0; i < Dungeon.map_size; i++){
       collision_map[i] = [];
       for(let j = 0; j < Dungeon.map_size; j++){
-        // if(Dungeon.map[i][j] == "c"){
-        //   let chest_01 = new Chest(i, j, 2, "/images/test_chest.png", "chest");
-        //   chest_01.container.push(wpn_01);
-        //   chest_01.container.push(wpn_02);
-        //   collision_map[i][j] = chest_01;
-        //   collision_map[i][j].addToStage();
-        //   grid.setWalkableAt(i, j, false);
-        // }
         if(Dungeon.map[i][j] == 2){
           let chance = getRandomInt(1,100);
           let wall_01;

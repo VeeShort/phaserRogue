@@ -967,7 +967,7 @@ function create() {
     $("#pl-weapon").text(player.equiped["main_hand"].name);
 
     $("#pl-dex").text(player.stat.dexterity);
-
+    $("#pl-arm").text(player.getTotalArmorPoints());
 
     for(let i = 0; i < 10; i++){
       let rand_pos = getRandomPos();

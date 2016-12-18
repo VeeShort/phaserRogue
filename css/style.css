@@ -105,6 +105,10 @@ body{
 
 .container.stats .pl-text{
   color: #009688;
+  width: 25%;
+  box-sizing: inherit;
+  display: block;
+  float: left;
 }
 
 #pl-name{

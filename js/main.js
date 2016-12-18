@@ -698,30 +698,30 @@ function getRandomPos(){
 function preload() {
     // SPRITSHEET
     // player walk animation
-    stage.load.spritesheet('mc_player', '/images/player_walk.png', 32, 32);
+    stage.load.spritesheet('mc_player', './images/player_walk.png', 32, 32);
 
     // SPRITES
-    stage.load.image('t_floor', '/images/test_floor.png');
-    stage.load.image('t_wall', '/images/test_wall.png');
-    stage.load.image('t_player', '/images/test_player.png');
-    stage.load.image('t_path', '/images/path_01.png');
-    stage.load.image('dummy', '/images/test_dragon.png');
-    stage.load.image("path_end", "/images/path_end.png")
-    stage.load.image('walls', "/images/spritesheet/Objects/Wall.png");
-    stage.load.image('t_alert', "/images/alert.png");
-    stage.load.image("t_hit", "/images/hit_particle.png");
-    stage.load.image("pl_dead", "/images/pl_dead.png");
-    stage.load.image("loot", "/images/loot.png");
-    stage.load.image("skeleton", "/images/skeleton.png");
-    stage.load.image("skeleton2", "/images/skeleton_2.png");
+    stage.load.image('t_floor', './images/test_floor.png');
+    stage.load.image('t_wall', './images/test_wall.png');
+    stage.load.image('t_player', './images/test_player.png');
+    stage.load.image('t_path', './images/path_01.png');
+    stage.load.image('dummy', './images/test_dragon.png');
+    stage.load.image("path_end", "./images/path_end.png")
+    stage.load.image('walls', "./images/spritesheet/Objects/Wall.png");
+    stage.load.image('t_alert', "./images/alert.png");
+    stage.load.image("t_hit", "./images/hit_particle.png");
+    stage.load.image("pl_dead", "./images/pl_dead.png");
+    stage.load.image("loot", "./images/loot.png");
+    stage.load.image("skeleton", "./images/skeleton.png");
+    stage.load.image("skeleton2", "./images/skeleton_2.png");
 
     //AUDIO
-    stage.load.audio('game_over', "/sound/ascending.mp3");
-    stage.load.audio('alert', "/sound/alert.wav");
-    stage.load.audio('pl_hit', "/sound/pl_hit.wav");
-    stage.load.audio('en_hit', "/sound/en_hit.wav");
-    stage.load.audio('dead', "/sound/dead.wav");
-    stage.load.audio('pl_dead', "/sound/pl_dead.wav");
+    stage.load.audio('game_over', "./sound/ascending.mp3");
+    stage.load.audio('alert', "./sound/alert.wav");
+    stage.load.audio('pl_hit', "./sound/pl_hit.wav");
+    stage.load.audio('en_hit', "./sound/en_hit.wav");
+    stage.load.audio('dead', "./sound/dead.wav");
+    stage.load.audio('pl_dead', "./sound/pl_dead.wav");
 
 }
 

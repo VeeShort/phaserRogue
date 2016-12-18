@@ -7,9 +7,35 @@
 </head>
 <body>
 
-  <div id="container" class="inventory"></div>
-  <div id="health_container">
-    <div id="health"></div>
+  <div class="ui-container">
+
+    <div class="container">
+      <p class="player-name" id="pl-name"></p>
+      <p class="pl-text">Health: <span id="current-hp"></span>/<span id="max-hp"></span></p>
+      <div id="health_container" class="bar-container">
+        <div id="health" class="bar health"></div>
+      </div>
+    </div>
+
+    <div class="container">
+      <p class="pl-text">Magic: <span id="current-mp">5</span>/<span id="max-mp">5</span></p>
+      <div id="magic_container" class="bar-container">
+        <div id="magic" class="bar magic"></div>
+      </div>
+    </div>
+
+    <div class="container weapon">
+      <p class="pl-text">Wp: <span id="pl-weapon"></span></p>
+    </div>
+
+    <div class="container target">
+      <p class="player-name" id="en-name"></p>
+      <p class="pl-text">Health: <span id="en-current-hp"></span>/<span id="en-max-hp"></span></p>
+      <div id="en-health_container" class="bar-container">
+        <div id="en-health" class="bar health"></div>
+      </div>
+    </div>
+
   </div>
 
   <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>

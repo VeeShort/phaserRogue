@@ -3,19 +3,17 @@
   margin: 0;
 }
 canvas{
-  position: absolute;
-  left: 15px;
-  top: 15px;
-  margin: auto;
+  margin: 15px;
+  float: right;
 }
 
 @font-face {
-  font-family: "8bit";
-  src: url("/fonts/Pxlvetica.ttf");
+  font-family: "iso9";
+  src: url("/fonts/Px437_IBM_ISO9.ttf");
 }
 
 body{
-  font-family: "Pxlvetica", sans-serif;
+  font-family: "iso9", sans-serif;
   background: #000;
 }
 #container{
@@ -38,21 +36,62 @@ body{
   background-size: cover!important;
   cursor: pointer;
 }
-#health_container{
-  position: absolute;
+
+.bar-container{
   width: 264px;
   height: 16px;
   right: 10px;
   top: 10px;
-  background: #c55656;
+  background: #000;
   z-index: 999;
   text-align: center;
   color: #fff;
-  font-family: "8bit";
   line-height: 32px;
+  float: right;
 }
-#health{
+
+.bar{
   height: 100%;
   width: 100%;
-  background: #a81e1e;
+}
+
+.health{
+  background: #52ff52;
+}
+.magic{
+  background: #0052ff;
+}
+.container{
+  width: 100%;
+  float: left;
+}
+.container:after{
+  content: '';
+  display: block;
+  clear: both;
+}
+.ui-container{
+  width: 450px;
+  float: right;
+  padding: 5px;
+}
+.pl-text{
+  display: inline-block;
+  color: lightblue;
+  font-size: 16px;
+}
+
+.pl-text span{
+  color: #ccc;
+}
+#pl-name{
+  color: darkseagreen;
+}
+#en-name{
+  color: coral;
+}
+
+.container.target{
+  opacity: 0;
+  margin-top: 10px;
 }

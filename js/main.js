@@ -288,7 +288,7 @@ class Player extends Tile{
         miss.play();
         updateLog("["+this.hero_name + "] misses ["+target.hero_name+"] with [" + this.equiped["main_hand"].name + "]");
       }
-
+      // if player is the taret
       if(target.name == "player"){
         en_hit.play();
         var hp = $("#health");
@@ -296,7 +296,7 @@ class Player extends Tile{
         $("#current-hp").text(target.health);
         hp.width(target.health*hp_c.width()/target.maxHealth);
       }else{
-
+        this.targetFound = true;
         $(".container.target").css("opacity", 1);
         switch(this.equiped["main_hand"].nature){
           case "fire":
@@ -763,7 +763,9 @@ function preload() {
 
     // SPRITES
     stage.load.image('t_floor', './images/test_floor.png');
+    stage.load.image('t_floor2', './images/test_floor2.png');
     stage.load.image('t_wall', './images/test_wall.png');
+    stage.load.image('t_wall2', './images/test_wall2.png');
     stage.load.image('pl_warrior', './images/pl_warrior.png');
     stage.load.image('pl_wizard', './images/pl_wizard.png');
     stage.load.image('t_path', './images/path_01.png');
@@ -807,7 +809,13 @@ function create() {
       sprite_map[i] = [];
       for(let j = 0; j < Dungeon.map_size; j++){
         if(Dungeon.map[i][j] == 1){
-          let floor = new Tile(i, j, 2, 't_floor', "floor");
+          let chance = getRandomInt(1,100);
+          let floor;
+          if(chance <= 80){
+            floor = new Tile(i, j, 2, 't_floor', "floor");
+          }else{
+            floor = new Tile(i, j, 2, 't_floor2', "floor");
+          }
           sprite_map[i][j] = floor;
           sprite_map[i][j].addToStage();
         }
@@ -827,7 +835,13 @@ function create() {
         //   grid.setWalkableAt(i, j, false);
         // }
         if(Dungeon.map[i][j] == 2){
-          let wall_01 = new Tile(i, j, 2, 't_wall', "collision");
+          let chance = getRandomInt(1,100);
+          let wall_01;
+          if(chance <= 80){
+            wall_01 = new Tile(i, j, 2, 't_wall', "collision");
+          }else{
+            wall_01 = new Tile(i, j, 2, 't_wall2', "collision");
+          }
           collision_map[i][j] = wall_01;
           wall_01.sprite.inputEnabled = false;
           wall_01.addToStage();

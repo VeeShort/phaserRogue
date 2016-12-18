@@ -283,11 +283,11 @@ class Player extends Tile{
 
       if(getRandomInt(1,100) > target.stat.dexterity) {
         target.health -= damage;
+        updateLog("["+this.hero_name + "] hits ["+target.hero_name+"] with "+ damage + " damage");
       } else {
         miss.play();
+        updateLog("["+this.hero_name + "] misses ["+target.hero_name+"] with [" + this.equiped["main_hand"].name + "]");
       }
-
-      console.log("["+this.hero_name + "]", "hits", "["+target.hero_name+"]", "with", damage, "damage");
 
       if(target.name == "player"){
         en_hit.play();
@@ -340,7 +340,7 @@ class Player extends Tile{
         $(".container.target").css("opacity", 0);
       }
       if(target.health <= 0){
-        console.log("["+this.hero_name + "]", "killed", "["+target.hero_name+"]", "with", "["+this.equiped["main_hand"].name+"]");
+        updateLog("["+this.hero_name + "] kills ["+target.hero_name+"] with [" + this.equiped["main_hand"].name + "]");
       }
 
       // this.moved = true;
@@ -621,6 +621,16 @@ function detectStateChange(tile){
         tile.sprite.alpha = 0.2;
       break;
     }
+  }
+}
+
+function updateLog(message){
+  $(".log-container").append($("<p/>",{
+    text: message,
+    class: "log-message"
+  }));
+  if($(".log-container").children().length > 5){
+    $(".log-container p").first().remove();
   }
 }
 
@@ -908,8 +918,9 @@ function create() {
     for(let i = 0; i < 10; i++){
       let rand_pos = getRandomPos();
       let skeleton = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "skeleton", 4, "enemy", "Spooky skeleton");
-      skeleton.x = rand_pos.x;
-      skeleton.y = rand_pos.y;
+      skeleton.stat.dexterity = 15;
+      skeleton.x = rand_pos.x/32;
+      skeleton.y = rand_pos.y/32;
       skeleton.setHealth(25);
       skeleton.equipItem(bone, "main_hand");
       skeleton.addToStage();
@@ -918,8 +929,9 @@ function create() {
     for(let i = 0; i < 5; i++){
       let rand_pos = getRandomPos();
       let skeleton2 = new Enemy(rand_pos.x/32, rand_pos.y/32, 4, "skeleton2", 4, "enemy", "Angry skeleton");
-      skeleton2.x = rand_pos.x;
-      skeleton2.y = rand_pos.y;
+      skeleton2.stat.dexterity = 30;
+      skeleton2.x = rand_pos.x/32;
+      skeleton2.y = rand_pos.y/32;
       skeleton2.setHealth(30);
       skeleton2.equipItem(rusty_sword, "main_hand");
       skeleton2.addToStage();
@@ -928,8 +940,9 @@ function create() {
     for(let i = 0; i < 3; i++){
       let rand_pos = getRandomPos();
       let dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy", "Red fire dragon");
-      dragon.x = rand_pos.x;
-      dragon.y = rand_pos.y;
+      dragon.stat.dexterity = 5;
+      dragon.x = rand_pos.x/32;
+      dragon.y = rand_pos.y/32;
       dragon.setHealth(45);
       dragon.equipItem(dragon_claws, "main_hand");
       dragon.addToStage();

@@ -548,7 +548,6 @@ class Enemy extends Player{
     this.counter = 1;
     this.doFOV();
     this.detectPlayer();
-    this.moved = true;
   }
 
   // push all created enemies to the enemy array
@@ -680,15 +679,13 @@ function doStep(path){
             grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, false);
             enemy.counter++;
           }
-        }
-
-        if(!enemy.moved){
-          setTimeout(function(){
-            enemy.hitTarget(player);
-          }, 150);
-          // if(enemy.hasActiveSigns)
-          //   enemy.showSignAbove('t_alert', alert_s);
-
+          if(!enemy.moved){
+            setTimeout(function(){
+              enemy.hitTarget(player);
+            }, 150);
+            // if(enemy.hasActiveSigns)
+            //   enemy.showSignAbove('t_alert', alert_s);
+          }
         }
     }
 

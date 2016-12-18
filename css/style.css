@@ -81,6 +81,7 @@ body{
   background: rgba(0,0,0,.3);
   padding: 5px;
   width: 500px;
+  pointer-events: none;
 }
 .log-message{
   margin-bottom: 5px;

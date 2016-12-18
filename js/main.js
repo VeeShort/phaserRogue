@@ -54,6 +54,10 @@ let emitter, death_effect;
 // KEYS
 let rKey;
 
+//CLASSES
+let isMage = false;
+let isWarrior = false;
+
 // let g = new PIXI.Graphics();
 
 // creating stage
@@ -178,7 +182,7 @@ class Player extends Tile{
     this.fov = [];
     this.state = 3;
     this.closeR = 1;
-    this.rangedR = 4;
+    this.rangedR = 5;
     this.moveTimer;
     this.moveDelay = 45; // default - 85, fast - 45
     this.isDetected = false;
@@ -526,6 +530,7 @@ class Enemy extends Player{
     this.counter = 1;
     this.doFOV();
     this.detectPlayer();
+    this.moved = true;
   }
 
   // push all created enemies to the enemy array
@@ -732,7 +737,8 @@ function preload() {
     // SPRITES
     stage.load.image('t_floor', './images/test_floor.png');
     stage.load.image('t_wall', './images/test_wall.png');
-    stage.load.image('t_player', './images/test_player.png');
+    stage.load.image('pl_warrior', './images/pl_warrior.png');
+    stage.load.image('pl_wizard', './images/pl_wizard.png');
     stage.load.image('t_path', './images/path_01.png');
     stage.load.image('dummy', './images/test_dragon.png');
     stage.load.image("path_end", "./images/path_end.png")
@@ -755,6 +761,14 @@ function preload() {
 }
 
 function create() {
+    // let plClass = prompt("Enter your class name [warrior or wizard]", 'warrior');
+
+    let plClass = "wizard";
+
+    if(plClass != "warrior" && plClass != "wizard"){
+      plClass = "warrior"
+    }
+
     stage.world.setBounds(-Dungeon.map_size*32, -Dungeon.map_size*32, Dungeon.map_size*32*4, Dungeon.map_size*32*4);
 
     grid = new PF.Grid(Dungeon.map_size, Dungeon.map_size);
@@ -831,11 +845,23 @@ function create() {
     // stage.physics.startSystem(Phaser.Physics.ARCADE);
 
     // SPAWN PLAYERS
-    player = new Player(1, 1, 3, "t_player", 4, "player", "Hero");
-    player.setHealth(50)
-    player.setMagic(5);
+    player = new Player(1, 1, 3, "pl_"+plClass, 4, "player", "Hero " + plClass);
+
+    switch(plClass){
+      case "warrior":
+        player.setHealth(50)
+        player.setMagic(5);
+        player.equipItem(iron_sword, "main_hand");
+      break;
+      case "wizard":
+        player.setHealth(25)
+        player.setMagic(25);
+        player.equipItem(fireball_sp, "main_hand");
+        player.inRangedCombat = true;
+      break;
+    }
+
     player.addToStage();
-    player.equipItem(iron_sword, "main_hand");
     player.setVisible();
     player.doFOV();
     player.centerCamera();

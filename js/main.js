@@ -45,7 +45,7 @@ let step_count = 0;
 let gameIsPaused = false;
 
 // SOUNDS
-let alert_s, pl_hit, en_hit, fire_hit, dead, pl_dead, game_over;
+let alert_s, pl_hit, en_hit, fire_hit, dead, pl_dead, game_over, miss;
 
 let player_health, player_health_bg, pl_health_con = [];
 // PARTICLES
@@ -193,6 +193,10 @@ class Player extends Tile{
     this.magic = undefined;
     this.maxMagic = undefined;
 
+    this.stat = {
+      dexterity: 20
+    }
+
     this.sign;
     this.moved = false;
     this.fovLines = 56;
@@ -276,7 +280,12 @@ class Player extends Tile{
       emitter.start(true, 800, null, 5);
 
       let damage = getRandomInt(this.equiped["main_hand"].minDamage, this.equiped["main_hand"].maxDamage);
-      target.health -= damage;
+
+      if(getRandomInt(1,100) > target.stat.dexterity) {
+        target.health -= damage;
+      } else {
+        miss.play();
+      }
 
       console.log("["+this.hero_name + "]", "hits", "["+target.hero_name+"]", "with", damage, "damage");
 
@@ -333,7 +342,6 @@ class Player extends Tile{
       if(target.health <= 0){
         console.log("["+this.hero_name + "]", "killed", "["+target.hero_name+"]", "with", "["+this.equiped["main_hand"].name+"]");
       }
-
 
       // this.moved = true;
       doStep(false);
@@ -485,12 +493,6 @@ class Player extends Tile{
   }
 
   setVisible(){
-    for(let i in all_sprites){
-      if(all_sprites[i] && all_sprites[i].state > 1){
-        all_sprites[i].state = 1;
-        detectStateChange(all_sprites[i]);
-      }
-    }
 
     // hide enemies when they are not in players FOV
     if(this.name == "player"){
@@ -501,6 +503,13 @@ class Player extends Tile{
             detectStateChange(enemies[j]);
           }
         }
+      }
+    }
+
+    for(let i in all_sprites){
+      if(all_sprites[i] && all_sprites[i].state > 1){
+        all_sprites[i].state = 1;
+        detectStateChange(all_sprites[i]);
       }
     }
   }
@@ -635,7 +644,6 @@ function doStep(path){
       player.doFOV();
       player.removePathAfter(i);
       player.centerCamera();
-      player.setVisible();
       player.moved = true;
 
       for(let j in enemies){
@@ -674,8 +682,8 @@ function doStep(path){
         }
     }
 
-      player.setVisible();
-      player.doFOV();
+    player.setVisible();
+    player.doFOV();
 
       // if(i < path.length-1 && path[i][0] > path[i+1][0] && path[i][1] == path[i+1][1]){
       //   player.sprite.play("left");
@@ -770,13 +778,14 @@ function preload() {
     stage.load.audio('fire_hit', "./sound/fire.wav");
     stage.load.audio('dead', "./sound/dead.wav");
     stage.load.audio('pl_dead', "./sound/pl_dead.wav");
+    stage.load.audio('miss', "./sound/miss.wav");
 
 }
 
 function create() {
     // let plClass = prompt("Enter your class name [warrior or wizard]", 'warrior');
 
-    let plClass = "wizard";
+    let plClass = "warrior";
 
     if(plClass != "warrior" && plClass != "wizard"){
       plClass = "warrior"
@@ -838,6 +847,7 @@ function create() {
     alert_s = stage.add.audio('alert');
     en_hit = stage.add.audio('en_hit');
     pl_hit = stage.add.audio('pl_hit');
+    miss = stage.add.audio('miss')
     fire_hit = stage.add.audio("fire_hit");
     dead = stage.add.audio('dead');
     pl_dead = stage.add.audio('pl_dead');
@@ -866,12 +876,14 @@ function create() {
         player.setHealth(50)
         player.setMagic(5);
         player.equipItem(iron_sword, "main_hand");
+        player.stat.dexterity = 30;
       break;
       case "wizard":
         player.setHealth(25)
         player.setMagic(25);
         player.equipItem(fireball_sp, "main_hand");
         player.inRangedCombat = true;
+        player.stat.dexterity = 15;
       break;
     }
 
@@ -887,11 +899,17 @@ function create() {
     $("#max-mp").text(player.maxMagic);
 
     $("#pl-name").text(player.hero_name);
+
     $("#pl-weapon").text(player.equiped["main_hand"].name);
+
+    $("#pl-dex").text(player.stat.dexterity);
+
 
     for(let i = 0; i < 10; i++){
       let rand_pos = getRandomPos();
       let skeleton = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "skeleton", 4, "enemy", "Spooky skeleton");
+      skeleton.x = rand_pos.x;
+      skeleton.y = rand_pos.y;
       skeleton.setHealth(25);
       skeleton.equipItem(bone, "main_hand");
       skeleton.addToStage();
@@ -900,6 +918,8 @@ function create() {
     for(let i = 0; i < 5; i++){
       let rand_pos = getRandomPos();
       let skeleton2 = new Enemy(rand_pos.x/32, rand_pos.y/32, 4, "skeleton2", 4, "enemy", "Angry skeleton");
+      skeleton2.x = rand_pos.x;
+      skeleton2.y = rand_pos.y;
       skeleton2.setHealth(30);
       skeleton2.equipItem(rusty_sword, "main_hand");
       skeleton2.addToStage();
@@ -908,6 +928,8 @@ function create() {
     for(let i = 0; i < 3; i++){
       let rand_pos = getRandomPos();
       let dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy", "Red fire dragon");
+      dragon.x = rand_pos.x;
+      dragon.y = rand_pos.y;
       dragon.setHealth(45);
       dragon.equipItem(dragon_claws, "main_hand");
       dragon.addToStage();

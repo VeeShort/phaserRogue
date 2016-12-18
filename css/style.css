@@ -84,11 +84,19 @@ body{
 .pl-text span{
   color: #ccc;
 }
+
+.container.stats .pl-text{
+  color: #009688;
+}
+
 #pl-name{
   color: darkseagreen;
 }
 #en-name{
   color: coral;
+}
+.container.stats{
+  margin: 5px 0;
 }
 
 .container.target{

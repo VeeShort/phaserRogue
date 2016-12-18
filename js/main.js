@@ -55,7 +55,7 @@ let gameIsPaused = false;
 let alert_s, pl_hit, en_hit, dead, pl_dead, game_over;
 
 let player_health, player_health_bg, pl_health_con = [];
-let emitter;
+let emitter, death_effect;
 let text;
 // let g = new PIXI.Graphics();
 
@@ -204,7 +204,7 @@ class Player extends Tile{
 
   setHealth(hp){
     this.health = hp;
-    this.maxHealth = this.health;
+    this.maxHealth = hp;
   }
 
   equipItem(item, slot){
@@ -277,6 +277,9 @@ class Player extends Tile{
         pl_dead.play();
         target.sprite.loadTexture("pl_dead");
         target.disableControl = true;
+        death_effect.x = target.sprite.x + target.tile_size.w/2;
+        death_effect.y = target.sprite.y + target.tile_size.h/2;
+        death_effect.start(false, 2000, 100);
         // game_over.play();
       }
       if(target.health <= 0 && target.name == "enemy"){ // remove target from the game if it's health <= 0
@@ -497,7 +500,6 @@ class Enemy extends Player{
     this.counter = 1;
     this.doFOV();
     this.detectPlayer();
-    this.moved = false;
   }
 
   // push all created enemies to the enemy array
@@ -559,7 +561,7 @@ function detectStateChange(tile){
         tile.sprite.tint = 0x000000;
       break;
       case 1:
-        tile.sprite.tint = 0x333333;
+        tile.sprite.tint = 0x5e5e5e;
       break;
       case 2:
         tile.sprite.tint = 0xFFFFFF;
@@ -595,10 +597,10 @@ function doStep(path){
       for(let j in enemies){
         let enemy = enemies[j];
         enemy.counter = 1;
-        enemy.moved = false;
 
         enemy.doFOV();
         enemy.detectPlayer();
+        enemy.moved = false;
 
         if(enemy.targetFound){
           let epath = enemy.moveToPoint(player.sprite.x, player.sprite.y);
@@ -798,7 +800,7 @@ function create() {
     let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 10, 15, "melee", true);
     let rusty_sword = new Weapon("Rusty Sword", 0, 0, "Ancient sword covered with rust", "n/a", 3, 6, "melee", true);
 
-    stage.physics.startSystem(Phaser.Physics.ARCADE);
+    // stage.physics.startSystem(Phaser.Physics.ARCADE);
 
     // SPAWN PLAYERS
     player = new Player(1, 1, 3, "t_player", 4, "player", "Hero");
@@ -840,9 +842,16 @@ function create() {
     }
 
     emitter = stage.add.emitter(0, 0, 20);
-
     emitter.makeParticles('t_hit');
     emitter.gravity = 200;
+
+    death_effect = stage.add.emitter(0, 0, 500);
+    death_effect.makeParticles("t_hit");
+    death_effect.gravity = 0;
+
+    death_effect.setYSpeed(-40, 10);
+	  death_effect.setXSpeed(-15, 15);
+
 
     // player movement animation
     // player.sprite.animations.add('left', [4, 5, 6, 7], 10, true);
@@ -853,6 +862,7 @@ function create() {
 
 function update(){
   emitter.forEachAlive(function(p){	p.tint = 0xCC1100;	p.alpha= p.lifespan / emitter.lifespan;	});
+  death_effect.forEachAlive(function(p){	p.tint = 0x333333;	p.alpha= p.lifespan / emitter.lifespan;	});
 }
 
 function render(){

@@ -113,6 +113,12 @@ body{
 #en-name{
   color: coral;
 }
+#en-port{
+  float: left;
+  margin-right: 10px;
+  width: 32px;
+  height: 32px;
+}
 .container.stats{
   margin: 5px 0;
 }

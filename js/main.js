@@ -207,10 +207,26 @@ class Player extends Tile{
 
     this.equiped = {
       main_hand: undefined,
-      off_hand: undefined
+      off_hand: undefined,
+      chest: undefined,
+      wrist: undefined,
+      boots: undefined,
+      waist: undefined,
+      pants: undefined,
+      helm: undefined
     }
 
     this.hasActiveSigns = false;
+  }
+
+  getTotalArmorPoints(){
+    let totalArmor = 0;
+    for(let i in this.equiped){
+      if(this.equiped[i] && this.equiped[i].armorValue){
+        totalArmor += this.equiped[i].armorValue;
+      }
+    }
+    return totalArmor;
   }
 
   setHealth(hp){
@@ -222,12 +238,16 @@ class Player extends Tile{
     this.maxMagic = mp;
   }
 
-  equipItem(item, slot){
-    if(this.name == "player"){
-      $("#pl-weapon").text(item.name);
+  equipItem(item){
+    if(item.type == "armor"){
+
+    }else{
+      if(this.name == "player"){
+        $("#pl-weapon").text(item.name);
+      }
+      if(item.equipable)
+        this.equiped[item.slot] = item;
     }
-    if(item.equipable)
-      this.equiped[slot] = item;
   }
 
   centerCamera(){
@@ -279,7 +299,13 @@ class Player extends Tile{
       //melee particles
       emitter.start(true, 800, null, 5);
 
+      // calculating weapon damage
       let damage = getRandomInt(this.equiped["main_hand"].minDamage, this.equiped["main_hand"].maxDamage);
+
+      // calculating damage multiplier
+      let d_mult = 1 - 0.06 * target.getTotalArmorPoints()/(1 + (0.06*target.getTotalArmorPoints()));
+
+      damage = Math.floor(damage * d_mult);
 
       if(getRandomInt(1,100) > target.stat.dexterity) {
         target.health -= damage;
@@ -350,6 +376,7 @@ class Player extends Tile{
       if(target.health > 0){
         $(".container.target").css("opacity", 1);
       }
+      $("#en-port").attr("src", target.portrait);
       $("#en-name").text(target.hero_name);
       var hp = $("#en-health");
       $("#en-max-hp").text(target.maxHealth);
@@ -536,7 +563,7 @@ class Player extends Tile{
 
 
 class Enemy extends Player{
-  constructor(x, y, z_index, texture_path, fovRadius, name, hero_name){
+  constructor(x, y, z_index, texture_path, fovRadius, name, hero_name, portrait){
     super(x, y, z_index, texture_path, fovRadius, name, hero_name);
     this.state = 0;
     this.targetFound = false;
@@ -544,6 +571,7 @@ class Enemy extends Player{
     this.health = 50;
     this.attack = 5;
     this.collectEnemies();
+    this.portrait = portrait;
 
     this.counter = 1;
     this.doFOV();
@@ -592,7 +620,7 @@ class Item{
 
 
 class Weapon extends Item{
-  constructor(name, price, weight, description, icon, minDamage, maxDamage, type, manaCost, nature, equipable){
+  constructor(name, price, weight, description, icon, minDamage, maxDamage, type, manaCost, nature, equipable, slot){
     super(name, price, weight, description, icon);
     this.type = type;
     this.equipable = equipable;
@@ -600,6 +628,16 @@ class Weapon extends Item{
     this.maxDamage = maxDamage;
     this.manaCost = manaCost;
     this.nature = nature;
+    this.slot = slot;
+  }
+};
+
+class Armor extends Item{
+  constructor(name, price, weight, description, icon, armorValue, equipable, slot){
+    super(name, price, weight, description, icon);
+    this.equipable = equipable;
+    this.slot = slot;
+    this.armorValue = armorValue;
   }
 };
 
@@ -880,12 +918,16 @@ function create() {
     // // ITEMS
     // WEAPONS
     // name, price, weight, description, icon, damage, type, mana cost, equipable
-    let dragon_claws = new Weapon("Dragon Claws", 0, 0, "These are very sharp", "n/a", 7, 10, "melee", 0, "default", true);
-    let bone = new Weapon("Bone fists", 0 ,0, "Skeletons have these", "n/a", 1, 3, "melee", 0, "default", true);
-    let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 10, 15, "melee", 0, "default", true);
-    let rusty_sword = new Weapon("Rusty Sword", 0, 0, "Ancient sword covered with rust", "n/a", 3, 6, "melee", 0, "default", true);
+    let dragon_claws = new Weapon("Dragon Claws", 0, 0, "These are very sharp", "n/a", 7, 10, "melee", 0, "default", true, "main_hand");
+    let bone = new Weapon("Bone fists", 0 ,0, "Skeletons have these", "n/a", 1, 3, "melee", 0, "default", true, "main_hand");
+    let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 10, 15, "melee", 0, "default", true, "main_hand");
+    let rusty_sword = new Weapon("Rusty Sword", 0, 0, "Ancient sword covered with rust", "n/a", 3, 6, "melee", 0, "default", true, "main_hand");
 
-    let fireball_sp = new Weapon("Sphere of Fire", 0, 0, "Regular fireball", "n/a", 15, 25, "ranged", 1, "fire", true);
+    let fireball_sp = new Weapon("Sphere of Fire", 0, 0, "Regular fireball", "n/a", 15, 25, "ranged", 1, "fire", true, "main_hand");
+
+    // ARMOR
+    // name, price, weight, description, icon, armorValue, equipable, slot
+    let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "n/a", 15, true, "chest");
 
     // stage.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -894,15 +936,16 @@ function create() {
 
     switch(plClass){
       case "warrior":
-        player.setHealth(50)
+        player.setHealth(50);
         player.setMagic(5);
-        player.equipItem(iron_sword, "main_hand");
+        player.equipItem(iron_sword);
+        player.equipItem(iron_chest);
         player.stat.dexterity = 30;
       break;
       case "wizard":
-        player.setHealth(25)
+        player.setHealth(25);
         player.setMagic(25);
-        player.equipItem(fireball_sp, "main_hand");
+        player.equipItem(fireball_sp);
         player.inRangedCombat = true;
         player.stat.dexterity = 15;
       break;
@@ -928,34 +971,34 @@ function create() {
 
     for(let i = 0; i < 10; i++){
       let rand_pos = getRandomPos();
-      let skeleton = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "skeleton", 4, "enemy", "Spooky skeleton");
+      let skeleton = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "skeleton", 4, "enemy", "Spooky skeleton", "./images/skeleton_port.png");
       skeleton.stat.dexterity = 15;
       skeleton.x = rand_pos.x/32;
       skeleton.y = rand_pos.y/32;
       skeleton.setHealth(25);
-      skeleton.equipItem(bone, "main_hand");
+      skeleton.equipItem(bone);
       skeleton.addToStage();
     }
 
     for(let i = 0; i < 5; i++){
       let rand_pos = getRandomPos();
-      let skeleton2 = new Enemy(rand_pos.x/32, rand_pos.y/32, 4, "skeleton2", 4, "enemy", "Angry skeleton");
+      let skeleton2 = new Enemy(rand_pos.x/32, rand_pos.y/32, 4, "skeleton2", 4, "enemy", "Angry skeleton", "./images/skeleton2_port.png");
       skeleton2.stat.dexterity = 30;
       skeleton2.x = rand_pos.x/32;
       skeleton2.y = rand_pos.y/32;
       skeleton2.setHealth(30);
-      skeleton2.equipItem(rusty_sword, "main_hand");
+      skeleton2.equipItem(rusty_sword);
       skeleton2.addToStage();
     }
 
     for(let i = 0; i < 3; i++){
       let rand_pos = getRandomPos();
-      let dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy", "Red fire dragon");
+      let dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy", "Red fire dragon", "./images/dragon_port.png");
       dragon.stat.dexterity = 5;
       dragon.x = rand_pos.x/32;
       dragon.y = rand_pos.y/32;
       dragon.setHealth(45);
-      dragon.equipItem(dragon_claws, "main_hand");
+      dragon.equipItem(dragon_claws);
       dragon.addToStage();
     }
 

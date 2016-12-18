@@ -45,7 +45,7 @@ let step_count = 0;
 let gameIsPaused = false;
 
 // SOUNDS
-let alert_s, pl_hit, en_hit, dead, pl_dead, game_over;
+let alert_s, pl_hit, en_hit, fire_hit, dead, pl_dead, game_over;
 
 let player_health, player_health_bg, pl_health_con = [];
 // PARTICLES
@@ -287,8 +287,17 @@ class Player extends Tile{
         $("#current-hp").text(target.health);
         hp.width(target.health*hp_c.width()/target.maxHealth);
       }else{
+
         $(".container.target").css("opacity", 1);
-        pl_hit.play();
+        switch(this.equiped["main_hand"].nature){
+          case "fire":
+            fire_hit.play();
+          break;
+          case "default":
+            pl_hit.play();
+          break;
+        }
+
         var hp = $("#en-health");
         var hp_c = $("#en-health_container");
         $("#en-current-hp").text(target.health);
@@ -575,13 +584,14 @@ class Item{
 
 
 class Weapon extends Item{
-  constructor(name, price, weight, description, icon, minDamage, maxDamage, type, manaCost, equipable){
+  constructor(name, price, weight, description, icon, minDamage, maxDamage, type, manaCost, nature, equipable){
     super(name, price, weight, description, icon);
     this.type = type;
     this.equipable = equipable;
     this.minDamage = minDamage;
     this.maxDamage = maxDamage;
     this.manaCost = manaCost;
+    this.nature = nature;
   }
 };
 
@@ -620,10 +630,12 @@ function doStep(path){
         player.x = path[i][0];
         player.y = path[i][1];
       }
+
       player.setVisible();
       player.doFOV();
       player.removePathAfter(i);
       player.centerCamera();
+      player.setVisible();
       player.moved = true;
 
       for(let j in enemies){
@@ -755,6 +767,7 @@ function preload() {
     stage.load.audio('alert', "./sound/alert.wav");
     stage.load.audio('pl_hit', "./sound/pl_hit.wav");
     stage.load.audio('en_hit', "./sound/en_hit.wav");
+    stage.load.audio('fire_hit', "./sound/fire.wav");
     stage.load.audio('dead', "./sound/dead.wav");
     stage.load.audio('pl_dead', "./sound/pl_dead.wav");
 
@@ -825,6 +838,7 @@ function create() {
     alert_s = stage.add.audio('alert');
     en_hit = stage.add.audio('en_hit');
     pl_hit = stage.add.audio('pl_hit');
+    fire_hit = stage.add.audio("fire_hit");
     dead = stage.add.audio('dead');
     pl_dead = stage.add.audio('pl_dead');
     game_over = stage.add.audio('game_over');
@@ -835,12 +849,12 @@ function create() {
     // // ITEMS
     // WEAPONS
     // name, price, weight, description, icon, damage, type, mana cost, equipable
-    let dragon_claws = new Weapon("Dragon Claws", 0, 0, "These are very sharp", "n/a", 7, 10, "melee", 0, true);
-    let bone = new Weapon("Bone fists", 0 ,0, "Skeletons have these", "n/a", 1, 3, "melee", 0, true);
-    let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 10, 15, "melee", 0, true);
-    let rusty_sword = new Weapon("Rusty Sword", 0, 0, "Ancient sword covered with rust", "n/a", 3, 6, "melee", 0, true);
+    let dragon_claws = new Weapon("Dragon Claws", 0, 0, "These are very sharp", "n/a", 7, 10, "melee", 0, "default", true);
+    let bone = new Weapon("Bone fists", 0 ,0, "Skeletons have these", "n/a", 1, 3, "melee", 0, "default", true);
+    let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 10, 15, "melee", 0, "default", true);
+    let rusty_sword = new Weapon("Rusty Sword", 0, 0, "Ancient sword covered with rust", "n/a", 3, 6, "melee", 0, "default", true);
 
-    let fireball_sp = new Weapon("Sphere of Fire", 0, 0, "Regular fireball", "n/a", 15, 25, "ranged", 1, true);
+    let fireball_sp = new Weapon("Sphere of Fire", 0, 0, "Regular fireball", "n/a", 15, 25, "ranged", 1, "fire", true);
 
     // stage.physics.startSystem(Phaser.Physics.ARCADE);
 

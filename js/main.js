@@ -182,7 +182,7 @@ class Player extends Tile{
     this.fovRadius = fovRadius;
     this.fov = [];
     this.state = 3;
-    this.closeR = 1;
+    this.meleeR = 1;
     this.rangedR = 5;
     this.moveTimer;
     this.moveDelay = 45; // default - 85, fast - 45
@@ -203,6 +203,7 @@ class Player extends Tile{
     this.fovLines = 56;
     this.hero_name = hero_name;
     this.inRangedCombat = false;
+    this.activeWeapon = undefined;
 
     this.inventory = [];
 
@@ -234,20 +235,18 @@ class Player extends Tile{
     this.health = hp;
     this.maxHealth = hp;
   }
+
   setMagic(mp){
     this.magic = mp;
     this.maxMagic = mp;
   }
 
   equipItem(item){
-    if(item.type == "armor"){
-
-    }else{
-      if(this.name == "player"){
-        $("#pl-weapon").text(item.name);
+    if(item.equipable){
+      this.equiped[item.slot] = item;
+      if((item.type == "melee" || item.type == "ranged") && item.slot == "main_hand"){
+        this.activeWeapon = item;
       }
-      if(item.equipable)
-        this.equiped[item.slot] = item;
     }
   }
 
@@ -267,8 +266,24 @@ class Player extends Tile{
     }
   }
 
+  changeActiveWeapon(){
+    if(this.equiped["main_hand"] == this.activeWeapon && this.equiped["off_hand"]){
+      this.activeWeapon = this.equiped["off_hand"];
+      if(this.name == "player"){
+        $("#pl-weapon").text(this.activeWeapon.name);
+      }
+    }else if(this.equiped["off_hand"] == this.activeWeapon && this.equiped["main_hand"]){
+      this.activeWeapon = this.equiped["main_hand"];
+      if(this.name == "player"){
+        $("#pl-weapon").text(this.activeWeapon.name);
+      }
+    }else{
+      return false;
+    }
+  }
+
   checkHitAvailability(target){
-    if(this.equiped["main_hand"].type == "melee"){
+    if(this.activeWeapon.type == "melee" && this.activeWeapon.manaCost <= this.magic){
       if(((target.sprite.x == this.sprite.x) && (target.sprite.y == this.sprite.y + this.tile_size.h))||                    // taget is on top
          ((target.sprite.x == this.sprite.x) && (target.sprite.y == this.sprite.y - this.tile_size.h))||                    // target is on bottom
          ((target.sprite.y == this.sprite.y) && (target.sprite.x == this.sprite.x - this.tile_size.h))||                    // target is on left
@@ -283,8 +298,8 @@ class Player extends Tile{
       else{
         return false;
       }
-    }else if(this.equiped["main_hand"].type == "ranged" && this.equiped["main_hand"].manaCost <= this.magic){
-      if(this.rangedR*this.tile_size.w >= Math.sqrt((target.sprite.x - this.sprite.x)*(target.sprite.x - this.sprite.x) + (target.sprite.y - this.sprite.y)*(target.sprite.y - this.sprite.y))){
+    }else if(this.activeWeapon.type == "ranged" && this.activeWeapon.manaCost <= this.magic){
+      if(this.rangedR*this.tile_size.w >= Math.sqrt((target.sprite.x+16 - this.sprite.x+16)*(target.sprite.x+16 - this.sprite.x+16) + (target.sprite.y+16 - this.sprite.y+16)*(target.sprite.y+16 - this.sprite.y+16))){
         return true;
       }else{
         return false;
@@ -293,90 +308,84 @@ class Player extends Tile{
   }
 
   hitTarget(target){
-    if(this.equiped["main_hand"] && this.checkHitAvailability(target) && this.health > 0){
+    if(target.health > 0 && this.checkHitAvailability(target)){
+      // position the hit particles on target's position
       emitter.x = target.sprite.x + target.tile_size.w/2;
       emitter.y = target.sprite.y + target.tile_size.h/2;
 
-      //melee particles
+      // start to draw melee particles
       emitter.start(true, 800, null, 5);
 
       // calculating weapon damage
-      let damage = getRandomInt(this.equiped["main_hand"].minDamage, this.equiped["main_hand"].maxDamage);
+      let damage = getRandomInt(this.activeWeapon.minDamage, this.activeWeapon.maxDamage);
 
       // calculating damage multiplier
       let d_mult = 1 - 0.06 * target.getTotalArmorPoints()/(1 + (0.06*target.getTotalArmorPoints()));
 
+      // calculating final damage dealt to the target
       damage = Math.floor(damage * d_mult);
 
-      if(getRandomInt(1,100) > target.stat.dexterity) {
-        target.health -= damage;
-        updateLog("["+this.hero_name + "] hits ["+target.hero_name+"] with "+ damage + " damage");
-      } else {
-        miss.play();
-        updateLog("["+this.hero_name + "] misses ["+target.hero_name+"] with [" + this.equiped["main_hand"].name + "]");
-      }
-      // if player is the taret
-      if(target.name == "player"){
-        if(damage > 0){
-          en_hit.play();
-        }else{
-          bad_hit.play();
-        }
-        var hp = $("#health");
-        var hp_c = $("#health_container");
-        $("#current-hp").text(target.health);
-        hp.width(target.health*hp_c.width()/target.maxHealth);
-      }else{
-        this.targetFound = true;
-        $(".container.target").css("opacity", 1);
-        switch(this.equiped["main_hand"].nature){
+      // play hit sound or absorb damage sound
+      if(damage > 0){
+        // target is hit
+        switch (this.activeWeapon.nature) {
           case "fire":
             fire_hit.play();
           break;
-          case "default":
-            pl_hit.play();
-          break;
         }
-
-        var hp = $("#en-health");
-        var hp_c = $("#en-health_container");
-        $("#en-current-hp").text(target.health);
-        hp.width(target.health*hp_c.width()/target.maxHealth);
-
-        this.magic = this.magic - this.equiped["main_hand"].manaCost;
-
-        var mp = $("#magic");
-        var mp_c = $("#magic_container");
-        $("#current-mp").text(this.magic);
-        mp.width(this.magic*mp_c.width()/this.maxMagic);
+        en_hit.play();
+      }else{
+        // target absorbs damage
+        bad_hit.play();
       }
 
-      if(target.health <= 0 && target.name == "player"){
-        pl_dead.play();
-        target.sprite.loadTexture("pl_dead");
-        target.disableControl = true;
-        death_effect.x = target.sprite.x + target.tile_size.w/2;
-        death_effect.y = target.sprite.y + target.tile_size.h/2;
-        death_effect.start(false, 2000, 100);
-        // game_over.play();
+      // recalculating players magic points relative to mana cost of the used weapon
+      this.magic = this.magic - this.activeWeapon.manaCost;
+
+      // calculating hit/miss rates relative to target's dexterity stat
+      if(getRandomInt(1,100) > target.stat.dexterity) {
+        // target is hit
+        target.health -= damage;
+        updateLog("["+this.hero_name + "] hits ["+target.hero_name+"] with "+ damage + " damage");
+      } else {
+        // target is missed
+        miss.play();
+        updateLog("["+this.hero_name + "] misses ["+target.hero_name+"] with [" + this.activeWeapon.name + "]");
       }
-      if(target.health <= 0 && target.name == "enemy"){ // remove target from the game if it's health <= 0
-        target.sprite.destroy();
-        dead.play();
-        grid.setWalkableAt(target.sprite.x/target.tile_size.w, target.sprite.y/target.tile_size.h, true);
-        var z = enemies.indexOf(target);
-        if(z != -1) {
-          enemies.splice(z, 1);
-        }
-        $(".container.target").css("opacity", 0);
-      }
+
+      // update user interface information on hit (like health, magic, etc.)
+      updateUI(this, target);
+
+      // if current hit was fatal
       if(target.health <= 0){
-        updateLog("["+this.hero_name + "] kills ["+target.hero_name+"] with [" + this.equiped["main_hand"].name + "]");
+        updateLog("["+this.hero_name + "] kills ["+target.hero_name+"] with [" + this.activeWeapon.name + "]");
+
+        // death of the hero player
+        if(target.name == "player"){
+          pl_dead.play();
+          target.sprite.loadTexture("pl_dead");
+          target.disableControl = true;
+          death_effect.x = target.sprite.x + target.tile_size.w/2;
+          death_effect.y = target.sprite.y + target.tile_size.h/2;
+          death_effect.start(false, 2000, 100);
+        }else{
+          // death of other stuff (like enemies)
+          target.sprite.destroy();
+          dead.play();
+          grid.setWalkableAt(target.sprite.x/target.tile_size.w, target.sprite.y/target.tile_size.h, true);
+          var z = enemies.indexOf(target);
+          if(z != -1) {
+            enemies.splice(z, 1);
+          }
+          $(".container.target").css("opacity", 0);
+        }
       }
 
-      // this.moved = true;
+      // count current hit attempt as step
       doStep(false);
     }
+
+    // update enemy UI info
     if(target.name == "enemy"){
       if(target.health > 0){
         $(".container.target").css("opacity", 1);
@@ -389,49 +398,7 @@ class Player extends Tile{
       $("#en-current-hp").text(target.health);
       hp.width(target.health*hp_c.width()/target.maxHealth);
     }
-
-
   }
-
-  //
-  // movePlayer(){
-  //   let self = this;
-  //   document.onkeydown = function(ev){
-  //     switch(ev.keyCode){
-  //       case KEYS.W:
-  //         self.y -= self.tile_size.h;
-  //       break;
-  //       case KEYS.A:
-  //         self.x -= self.tile_size.w;
-  //       break;
-  //       case KEYS.S:
-  //         self.y += self.tile_size.h;
-  //       break;
-  //       case KEYS.D:
-  //         self.x += self.tile_size.w;
-  //       break;
-  //     }
-  //   }
-  //   self.setVisible();
-  // }
-
-  //
-  //
-  //     // g.clear();
-  //     // g.lineStyle(1, "0x00ff08", .8);
-  //     // for(var i = 0; i < 64; i++){
-  //     //   var x, y;
-  //     //   g.moveTo(self.sprite.position.x + self.tile_size.w/2, self.sprite.position.y + self.tile_size.h/2);
-  //     //   x = self.sprite.position.x + self.tile_size.w/2 + self.tile_size.w*self.fovRadius*Math.cos(i*0.0981747704);
-  //     //   y = self.sprite.position.y + self.tile_size.h/2 + self.tile_size.h*self.fovRadius*Math.sin(i*0.0981747704);
-  //     //   g.lineTo(x, y);
-  //     // }
-  //     // stage.addChild(g);
-  //
-  //
-  //     self.setVisible();
-  //   }
-  // }
 
   lookForPlayer(sm){
     for(let i in enemies){
@@ -595,21 +562,15 @@ class Enemy extends Player{
           this.targetFound = true;
           gameIsPaused = true;
           player.removeWholePath();
-          // console.log("%c DETECTED! ", "background-color: red; color: #fff");
           break;
-          return 0;
+          return true;
         }else {
           this.targetFound = false;
           this.hasActiveSigns = false;
         }
       }
     }
-
-    // if(!this.hasActiveSigns)
-    //   this.removeSignAbove(this.sign);
-
   }
-
 }
 
 
@@ -663,6 +624,29 @@ function detectStateChange(tile){
         tile.sprite.alpha = 0.2;
       break;
     }
+  }
+}
+
+function updateUI(player, target){
+
+  // update player HP
+  if(target.name == "player"){
+    var hp = $("#health");
+    var hp_c = $("#health_container");
+    $("#current-hp").text(target.health);
+    hp.width(target.health*hp_c.width()/target.maxHealth);
+  }else {
+    // update player MP
+    var mp = $("#magic");
+    var mp_c = $("#magic_container");
+    $("#current-mp").text(player.magic);
+    mp.width(player.magic*mp_c.width()/player.maxMagic);
+
+    // update enemy HP
+    var hp = $("#en-health");
+    var hp_c = $("#en-health_container");
+    $("#en-current-hp").text(target.health);
+    hp.width(target.health*hp_c.width()/target.maxHealth);
   }
 }
 
@@ -735,19 +719,6 @@ function doStep(path){
     player.setVisible();
     player.doFOV();
 
-      // if(i < path.length-1 && path[i][0] > path[i+1][0] && path[i][1] == path[i+1][1]){
-      //   player.sprite.play("left");
-      // }
-      // if(i < path.length-1 && path[i][0] < path[i+1][0] && path[i][1] == path[i+1][1]){
-      //   player.sprite.play("right");
-      // }
-      // if(i < path.length-1 && path[i][0] == path[i+1][0] && path[i][1] > path[i+1][1]){
-      //   player.sprite.play("up");
-      // }
-      // if(i < path.length-1 && path[i][0] == path[i+1][0] && path[i][1] < path[i+1][1]){
-      //   player.sprite.play("down");
-      // }
-      // countStep();
       if(path && i == path.length - 1){
         clearInterval(player.moveTimer);
         // player.sprite.animations.stop();
@@ -922,7 +893,7 @@ function create() {
     let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 10, 15, "melee", 0, "default", true, "main_hand");
     let rusty_sword = new Weapon("Rusty Sword", 0, 0, "Ancient sword covered with rust", "n/a", 3, 6, "melee", 0, "default", true, "main_hand");
 
-    let fireball_sp = new Weapon("Sphere of Fire", 0, 0, "Regular fireball", "n/a", 15, 25, "ranged", 1, "fire", true, "main_hand");
+    let fireball_sp = new Weapon("Sphere of Fire", 0, 0, "Regular fireball", "n/a", 15, 25, "ranged", 1, "fire", true, "off_hand");
 
     // ARMOR
     // name, price, weight, description, icon, armorValue, equipable, slot
@@ -939,16 +910,20 @@ function create() {
         player.setHealth(50);
         player.setMagic(5);
         player.equipItem(iron_sword);
+        player.equipItem(fireball_sp);
         player.equipItem(iron_chest);
         player.stat.dexterity = 15;
       break;
       case "wizard":
         player.setHealth(25);
         player.setMagic(25);
+        player.equipItem(iron_sword);
         player.equipItem(fireball_sp);
         player.equipItem(magic_robe);
         player.inRangedCombat = true;
         player.stat.dexterity = 25;
+        player.fovRadius = 5;
+        player.rangedR = 8;
       break;
     }
 
@@ -977,6 +952,7 @@ function create() {
       skeleton.x = rand_pos.x/32;
       skeleton.y = rand_pos.y/32;
       skeleton.setHealth(25);
+      skeleton.setMagic(0);
       skeleton.equipItem(bone);
       skeleton.addToStage();
     }
@@ -988,6 +964,7 @@ function create() {
       skeleton2.x = rand_pos.x/32;
       skeleton2.y = rand_pos.y/32;
       skeleton2.setHealth(30);
+      skeleton2.setMagic(0);
       skeleton2.equipItem(rusty_sword);
       skeleton2.addToStage();
     }
@@ -996,10 +973,13 @@ function create() {
       let rand_pos = getRandomPos();
       let dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy", "Red fire dragon", "./images/dragon_port.png");
       dragon.stat.dexterity = 5;
+      dragon.rangedR = dragon.fovRadius;
       dragon.x = rand_pos.x/32;
       dragon.y = rand_pos.y/32;
       dragon.setHealth(45);
+      dragon.setMagic(3);
       dragon.equipItem(dragon_claws);
+      dragon.equipItem(fireball_sp);
       dragon.addToStage();
     }
 
@@ -1019,13 +999,7 @@ function create() {
     rKey = stage.input.keyboard.addKey(Phaser.Keyboard.R);
 
     rKey.onDown.add(function(){
-      if(!player.inRangedCombat){
-        player.inRangedCombat = true;
-        player.equipItem(fireball_sp, "main_hand");
-      }else{
-        player.inRangedCombat = false;
-        player.equipItem(iron_sword, "main_hand");
-      }
+      player.changeActiveWeapon();
     }, this);
     // player movement animation
     // player.sprite.animations.add('left', [4, 5, 6, 7], 10, true);

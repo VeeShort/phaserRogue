@@ -304,7 +304,6 @@ class Player extends Tile{
       if(this.rangedR*this.tile_size.w >= Math.sqrt((target.sprite.x - this.sprite.x)*(target.sprite.x - this.sprite.x) + (target.sprite.y - this.sprite.y)*(target.sprite.y - this.sprite.y))){
         return true;
       }else{
-        this.changeActiveWeapon();
         return false;
       }
     }
@@ -563,11 +562,11 @@ class Enemy extends Player{
     if(this.fov.length > 0){
       for(let i in this.fov){
         if(this.fov[i].x == player.x*this.tile_size.w && this.fov[i].y == player.y*this.tile_size.h){
+          console.log(this.meleeR*this.tile_size.w+16, Math.floor(Math.sqrt((player.sprite.x+16 - this.sprite.x+16)*(player.sprite.x+16 - this.sprite.x+16) + (player.sprite.y+16 - this.sprite.y+16)*(player.sprite.y+16 - this.sprite.y+16))))
           if(this.activeWeapon.type == "melee" &&
-             this.meleeR*this.tile_size.w < Math.sqrt((player.sprite.x+16 - this.sprite.x+16)*(player.sprite.x+16 - this.sprite.x+16) + (player.sprite.y+16 - this.sprite.y+16)*(player.sprite.y+16 - this.sprite.y+16))){
+             this.meleeR*this.tile_size.w < Math.floor(Math.sqrt((player.sprite.x - this.sprite.x)*(player.sprite.x - this.sprite.x) + (player.sprite.y - this.sprite.y)*(player.sprite.y - this.sprite.y)))){
             this.changeActiveWeapon();
-          }else if(this.activeWeapon.type == "ranged" &&
-             this.meleeR*this.tile_size.w >= Math.sqrt((player.sprite.x+16 - this.sprite.x+16)*(player.sprite.x+16 - this.sprite.x+16) + (player.sprite.y+16 - this.sprite.y+16)*(player.sprite.y+16 - this.sprite.y+16))){
+          }else if(this.activeWeapon.type == "ranged" && this.magic <= 0){
             this.changeActiveWeapon();
           }
           this.targetFound = true;
@@ -722,6 +721,7 @@ function doStep(path){
           if(!enemy.moved){
             setTimeout(function(){
               enemy.hitTarget(player);
+              enemy.moved = true;
             }, 150);
             // if(enemy.hasActiveSigns)
             //   enemy.showSignAbove('t_alert', alert_s);

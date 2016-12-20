@@ -299,9 +299,10 @@ class Player extends Tile{
         return false;
       }
     }else if(this.activeWeapon.type == "ranged" && this.activeWeapon.manaCost <= this.magic){
-      if(this.rangedR*this.tile_size.w >= Math.sqrt((target.sprite.x+16 - this.sprite.x+16)*(target.sprite.x+16 - this.sprite.x+16) + (target.sprite.y+16 - this.sprite.y+16)*(target.sprite.y+16 - this.sprite.y+16))){
+      if(this.rangedR*this.tile_size.w >= Math.sqrt((target.sprite.x - this.sprite.x)*(target.sprite.x - this.sprite.x) + (target.sprite.y - this.sprite.y)*(target.sprite.y - this.sprite.y))){
         return true;
       }else{
+        this.changeActiveWeapon();
         return false;
       }
     }
@@ -560,6 +561,13 @@ class Enemy extends Player{
     if(this.fov.length > 0){
       for(let i in this.fov){
         if(this.fov[i].x == player.x*this.tile_size.w && this.fov[i].y == player.y*this.tile_size.h){
+          if(this.activeWeapon.type == "melee" &&
+             this.meleeR*this.tile_size.w < Math.sqrt((player.sprite.x+16 - this.sprite.x+16)*(player.sprite.x+16 - this.sprite.x+16) + (player.sprite.y+16 - this.sprite.y+16)*(player.sprite.y+16 - this.sprite.y+16))){
+            this.changeActiveWeapon();
+          }else if(this.activeWeapon.type == "ranged" &&
+             this.meleeR*this.tile_size.w >= Math.sqrt((player.sprite.x+16 - this.sprite.x+16)*(player.sprite.x+16 - this.sprite.x+16) + (player.sprite.y+16 - this.sprite.y+16)*(player.sprite.y+16 - this.sprite.y+16))){
+            this.changeActiveWeapon();
+          }
           this.targetFound = true;
           gameIsPaused = true;
           player.removeWholePath();
@@ -692,20 +700,22 @@ function doStep(path){
         enemy.moved = false;
 
         if(enemy.targetFound){
-          let epath = enemy.moveToPoint(player.sprite.x, player.sprite.y);
+          if(enemy.activeWeapon.type == "melee"){
+            let epath = enemy.moveToPoint(player.sprite.x, player.sprite.y);
 
-          if(epath && enemy.counter < epath.length - 1){
-            grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, true);
+            if(epath && enemy.counter < epath.length - 1){
+              grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, true);
 
-            enemy.sprite.x = epath[enemy.counter][0] * enemy.tile_size.w;
-            enemy.sprite.y = epath[enemy.counter][1] * enemy.tile_size.h;
-            enemy.x = epath[enemy.counter][0];
-            enemy.y = epath[enemy.counter][1];
+              enemy.sprite.x = epath[enemy.counter][0] * enemy.tile_size.w;
+              enemy.sprite.y = epath[enemy.counter][1] * enemy.tile_size.h;
+              enemy.x = epath[enemy.counter][0];
+              enemy.y = epath[enemy.counter][1];
 
-            enemy.moved = true;
+              enemy.moved = true;
 
-            grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, false);
-            enemy.counter++;
+              grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, false);
+              enemy.counter++;
+            }
           }
           if(!enemy.moved){
             setTimeout(function(){
@@ -901,6 +911,9 @@ function create() {
     let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "n/a", 15, true, "chest");
     let magic_robe = new Armor("Leather robe", 0, 0, "Wizards rule", "n/a", 5, true, "chest");
 
+    // test
+    let holy_plates = new Armor("Admin Admin", 0, 0, "Not for balance", "n/a", 80, true, "pants");
+
     // stage.physics.startSystem(Phaser.Physics.ARCADE);
 
     // SPAWN PLAYERS
@@ -913,6 +926,7 @@ function create() {
         player.equipItem(iron_sword);
         player.equipItem(fireball_sp);
         player.equipItem(iron_chest);
+        player.equipItem(holy_plates);
         player.stat.dexterity = 15;
       break;
       case "wizard":

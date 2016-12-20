@@ -45,7 +45,7 @@ let step_count = 0;
 let gameIsPaused = false;
 
 // SOUNDS
-let alert_s, pl_hit, en_hit, fire_hit, dead, pl_dead, game_over, miss;
+let alert_s, pl_hit, en_hit, fire_hit, dead, pl_dead, game_over, miss, bad_hit;
 
 let player_health, player_health_bg, pl_health_con = [];
 // PARTICLES
@@ -317,7 +317,11 @@ class Player extends Tile{
       }
       // if player is the taret
       if(target.name == "player"){
-        en_hit.play();
+        if(damage > 0){
+          en_hit.play();
+        }else{
+          bad_hit.play();
+        }
         var hp = $("#health");
         var hp_c = $("#health_container");
         $("#current-hp").text(target.health);
@@ -827,6 +831,7 @@ function preload() {
     stage.load.audio('dead', "./sound/dead.wav");
     stage.load.audio('pl_dead', "./sound/pl_dead.wav");
     stage.load.audio('miss', "./sound/miss.wav");
+    stage.load.audio('bad_hit', "./sound/bad_hit.wav");
 
 }
 
@@ -899,6 +904,7 @@ function create() {
     alert_s = stage.add.audio('alert');
     en_hit = stage.add.audio('en_hit');
     pl_hit = stage.add.audio('pl_hit');
+    bad_hit = stage.add.audio('bad_hit');
     miss = stage.add.audio('miss')
     fire_hit = stage.add.audio("fire_hit");
     dead = stage.add.audio('dead');
@@ -921,6 +927,7 @@ function create() {
     // ARMOR
     // name, price, weight, description, icon, armorValue, equipable, slot
     let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "n/a", 15, true, "chest");
+    let magic_robe = new Armor("Leather robe", 0, 0, "Wizards rule", "n/a", 5, true, "chest");
 
     // stage.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -933,14 +940,15 @@ function create() {
         player.setMagic(5);
         player.equipItem(iron_sword);
         player.equipItem(iron_chest);
-        player.stat.dexterity = 30;
+        player.stat.dexterity = 15;
       break;
       case "wizard":
         player.setHealth(25);
         player.setMagic(25);
         player.equipItem(fireball_sp);
+        player.equipItem(magic_robe);
         player.inRangedCombat = true;
-        player.stat.dexterity = 15;
+        player.stat.dexterity = 25;
       break;
     }
 

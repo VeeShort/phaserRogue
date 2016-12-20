@@ -269,11 +269,13 @@ class Player extends Tile{
   changeActiveWeapon(){
     if(this.equiped["main_hand"] == this.activeWeapon && this.equiped["off_hand"]){
       this.activeWeapon = this.equiped["off_hand"];
+      this.equiped["off_hand"] = this.activeWeapon;
       if(this.name == "player"){
         $("#pl-weapon").text(this.activeWeapon.name);
       }
     }else if(this.equiped["off_hand"] == this.activeWeapon && this.equiped["main_hand"]){
       this.activeWeapon = this.equiped["main_hand"];
+      this.equiped["main_hand"] = this.activeWeapon;
       if(this.name == "player"){
         $("#pl-weapon").text(this.activeWeapon.name);
       }

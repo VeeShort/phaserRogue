@@ -325,14 +325,15 @@ class Player extends Tile{
       // calculating final damage dealt to the target
       damage = Math.floor(damage * d_mult);
 
+      switch (this.activeWeapon.nature) {
+        case "fire":
+          fire_hit.play();
+        break;
+      }
+
       // play hit sound or absorb damage sound
       if(damage > 0){
         // target is hit
-        switch (this.activeWeapon.nature) {
-          case "fire":
-            fire_hit.play();
-          break;
-        }
         en_hit.play();
       }else{
         // target absorbs damage

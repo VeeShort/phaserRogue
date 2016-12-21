@@ -562,11 +562,11 @@ class Enemy extends Player{
     if(this.fov.length > 0){
       for(let i in this.fov){
         if(this.fov[i].x == player.x*this.tile_size.w && this.fov[i].y == player.y*this.tile_size.h){
-          console.log(this.meleeR*this.tile_size.w+16, Math.floor(Math.sqrt((player.sprite.x+16 - this.sprite.x+16)*(player.sprite.x+16 - this.sprite.x+16) + (player.sprite.y+16 - this.sprite.y+16)*(player.sprite.y+16 - this.sprite.y+16))))
-          if(this.activeWeapon.type == "melee" &&
-             this.meleeR*this.tile_size.w < Math.floor(Math.sqrt((player.sprite.x - this.sprite.x)*(player.sprite.x - this.sprite.x) + (player.sprite.y - this.sprite.y)*(player.sprite.y - this.sprite.y)))){
+          console.log(this.meleeR, Math.floor(Math.sqrt(Math.pow(((player.sprite.x)/32 - (this.sprite.x)/32),2) + Math.pow(((player.sprite.y)/32 - (this.sprite.y)/32),2))));
+          if(this.magic >= this.activeWeapon.manaCost && this.activeWeapon.type == "melee" &&
+             this.meleeR < Math.floor(Math.sqrt(Math.pow(((player.sprite.x)/32 - (this.sprite.x)/32),2) + Math.pow(((player.sprite.y)/32 - (this.sprite.y)/32),2)))){
             this.changeActiveWeapon();
-          }else if(this.activeWeapon.type == "ranged" && this.magic <= 0){
+          }else if(this.activeWeapon.type == "ranged" && this.magic < this.activeWeapon.manaCost){
             this.changeActiveWeapon();
           }
           this.targetFound = true;
@@ -911,6 +911,7 @@ function create() {
     // ARMOR
     // name, price, weight, description, icon, armorValue, equipable, slot
     let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "n/a", 15, true, "chest");
+    let iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "n/a", 5, true, "boots")
     let magic_robe = new Armor("Leather robe", 0, 0, "Wizards rule", "n/a", 5, true, "chest");
 
     // test
@@ -928,7 +929,7 @@ function create() {
         player.equipItem(iron_sword);
         player.equipItem(fireball_sp);
         player.equipItem(iron_chest);
-        player.equipItem(holy_plates);
+        player.equipItem(iron_boots);
         player.stat.dexterity = 15;
       break;
       case "wizard":
@@ -986,7 +987,7 @@ function create() {
       skeleton2.addToStage();
     }
 
-    for(let i = 0; i < 3; i++){
+    for(let i = 0; i < 10; i++){
       let rand_pos = getRandomPos();
       let dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy", "Red fire dragon", "./images/dragon_port.png");
       dragon.stat.dexterity = 5;

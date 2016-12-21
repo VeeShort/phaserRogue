@@ -200,7 +200,7 @@ class Player extends Tile{
 
     this.sign;
     this.moved = false;
-    this.fovLines = 56;
+    this.fovLines = 64;
     this.hero_name = hero_name;
     this.inRangedCombat = false;
     this.activeWeapon = undefined;
@@ -385,6 +385,7 @@ class Player extends Tile{
       }
 
       // count current hit attempt as step
+      this.moved = true;
       doStep(false);
     }
 
@@ -673,6 +674,7 @@ function updateLog(message){
 function doStep(path){
   let i = 1;
   player.moved = false;
+  let lf = false;
 
   clearInterval(player.moveTimer);
   player.moveTimer = setInterval(function(){
@@ -701,6 +703,7 @@ function doStep(path){
         enemy.moved = false;
 
         if(enemy.targetFound){
+
           if(enemy.activeWeapon.type == "melee"){
             let epath = enemy.moveToPoint(player.sprite.x, player.sprite.y);
 
@@ -721,11 +724,11 @@ function doStep(path){
           if(!enemy.moved){
             setTimeout(function(){
               enemy.hitTarget(player);
-              enemy.moved = true;
-            }, 150);
+            }, 200);
             // if(enemy.hasActiveSigns)
             //   enemy.showSignAbove('t_alert', alert_s);
           }
+
         }
     }
 
@@ -987,7 +990,7 @@ function create() {
       skeleton2.addToStage();
     }
 
-    for(let i = 0; i < 10; i++){
+    for(let i = 0; i < 2; i++){
       let rand_pos = getRandomPos();
       let dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy", "Red fire dragon", "./images/dragon_port.png");
       dragon.stat.dexterity = 5;

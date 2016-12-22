@@ -45,7 +45,7 @@ let step_count = 0;
 let gameIsPaused = false;
 
 // SOUNDS
-let alert_s, pl_hit, en_hit, fire_hit, dead, pl_dead, game_over, miss, bad_hit;
+let alert_s, pl_hit, en_hit, fire_hit, curse_hit, dead, pl_dead, game_over, miss, bad_hit;
 
 let player_health, player_health_bg, pl_health_con = [];
 // PARTICLES
@@ -274,7 +274,7 @@ class Player extends Tile{
   }
 
   changeActiveWeapon(){
-    if(this.equiped["main_hand"] == this.activeWeapon && this.equiped["off_hand"] && this.equiped["off_hand"].type == "melee"){
+    if(this.equiped["main_hand"] == this.activeWeapon && this.equiped["off_hand"] && (this.equiped["off_hand"].type == "melee" || this.equiped["off_hand"].type == "ranged")){
       this.activeWeapon = this.equiped["off_hand"];
       // this.equiped["off_hand"] = this.activeWeapon;
       if(this.name == "player"){
@@ -340,6 +340,9 @@ class Player extends Tile{
         case "fire":
           fire_hit.play();
         break;
+        case "curse":
+          curse_hit.play();
+        break;
       }
 
       // play hit sound or absorb damage sound
@@ -394,7 +397,6 @@ class Player extends Tile{
       }
 
       // count current hit attempt as step
-      this.moved = true;
       doStep(false);
     }
 
@@ -607,16 +609,20 @@ class Item{
 };
 
 
-class Weapon extends Item{
-  constructor(name, price, weight, description, icon, minDamage, maxDamage, type, manaCost, nature, equipable, slot){
-    super(name, price, weight, description, icon);
-    this.type = type;
-    this.equipable = equipable;
-    this.minDamage = minDamage;
-    this.maxDamage = maxDamage;
-    this.manaCost = manaCost;
-    this.nature = nature;
-    this.slot = slot;
+class Weapon{
+  constructor(obj){
+    this.name = obj.name;
+    this.price = obj.price;
+    this.weight = obj.weight;
+    this.description = obj.description;
+    this.icon = obj.icon;
+    this.type = obj.type;
+    this.equipable = obj.equipable;
+    this.minDamage = obj.minDamage;
+    this.maxDamage = obj.maxDamage;
+    this.manaCost = obj.manaCost;
+    this.nature = obj.nature;
+    this.slot = obj.slot;
   }
 };
 
@@ -820,6 +826,7 @@ function preload() {
     stage.load.image("loot", "./images/loot.png");
     stage.load.image("skeleton", "./images/skeleton.png");
     stage.load.image("skeleton2", "./images/skeleton_2.png");
+    stage.load.image("dark_wizard", "./images/dark_wizard.png");
 
     //AUDIO
     stage.load.audio('game_over', "./sound/ascending.mp3");
@@ -827,6 +834,7 @@ function preload() {
     stage.load.audio('pl_hit', "./sound/pl_hit.wav");
     stage.load.audio('en_hit', "./sound/en_hit.wav");
     stage.load.audio('fire_hit', "./sound/fire.wav");
+    stage.load.audio('curse_hit', "./sound/curse.wav");
     stage.load.audio('dead', "./sound/dead.wav");
     stage.load.audio('pl_dead', "./sound/pl_dead.wav");
     stage.load.audio('miss', "./sound/miss.wav");
@@ -906,6 +914,7 @@ function create() {
     bad_hit = stage.add.audio('bad_hit');
     miss = stage.add.audio('miss')
     fire_hit = stage.add.audio("fire_hit");
+    curse_hit = stage.add.audio("curse_hit");
     dead = stage.add.audio('dead');
     pl_dead = stage.add.audio('pl_dead');
     game_over = stage.add.audio('game_over');
@@ -916,12 +925,95 @@ function create() {
     // // ITEMS
     // WEAPONS
     // name, price, weight, description, icon, damage, type, mana cost, equipable
-    let dragon_claws = new Weapon("Dragon Claws", 0, 0, "These are very sharp", "n/a", 7, 10, "melee", 0, "default", true, "main_hand");
-    let bone = new Weapon("Bone fists", 0 ,0, "Skeletons have these", "n/a", 1, 3, "melee", 0, "default", true, "main_hand");
-    let iron_sword = new Weapon("Iron Sword", 0, 0, "Regular iron sword for killing stuff", "n/a", 10, 15, "melee", 0, "default", true, "main_hand");
-    let rusty_sword = new Weapon("Rusty Sword", 0, 0, "Ancient sword covered with rust", "n/a", 3, 6, "melee", 0, "default", true, "main_hand");
+    let dragon_claws = new Weapon({
+      name: "Dragon Claws",
+      price: 0,
+      weight: 0,
+      description: "These are very sharp",
+      icon: undefined,
+      minDamage: 7,
+      maxDamage: 10,
+      type: "melee",
+      manaCost: 0,
+      nature: "default",
+      equipable: true,
+      slot: "main_hand"
+    });
+    
+    let bone = new Weapon({
+      name: "Bone fists",
+      price: 0,
+      weight: 0,
+      description: "Skeletons have these",
+      icon: undefined,
+      minDamage: 1,
+      maxDamage: 3,
+      type: "melee",
+      manaCost: 0,
+      nature: "default",
+      equipable: true,
+      slot: "main_hand"
+    });
 
-    let fireball_sp = new Weapon("Sphere of Fire", 0, 0, "Regular fireball", "n/a", 15, 25, "ranged", 1, "fire", true, "off_hand");
+    let iron_sword = new Weapon({
+      name: "Iron Sword",
+      price: 0,
+      weight: 0,
+      description: "Regular iron sword for killing stuff",
+      icon: undefined,
+      minDamage: 10,
+      maxDamage: 15,
+      type: "melee",
+      manaCost: 0,
+      nature: "default",
+      equipable: true,
+      slot: "main_hand"
+    });
+
+    let rusty_sword = new Weapon({
+      name: "Rusty Sword",
+      price: 0,
+      weight: 0,
+      description: "Ancient sword covered with rust",
+      icon: undefined,
+      minDamage: 3,
+      maxDamage: 6,
+      type: "melee",
+      manaCost: 0,
+      nature: "default",
+      equipable: true,
+      slot: "main_hand"
+    });
+
+    let fireball_sp = new Weapon({
+      name: "Sphere of Fire",
+      price: 0,
+      weight: 0,
+      description: "Regular fireball",
+      icon: undefined,
+      minDamage: 15,
+      maxDamage: 25,
+      type: "ranged",
+      manaCost: 1,
+      nature: "fire",
+      equipable: true,
+      slot: "off_hand"
+    });
+
+    let wand_of_curse = new Weapon({
+      name: "Wand of Curse",
+      price: 0,
+      weight: 0,
+      description: "Dark wizards make this at home",
+      icon: undefined,
+      minDamage: 8,
+      maxDamage: 10,
+      type: "ranged",
+      manaCost: 1,
+      nature: "curse",
+      equipable: true,
+      slot: "main_hand"
+    });
 
     // ARMOR
     // name, price, weight, description, icon, type, armorValue, equipable, slot
@@ -960,11 +1052,6 @@ function create() {
       break;
     }
 
-    player.addToStage();
-    player.setVisible();
-    player.doFOV();
-    player.centerCamera();
-
     $("#current-hp").text(player.health);
     $("#max-hp").text(player.maxHealth);
 
@@ -978,7 +1065,7 @@ function create() {
     $("#pl-dex").text(player.stat.dexterity);
     $("#pl-arm").text(player.getTotalArmorPoints());
 
-    for(let i = 0; i < 10; i++){
+    for(let i = 0; i < 7; i++){
       let rand_pos = getRandomPos();
       let skeleton = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "skeleton", 4, "enemy", "Spooky skeleton", "./images/skeleton_port.png");
       skeleton.stat.dexterity = 15;
@@ -992,8 +1079,21 @@ function create() {
 
     for(let i = 0; i < 5; i++){
       let rand_pos = getRandomPos();
+      let dark_wizard = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dark_wizard", 6, "enemy", "Dark Wizard", "./images/dark_wizard_port.png");
+      dark_wizard.stat.dexterity = 25;
+      dark_wizard.x = rand_pos.x/32;
+      dark_wizard.y = rand_pos.y/32;
+      dark_wizard.setHealth(15);
+      dark_wizard.setMagic(15);
+      dark_wizard.equipItem(rusty_sword);
+      dark_wizard.equipItem(wand_of_curse);
+      dark_wizard.addToStage();
+    }
+
+    for(let i = 0; i < 5; i++){
+      let rand_pos = getRandomPos();
       let skeleton2 = new Enemy(rand_pos.x/32, rand_pos.y/32, 4, "skeleton2", 4, "enemy", "Angry skeleton", "./images/skeleton2_port.png");
-      skeleton2.stat.dexterity = 30;
+      skeleton2.stat.dexterity = 20;
       skeleton2.x = rand_pos.x/32;
       skeleton2.y = rand_pos.y/32;
       skeleton2.setHealth(30);
@@ -1026,6 +1126,11 @@ function create() {
 
     death_effect.setYSpeed(-40, 10);
 	  death_effect.setXSpeed(-15, 15);
+
+    player.addToStage();
+    player.setVisible();
+    player.doFOV();
+    player.centerCamera();
 
     // INPUTS
     // enabled ranged mode

@@ -103,12 +103,19 @@ body{
   color: #ccc;
 }
 
-.container.stats .pl-text{
+.container.stats .pl-text,
+.container.armor .pl-text{
   color: #009688;
   width: 25%;
   box-sizing: inherit;
   display: block;
   float: left;
+}
+.container.armor .pl-text{
+  width: 50%;
+}
+.container.armor{
+  margin: 5px 0;
 }
 
 #pl-name{

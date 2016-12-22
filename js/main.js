@@ -200,7 +200,7 @@ class Player extends Tile{
 
     this.sign;
     this.moved = false;
-    this.fovLines = 56;
+    this.fovLines = 64;
     this.hero_name = hero_name;
     this.inRangedCombat = false;
     this.activeWeapon = undefined;
@@ -244,6 +244,8 @@ class Player extends Tile{
   equipItem(item){
     if(item.equipable){
       this.equiped[item.slot] = item;
+      if(this.name == "player")
+        $("#pl-"+item.slot).text(item.name+" ["+item.armorValue+"]");
       if((item.type == "melee" || item.type == "ranged") && item.slot == "main_hand"){
         this.activeWeapon = item;
       }
@@ -271,13 +273,13 @@ class Player extends Tile{
       this.activeWeapon = this.equiped["off_hand"];
       this.equiped["off_hand"] = this.activeWeapon;
       if(this.name == "player"){
-        $("#pl-weapon").text(this.activeWeapon.name);
+        $("#pl-weapon").text(this.activeWeapon.name+" ["+this.activeWeapon.minDamage+"-"+this.activeWeapon.maxDamage+"]");
       }
     }else if(this.equiped["off_hand"] == this.activeWeapon && this.equiped["main_hand"]){
       this.activeWeapon = this.equiped["main_hand"];
       this.equiped["main_hand"] = this.activeWeapon;
       if(this.name == "player"){
-        $("#pl-weapon").text(this.activeWeapon.name);
+        $("#pl-weapon").text(this.activeWeapon.name+" ["+this.activeWeapon.minDamage+"-"+this.activeWeapon.maxDamage+"]");
       }
     }else{
       return false;
@@ -385,6 +387,7 @@ class Player extends Tile{
       }
 
       // count current hit attempt as step
+      this.moved = true;
       doStep(false);
     }
 
@@ -562,7 +565,15 @@ class Enemy extends Player{
     if(this.fov.length > 0){
       for(let i in this.fov){
         if(this.fov[i].x == player.x*this.tile_size.w && this.fov[i].y == player.y*this.tile_size.h){
-          console.log(this.meleeR*this.tile_size.w+16, Math.floor(Math.sqrt((player.sprite.x+16 - this.sprite.x+16)*(player.sprite.x+16 - this.sprite.x+16) + (player.sprite.y+16 - this.sprite.y+16)*(player.sprite.y+16 - this.sprite.y+16))))
+
+          console.log(this.meleeR, Math.floor(Math.sqrt(Math.pow(((player.sprite.x)/32 - (this.sprite.x)/32),2) + Math.pow(((player.sprite.y)/32 - (this.sprite.y)/32),2))));
+          if(this.magic >= this.activeWeapon.manaCost && this.activeWeapon.type == "melee" &&
+             this.meleeR < Math.floor(Math.sqrt(Math.pow(((player.sprite.x)/32 - (this.sprite.x)/32),2) + Math.pow(((player.sprite.y)/32 - (this.sprite.y)/32),2)))){
+            this.changeActiveWeapon();
+          }else if(this.activeWeapon.type == "ranged" && this.magic < this.activeWeapon.manaCost){
+            this.changeActiveWeapon();
+          }
+
           this.targetFound = true;
           gameIsPaused = true;
           player.removeWholePath();
@@ -667,6 +678,7 @@ function updateLog(message){
 function doStep(path){
   let i = 1;
   player.moved = false;
+  let lf = false;
 
   clearInterval(player.moveTimer);
   player.moveTimer = setInterval(function(){
@@ -695,6 +707,7 @@ function doStep(path){
         enemy.moved = false;
 
         if(enemy.targetFound){
+
           if(enemy.activeWeapon.type == "melee"){
             let epath = enemy.moveToPoint(player.sprite.x, player.sprite.y);
 
@@ -715,11 +728,11 @@ function doStep(path){
           if(!enemy.moved){
             setTimeout(function(){
               enemy.hitTarget(player);
-              enemy.moved = true;
-            }, 150);
+            }, 200);
             // if(enemy.hasActiveSigns)
             //   enemy.showSignAbove('t_alert', alert_s);
           }
+
         }
     }
 
@@ -905,6 +918,7 @@ function create() {
     // ARMOR
     // name, price, weight, description, icon, armorValue, equipable, slot
     let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "n/a", 15, true, "chest");
+    let iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "n/a", 5, true, "boots")
     let magic_robe = new Armor("Leather robe", 0, 0, "Wizards rule", "n/a", 5, true, "chest");
 
     // test
@@ -922,7 +936,7 @@ function create() {
         player.equipItem(iron_sword);
         player.equipItem(fireball_sp);
         player.equipItem(iron_chest);
-        player.equipItem(holy_plates);
+        player.equipItem(iron_boots);
         player.stat.dexterity = 15;
       break;
       case "wizard":
@@ -980,7 +994,7 @@ function create() {
       skeleton2.addToStage();
     }
 
-    for(let i = 0; i < 3; i++){
+    for(let i = 0; i < 2; i++){
       let rand_pos = getRandomPos();
       let dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy", "Red fire dragon", "./images/dragon_port.png");
       dragon.stat.dexterity = 5;

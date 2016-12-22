@@ -563,12 +563,6 @@ class Enemy extends Player{
       for(let i in this.fov){
         if(this.fov[i].x == player.x*this.tile_size.w && this.fov[i].y == player.y*this.tile_size.h){
           console.log(this.meleeR*this.tile_size.w+16, Math.floor(Math.sqrt((player.sprite.x+16 - this.sprite.x+16)*(player.sprite.x+16 - this.sprite.x+16) + (player.sprite.y+16 - this.sprite.y+16)*(player.sprite.y+16 - this.sprite.y+16))))
-          if(this.activeWeapon.type == "melee" &&
-             this.meleeR*this.tile_size.w < Math.floor(Math.sqrt((player.sprite.x - this.sprite.x)*(player.sprite.x - this.sprite.x) + (player.sprite.y - this.sprite.y)*(player.sprite.y - this.sprite.y)))){
-            this.changeActiveWeapon();
-          }else if(this.activeWeapon.type == "ranged" && this.magic <= 0){
-            this.changeActiveWeapon();
-          }
           this.targetFound = true;
           gameIsPaused = true;
           player.removeWholePath();

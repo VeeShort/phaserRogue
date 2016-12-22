@@ -244,10 +244,15 @@ class Player extends Tile{
   equipItem(item){
     if(item.equipable){
       this.equiped[item.slot] = item;
-      if(this.name == "player")
-        $("#pl-"+item.slot).text(item.name+" ["+item.armorValue+"]");
       if((item.type == "melee" || item.type == "ranged") && item.slot == "main_hand"){
         this.activeWeapon = item;
+      }
+
+      // updateUI
+      if(this.name == "player" && item.type == "armor")
+        $("#pl-"+item.slot).text(item.name+" ["+item.armorValue+"]");
+      if((item.type == "melee" || item.type == "ranged") && this.name === "player"){
+        $("#pl-"+item.slot).text(item.name+" ["+item.minDamage+"-"+item.maxDamage+"]");
       }
     }
   }
@@ -269,17 +274,19 @@ class Player extends Tile{
   }
 
   changeActiveWeapon(){
-    if(this.equiped["main_hand"] == this.activeWeapon && this.equiped["off_hand"]){
+    if(this.equiped["main_hand"] == this.activeWeapon && this.equiped["off_hand"] && this.equiped["off_hand"].type == "melee"){
       this.activeWeapon = this.equiped["off_hand"];
-      this.equiped["off_hand"] = this.activeWeapon;
+      // this.equiped["off_hand"] = this.activeWeapon;
       if(this.name == "player"){
         $("#pl-weapon").text(this.activeWeapon.name+" ["+this.activeWeapon.minDamage+"-"+this.activeWeapon.maxDamage+"]");
+        $("#pl-"+this.activeWeapon.slot).text(this.activeWeapon.name+" ["+this.activeWeapon.minDamage+"-"+this.activeWeapon.maxDamage+"]");
       }
     }else if(this.equiped["off_hand"] == this.activeWeapon && this.equiped["main_hand"]){
       this.activeWeapon = this.equiped["main_hand"];
-      this.equiped["main_hand"] = this.activeWeapon;
+      // this.equiped["main_hand"] = this.activeWeapon;
       if(this.name == "player"){
         $("#pl-weapon").text(this.activeWeapon.name+" ["+this.activeWeapon.minDamage+"-"+this.activeWeapon.maxDamage+"]");
+        $("#pl-"+this.activeWeapon.slot).text(this.activeWeapon.name+" ["+this.activeWeapon.minDamage+"-"+this.activeWeapon.maxDamage+"]");
       }
     }else{
       return false;
@@ -288,7 +295,7 @@ class Player extends Tile{
 
   checkHitAvailability(target){
     if(this.activeWeapon.type == "melee" && this.activeWeapon.manaCost <= this.magic){
-      if(((target.sprite.x == this.sprite.x) && (target.sprite.y == this.sprite.y + this.tile_size.h))||                    // taget is on top
+      if(((target.sprite.x == this.sprite.x) && (target.sprite.y == this.sprite.y + this.tile_size.h))||                    // target is on top
          ((target.sprite.x == this.sprite.x) && (target.sprite.y == this.sprite.y - this.tile_size.h))||                    // target is on bottom
          ((target.sprite.y == this.sprite.y) && (target.sprite.x == this.sprite.x - this.tile_size.h))||                    // target is on left
          ((target.sprite.y == this.sprite.y) && (target.sprite.x == this.sprite.x + this.tile_size.h))||                    // taget is on right
@@ -614,11 +621,12 @@ class Weapon extends Item{
 };
 
 class Armor extends Item{
-  constructor(name, price, weight, description, icon, armorValue, equipable, slot){
+  constructor(name, price, weight, description, icon, type, armorValue, equipable, slot){
     super(name, price, weight, description, icon);
     this.equipable = equipable;
     this.slot = slot;
     this.armorValue = armorValue;
+    this.type = type;
   }
 };
 
@@ -916,13 +924,13 @@ function create() {
     let fireball_sp = new Weapon("Sphere of Fire", 0, 0, "Regular fireball", "n/a", 15, 25, "ranged", 1, "fire", true, "off_hand");
 
     // ARMOR
-    // name, price, weight, description, icon, armorValue, equipable, slot
-    let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "n/a", 15, true, "chest");
-    let iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "n/a", 5, true, "boots")
-    let magic_robe = new Armor("Leather robe", 0, 0, "Wizards rule", "n/a", 5, true, "chest");
+    // name, price, weight, description, icon, type, armorValue, equipable, slot
+    let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "n/a", "armor", 15, true, "chest");
+    let iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "n/a", "armor", 5, true, "boots")
+    let magic_robe = new Armor("Leather robe", 0, 0, "Wizards rule", "n/a", "armor", 5, true, "chest");
 
     // test
-    let holy_plates = new Armor("Admin Admin", 0, 0, "Not for balance", "n/a", 80, true, "pants");
+    let holy_plates = new Armor("Admin Admin", 0, 0, "Not for balance", "n/a", "armor", 80, true, "pants");
 
     // stage.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -965,7 +973,7 @@ function create() {
 
     $("#pl-name").text(player.hero_name);
 
-    $("#pl-weapon").text(player.equiped["main_hand"].name);
+    $("#pl-weapon").text(player.activeWeapon.name+" ["+player.activeWeapon.minDamage+"-"+player.activeWeapon.maxDamage+"]");
 
     $("#pl-dex").text(player.stat.dexterity);
     $("#pl-arm").text(player.getTotalArmorPoints());

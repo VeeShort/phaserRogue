@@ -104,12 +104,19 @@ body{
 }
 
 .container.stats .pl-text,
+.container.weapon .pl-text,
 .container.armor .pl-text{
   color: #009688;
   width: 25%;
   box-sizing: inherit;
   display: block;
   float: left;
+}
+.container.weapon{
+  margin-top: 5px;
+}
+.container.weapon .pl-text{
+  width: 100%;
 }
 .container.armor .pl-text{
   width: 50%;

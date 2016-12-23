@@ -588,7 +588,7 @@ class Enemy extends Player{
 
           this.targetFound = true;
           gameIsPaused = true;
-          player.removeWholePath();
+          // player.removeWholePath();
           break;
           return true;
         }else {
@@ -695,12 +695,17 @@ function updateLog(message){
 function doStep(path){
   let i = 1;
 
+
   player.disableControl = true;
   // clearInterval(player.moveTimer);
   player.moveTimer = setInterval(function(){
     if(!gameIsPaused){
+      if($(".warning").is(":visible"))
+        $(".warning").hide();
       // move player to the next path section
       if(path){
+        if($(".wait").not(":visible"))
+          $(".wait").show();
         // let path = player.moveToPoint(px, py);
         player.sprite.x = path[i][0] * player.tile_size.w;
         player.sprite.y = path[i][1] * player.tile_size.h;
@@ -724,6 +729,12 @@ function doStep(path){
         enemy.moved = false;
 
         if(enemy.targetFound){
+
+          if($(".warning").not(":visible"))
+            $(".warning").show();
+          if($(".wait").is(":visible"))
+              $(".wait").hide();
+
           clearInterval(player.moveTimer);
           player.disableControl = false;
           if(enemy.activeWeapon.type == "melee"){
@@ -756,6 +767,8 @@ function doStep(path){
 
       if(path && i == path.length - 1 || !path){
         player.disableControl = false;
+        if($(".wait").is(":visible"))
+          $(".wait").hide();
         clearInterval(player.moveTimer);
       }
 

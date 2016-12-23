@@ -274,7 +274,7 @@ class Player extends Tile{
   }
 
   changeActiveWeapon(){
-    if(this.equiped["main_hand"] == this.activeWeapon && this.equiped["off_hand"] && this.equiped["off_hand"].type == "melee"){
+    if(this.equiped["main_hand"] == this.activeWeapon && this.equiped["off_hand"] && (this.equiped["off_hand"].type == "melee" || this.equiped["off_hand"].type == "ranged") ){
       this.activeWeapon = this.equiped["off_hand"];
       // this.equiped["off_hand"] = this.activeWeapon;
       if(this.name == "player"){

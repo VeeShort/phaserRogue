@@ -321,6 +321,10 @@ class Player extends Tile{
 
   hitTarget(target){
     if(target.health > 0 && this.checkHitAvailability(target)){
+      if(this.name == "enemy"){
+        this.state = 2;
+        detectStateChange(this);
+      }
       // position the hit particles on target's position
       emitter.x = target.sprite.x + target.tile_size.w/2;
       emitter.y = target.sprite.y + target.tile_size.h/2;

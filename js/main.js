@@ -321,7 +321,9 @@ class Player extends Tile{
 
   hitTarget(target){
     if(target.health > 0 && this.checkHitAvailability(target)){
-      if(this.name == "enemy"){
+
+      // show enemy when he attacks you from the shadow
+      if(this.name == "enemy" || this.state != 2){
         this.state = 2;
         detectStateChange(this);
       }

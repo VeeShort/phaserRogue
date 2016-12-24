@@ -92,6 +92,7 @@ body{
   width: 450px;
   float: right;
   padding: 5px;
+  position: relative;
 }
 .pl-text{
   display: inline-block;
@@ -101,6 +102,18 @@ body{
 
 .pl-text span{
   color: #ccc;
+}
+.mini-icon{
+  display: none;
+  position: absolute;
+}
+.warning{
+  top: 10px;
+  left: -40px;
+}
+.wait{
+  top: 10px;
+  left: 15px;
 }
 
 .container.stats .pl-text,

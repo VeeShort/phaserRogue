@@ -132,8 +132,9 @@ class Tile {
     this.sprite.events.onInputDown.add(function(){
       if(self.state != 0 && !player.disableControl){
         gameIsPaused = false;
-        if(this.name && this.name != "enemy" && this.name != "player")
+        if(this.name && this.name != "enemy" && this.name != "player"){
           doStep(player.moveToPoint(this.x, this.y));
+        }
         if(this.name && this.name == "enemy"){
           player.hitTarget(this);
         }
@@ -274,7 +275,7 @@ class Player extends Tile{
   }
 
   changeActiveWeapon(){
-    if(this.equiped["main_hand"] == this.activeWeapon && this.equiped["off_hand"] && (this.equiped["off_hand"].type == "melee" || this.equiped["off_hand"].type == "ranged")){
+    if(this.equiped["main_hand"] == this.activeWeapon && this.equiped["off_hand"] && (this.equiped["off_hand"].type == "melee" || this.equiped["off_hand"].type == "ranged") ){
       this.activeWeapon = this.equiped["off_hand"];
       // this.equiped["off_hand"] = this.activeWeapon;
       if(this.name == "player"){
@@ -320,6 +321,12 @@ class Player extends Tile{
 
   hitTarget(target){
     if(target.health > 0 && this.checkHitAvailability(target)){
+
+      // show enemy when he attacks you from the shadow
+      if(this.name == "enemy" || this.state != 2){
+        this.state = 2;
+        detectStateChange(this);
+      }
       // position the hit particles on target's position
       emitter.x = target.sprite.x + target.tile_size.w/2;
       emitter.y = target.sprite.y + target.tile_size.h/2;
@@ -397,7 +404,9 @@ class Player extends Tile{
       }
 
       // count current hit attempt as step
-      doStep(false);
+      if(this.name == "player")
+        doStep(false);
+
     }
 
     // update enemy UI info
@@ -425,10 +434,10 @@ class Player extends Tile{
   }
 
   moveToPoint(px, py){
-    for(let i in this.player_path_map){
-      this.player_path_map[i].sprite.destroy();
-    }
-    this.player_path_map = [];
+    // for(let i in this.player_path_map){
+    //   this.player_path_map[i].sprite.destroy();
+    // }
+    // this.player_path_map = [];
 
     let finder = new PF.AStarFinder({
       allowDiagonal: true,
@@ -436,19 +445,19 @@ class Player extends Tile{
     });
     let path = finder.findPath(Math.floor(this.sprite.x/this.tile_size.w), Math.floor(this.sprite.y/this.tile_size.h), Math.floor(px/this.tile_size.w), Math.floor(py/this.tile_size.h), grid.clone());
 
-    if(path.length > 0 && this.name == "player"){
-      for(let i = 1; i < path.length; i++){
-        let pt = new Tile(path[i][0], path[i][1], 4, "t_path", "path");
-        pt.sprite.inputEnabled = false;
-        pt.state = 2;
-        detectStateChange(pt);
-        this.player_path_map.push(pt);
-      }
-    }
+    // if(path.length > 0 && this.name == "player"){
+    //   for(let i = 1; i < path.length; i++){
+    //     // let pt = new Tile(path[i][0], path[i][1], 4, "t_path", "path");
+    //     // pt.sprite.inputEnabled = false;
+    //     // pt.state = 2;
+    //     // detectStateChange(pt);
+    //     // this.player_path_map.push(pt);
+    //   }
+    // }
 
-    if(this.name == "player" && path.length > 1){
-      doStep(path);
-    }
+    // if(this.name == "player" && path.length > 1){
+    //   doStep(path);
+    // }
     if(path.length > 1)
       return path;
   }
@@ -575,7 +584,7 @@ class Enemy extends Player{
       for(let i in this.fov){
         if(this.fov[i].x == player.x*this.tile_size.w && this.fov[i].y == player.y*this.tile_size.h){
 
-          console.log(this.meleeR, Math.floor(Math.sqrt(Math.pow(((player.sprite.x)/32 - (this.sprite.x)/32),2) + Math.pow(((player.sprite.y)/32 - (this.sprite.y)/32),2))));
+          // console.log(this.meleeR, Math.floor(Math.sqrt(Math.pow(((player.sprite.x)/32 - (this.sprite.x)/32),2) + Math.pow(((player.sprite.y)/32 - (this.sprite.y)/32),2))));
           if(this.magic >= this.activeWeapon.manaCost && this.activeWeapon.type == "melee" &&
              this.meleeR < Math.floor(Math.sqrt(Math.pow(((player.sprite.x)/32 - (this.sprite.x)/32),2) + Math.pow(((player.sprite.y)/32 - (this.sprite.y)/32),2)))){
             this.changeActiveWeapon();
@@ -585,7 +594,7 @@ class Enemy extends Player{
 
           this.targetFound = true;
           gameIsPaused = true;
-          player.removeWholePath();
+          // player.removeWholePath();
           break;
           return true;
         }else {
@@ -691,14 +700,18 @@ function updateLog(message){
 
 function doStep(path){
   let i = 1;
-  player.moved = false;
-  let lf = false;
 
-  clearInterval(player.moveTimer);
+
+  player.disableControl = true;
+  // clearInterval(player.moveTimer);
   player.moveTimer = setInterval(function(){
     if(!gameIsPaused){
+      if($(".warning").is(":visible"))
+        $(".warning").hide();
       // move player to the next path section
       if(path){
+        if($(".wait").not(":visible"))
+          $(".wait").show();
         // let path = player.moveToPoint(px, py);
         player.sprite.x = path[i][0] * player.tile_size.w;
         player.sprite.y = path[i][1] * player.tile_size.h;
@@ -708,10 +721,11 @@ function doStep(path){
 
       player.setVisible();
       player.doFOV();
-      player.removePathAfter(i);
+      // player.removePathAfter(i);
       player.centerCamera();
       player.moved = true;
 
+      // let time = 0;
       for(let j in enemies){
         let enemy = enemies[j];
         enemy.counter = 1;
@@ -722,6 +736,13 @@ function doStep(path){
 
         if(enemy.targetFound){
 
+          if($(".warning").not(":visible"))
+            $(".warning").show();
+          if($(".wait").is(":visible"))
+              $(".wait").hide();
+
+          clearInterval(player.moveTimer);
+          player.disableControl = false;
           if(enemy.activeWeapon.type == "melee"){
             let epath = enemy.moveToPoint(player.sprite.x, player.sprite.y);
 
@@ -743,21 +764,17 @@ function doStep(path){
             setTimeout(function(){
               enemy.hitTarget(player);
             }, 200);
-            // if(enemy.hasActiveSigns)
-            //   enemy.showSignAbove('t_alert', alert_s);
           }
-
         }
-    }
-
-    player.setVisible();
-    player.doFOV();
-
-      if(path && i == path.length - 1){
-        clearInterval(player.moveTimer);
-        // player.sprite.animations.stop();
       }
-      if(!path){
+
+      player.setVisible();
+      player.doFOV();
+
+      if(path && i == path.length - 1 || !path){
+        player.disableControl = false;
+        if($(".wait").is(":visible"))
+          $(".wait").hide();
         clearInterval(player.moveTimer);
       }
 
@@ -1077,7 +1094,7 @@ function create() {
       skeleton.addToStage();
     }
 
-    for(let i = 0; i < 5; i++){
+    for(let i = 0; i < 1; i++){
       let rand_pos = getRandomPos();
       let dark_wizard = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dark_wizard", 6, "enemy", "Dark Wizard", "./images/dark_wizard_port.png");
       dark_wizard.stat.dexterity = 25;

@@ -939,7 +939,7 @@ function create() {
       equipable: true,
       slot: "main_hand"
     });
-    
+
     let bone = new Weapon({
       name: "Bone fists",
       price: 0,

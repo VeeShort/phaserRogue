@@ -516,7 +516,7 @@ class Player extends Tile{
           }
         }
         for(let j = 0; j < all_sprites.length; j++){
-          if(this.fov[i] != all_sprites[j] && all_sprites[j].state != 0){
+          if(this.fov[i] != all_sprites[j] && all_sprites[j].state == 2){
             all_sprites[j].state = 1;
             detectStateChange(all_sprites[j]);
           }

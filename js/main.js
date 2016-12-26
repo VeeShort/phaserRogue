@@ -10,30 +10,6 @@ let chest_inv = document.getElementById("container");
 
 let Dungeon;
 
-// let test_map = [["w", "w", "w", "w", "w", "w", "w", "w", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "0", "c", "0", "0", "0", "w", "0", "w"],
-//                 ["w", "0", "0", "0", "w", "0", "0", "0", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "w", "w"],
-//                 ["w", "w", "0", "0", "w", "0", "0", "0", "w"],
-//                 ["w", "w", "w", "0", "w", "0", "w", "w", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "0", "w", "0", "w", "0", "w", "0", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "w", "w", "w", "0", "w", "w", "w", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
-//                 ["w", "w", "w", "w", "w", "w", "w", "w", "w"]];
-
 let player;
 
 let sprite_map = [];
@@ -436,7 +412,7 @@ class Player extends Tile{
   }
 
   lookForPlayer(sm){
-    for(let i in enemies){
+    for(let i = 0; i < enemies.length; i++){
       if(sm && sm.x == enemies[i].x && sm.y == enemies[i].y && this.name == "player"){
         enemies[i].state = 2;
         detectStateChange(enemies[i]);
@@ -532,20 +508,19 @@ class Player extends Tile{
   setVisible(){
     // hide enemies when they are not in players FOV
     if(this.name == "player"){
-      for(let i in this.fov){
-        for(let j in enemies){
+      for(let i = 0; i < this.fov.length; i++){
+        for(let j = 0; j < enemies.length; j++){
           if(this.fov[i].x != enemies[j].x && this.fov[i].y != enemies[j].y){
             enemies[j].state = 0;
             detectStateChange(enemies[j]);
           }
         }
-      }
-    }
-
-    for(let i in all_sprites){
-      if(all_sprites[i] && all_sprites[i].state > 1){
-        all_sprites[i].state = 1;
-        detectStateChange(all_sprites[i]);
+        for(let j = 0; j < all_sprites.length; j++){
+          if(this.fov[i] != all_sprites[j] && all_sprites[j].state != 0){
+            all_sprites[j].state = 1;
+            detectStateChange(all_sprites[j]);
+          }
+        }
       }
     }
   }
@@ -736,7 +711,7 @@ function doStep(path){
 
           clearInterval(player.moveTimer);
           player.disableControl = false;
-          // if(enemy.activeWeapon.type == "melee"){
+          if(enemy.activeWeapon.type == "melee"){
             let epath = enemy.moveToPoint(player.x, player.y);
 
             if(epath && enemy.counter < epath.length - 1){
@@ -752,7 +727,7 @@ function doStep(path){
               grid.setWalkableAt(enemy.x/enemy.tile_size.w, enemy.y/enemy.tile_size.h, false);
               enemy.counter++;
             }
-          // }
+          }
           if(!enemy.moved){
             setTimeout(function(){
               enemy.hitTarget(player);

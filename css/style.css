@@ -11,6 +11,23 @@ canvas{
   font-family: "iso9";
   src: url("/fonts/Px437_IBM_ISO9.ttf");
 }
+@font-face {
+  font-family: "pxl";
+  src: url("/fonts/Pxlvetica.ttf");
+}
+@font-face {
+  font-family: "munro narrow";
+  src: url("/fonts/MunroNarrow.ttf");
+}
+@font-face {
+  font-family: "munro";
+  src: url("/fonts/Munro.ttf");
+}
+@font-face {
+  font-family: "itt bios";
+  src: url("/fonts/Px437_ITT_BIOS.ttf");
+}
+
 
 body{
   font-family: "iso9", sans-serif;
@@ -68,6 +85,7 @@ body{
 .container{
   width: 100%;
   float: left;
+  position: relative;
 }
 .container:after{
   content: '';
@@ -225,12 +243,25 @@ body{
   display: none;
   position: absolute;
   padding: 3px 5px;
-  background: #333;
+  background: #2c241d;
   width: 200px;
+  margin: 5px;
+}
+.container.inf{
+  width: 50%;
 }
 
 .info span{
-  color: #ccc;
+  color: #ffc112;
   display: block;
   text-transform: capitalize;
+}
+
+/*inventory*/
+.inventory span{
+  display: inline-block;
+  height: 32px;
+  width: 32px;
+  border: 1px solid #ccc;
+  margin: 0 1px 1px 0;
 }

@@ -227,6 +227,10 @@ class Player extends Tile{
     this.maxMagic = mp;
   }
 
+  giveItem(item){
+    this.inventory.push(item);
+  }
+
   equipItem(item){
     if(item.equipable){
       this.equiped[item.slot] = item;
@@ -798,7 +802,7 @@ function getRandomPos(){
   let rand_pos;
   while(rand_pos === undefined){
     let point = all_sprites[getRandomInt(0, all_sprites.length-1)];
-    if(point && point.name && point.name == "floor" && point.sprite.x != player.sprite.x && point.sprite.y != player.sprite.x){
+    if(point && point.name && point.name == "floor" && point.name != "door_closed" && point.sprite.x != player.sprite.x && point.sprite.y != player.sprite.x){
       rand_pos = point;
     }
   }
@@ -1251,30 +1255,57 @@ function create() {
     // player.sprite.animations.add('right', [8, 9, 10, 11], 10, true);
     // player.sprite.animations.add('up', [12, 13, 14, 15], 10, true);
     // player.sprite.animations.add('down', [0, 1, 2, 3], 10, true);
+    player.giveItem(iron_boots);
+    player.giveItem(iron_boots);
+    player.giveItem(iron_chest);
+
+    let inv = $(".inventory");
+    for(let i = 0; i < player.inventory.length; i++){
+      inv.append($("<span/>",{
+        class: "slot",
+        style: "background: url('"+player.inventory[i].icon+"'); background-size: cover"
+      }).data("num", i));
+    }
+
     let info = $(".info");
     $(".slot").hover(function(){
       let self = $(this);
+      let container;
 
-      info.css({
-        display: "block",
-        left: $(this).offset().left - 10 - info.width() + "px",
-        top: $(this).offset().top + "px"
-      });
-      for(let i in player.equiped[self.attr("id")]){
-        if(i != "icon" && i != "equipable" && i)
-          info.append($("<span/>",{
-            text: i + ": " + player.equiped[self.attr("id")][i]
-          }));
+      if(self.parent().hasClass("slots")){
+        container = player.equiped[self.attr("id")];
+        for(let i in container){
+          if(i != "icon" && i != "equipable" && i)
+            info.append($("<span/>",{
+              text: i + ": " + container[i]
+            }));
+        }
       }
+      if(self.parent().hasClass("inventory")){
+        container = player.inventory;
+        for(let i in container[self.data("num")]){
+          if(i != "icon" && i != "equipable" && i){
+            info.append($("<span/>",{
+              text: i + ": " + container[self.data("num")][i]
+            }));
+          }
+        }
+      }
+
+      info.show();
+
     }, function(){
-      info.empty();
-      info.hide();
+      if(info.is(":visible")){
+        info.empty();
+        info.hide();
+      }
     });
+
 }
 
 function update(){
-  emitter.forEachAlive(function(p){	p.tint = 0xCC1100;	p.alpha = p.lifespan / emitter.lifespan;	});
-  death_effect.forEachAlive(function(p){	p.tint = 0x333333;	p.alpha = p.lifespan / emitter.lifespan;	});
+  emitter.forEachAlive(function(p){	p.tint = 0xCC1100; p.alpha = p.lifespan/emitter.lifespan; });
+  death_effect.forEachAlive(function(p){ p.tint = 0x333333; p.alpha = p.lifespan/emitter.lifespan; });
 }
 
 function render(){

@@ -1,10 +1,14 @@
+;
 'use strict';
+
 let renderer;
 let canvas;
 let target_sp;
 let mc;
 
 let chest_inv = document.getElementById("container");
+
+let Dungeon;
 
 // let test_map = [["w", "w", "w", "w", "w", "w", "w", "w", "w"],
 //                 ["w", "0", "0", "0", "0", "0", "0", "0", "w"],
@@ -36,6 +40,9 @@ let sprite_map = [];
 let collision_map = [];
 let item_map = [];
 let all_sprites = [];
+
+let smArr = [];
+let cmArr = [];
 
 let moveTimer;
 
@@ -162,7 +169,7 @@ class Chest extends Tile{
       // console.log(self.container);
       chest_inv.innerHTML = "";
       for(let i = 0; i < self.container.length; i++){
-        var item = document.createElement("DIV");
+        let item = document.createElement("DIV");
         item.className = "item_cell";
         item.style.background = "url("+self.container[i].icon+") no-repeat center";
         chest_inv.appendChild(item);
@@ -259,12 +266,12 @@ class Player extends Tile{
   }
 
   centerCamera(){
-    stage.camera.x = this.sprite.x - 608/2 + this.tile_size.w/2 ;
-    stage.camera.y = this.sprite.y - 608/2 + this.tile_size.h/2;
+    stage.camera.x = this.x - 608/2 + this.tile_size.w/2 ;
+    stage.camera.y = this.y - 608/2 + this.tile_size.h/2;
   }
 
   removePathAfter(path_length){
-    if(this.player_path_map[path_length-1] && this.x == this.player_path_map[path_length-1].sprite.x/this.tile_size.w && this.y == this.player_path_map[path_length-1].sprite.y/this.tile_size.h)
+    if(this.player_path_map[path_length-1] && this.x == this.player_path_map[path_length-1].x/this.tile_size.w && this.y == this.player_path_map[path_length-1].y/this.tile_size.h)
       this.player_path_map[path_length-1].sprite.destroy();
   }
 
@@ -375,6 +382,10 @@ class Player extends Tile{
         updateLog("["+this.hero_name + "] misses ["+target.hero_name+"] with [" + this.activeWeapon.name + "]");
       }
 
+      if(target.name == "enemy"){
+        target.fov.push(this.sprite);
+      }
+
       // update user interface information on hit (like health, magic, etc.)
       updateUI(this, target);
 
@@ -394,7 +405,7 @@ class Player extends Tile{
           // death of other stuff (like enemies)
           target.sprite.destroy();
           dead.play();
-          grid.setWalkableAt(target.sprite.x/target.tile_size.w, target.sprite.y/target.tile_size.h, true);
+          grid.setWalkableAt(target.x/target.tile_size.w, target.y/target.tile_size.h, true);
           var z = enemies.indexOf(target);
           if(z != -1) {
             enemies.splice(z, 1);
@@ -426,7 +437,7 @@ class Player extends Tile{
 
   lookForPlayer(sm){
     for(let i in enemies){
-      if(sm && sm.x == enemies[i].sprite.x && sm.y == enemies[i].sprite.y && this.name == "player"){
+      if(sm && sm.x == enemies[i].x && sm.y == enemies[i].y && this.name == "player"){
         enemies[i].state = 2;
         detectStateChange(enemies[i]);
       }
@@ -443,15 +454,15 @@ class Player extends Tile{
       allowDiagonal: true,
       dontCrossCorners: false
     });
-    let path = finder.findPath(Math.floor(this.sprite.x/this.tile_size.w), Math.floor(this.sprite.y/this.tile_size.h), Math.floor(px/this.tile_size.w), Math.floor(py/this.tile_size.h), grid.clone());
+    let path = finder.findPath(Math.floor(this.x/this.tile_size.w), Math.floor(this.y/this.tile_size.h), Math.floor(px/this.tile_size.w), Math.floor(py/this.tile_size.h), grid.clone());
 
     // if(path.length > 0 && this.name == "player"){
     //   for(let i = 1; i < path.length; i++){
-    //     // let pt = new Tile(path[i][0], path[i][1], 4, "t_path", "path");
-    //     // pt.sprite.inputEnabled = false;
-    //     // pt.state = 2;
-    //     // detectStateChange(pt);
-    //     // this.player_path_map.push(pt);
+    //     let pt = new Tile(path[i][0], path[i][1], 4, "t_path", "path");
+    //     pt.sprite.inputEnabled = false;
+    //     pt.state = 2;
+    //     detectStateChange(pt);
+    //     this.player_path_map.push(pt);
     //   }
     // }
 
@@ -466,7 +477,7 @@ class Player extends Tile{
 
   doFOV(){
     // check if player is in enemy's fov radius
-    if( this.name == "enemy" && this.fovRadius*this.tile_size.w < Math.sqrt((player.sprite.x - this.sprite.x)*(player.sprite.x - this.sprite.x) + (player.sprite.y - this.sprite.y)*(player.sprite.y - this.sprite.y)) ){
+    if( this.name == "enemy" && this.fovRadius*this.tile_size.w < Math.sqrt((player.x - this.x)*(player.x - this.x) + (player.y - this.y)*(player.y - this.y)) ){
       return false;
     }
     this.fov = [];
@@ -476,12 +487,14 @@ class Player extends Tile{
       let x = Math.cos(ray * 360/this.fovLines*Math.PI/180);
       let y = Math.sin(ray * 360/this.fovLines*Math.PI/180);
 
-      let ox = this.sprite.x + this.tile_size.w/2;
-      let oy = this.sprite.y + this.tile_size.h/2;
+      let ox = this.x + this.tile_size.w/2;
+      let oy = this.y + this.tile_size.h/2;
+
+      // console.log("ox:", ox, "oy:", oy);
 
       for(let i = 0; i < this.tile_size.w*this.fovRadius; i++){
-        let sm = sprite_map[Math.floor(ox/this.tile_size.w)][Math.floor(oy/this.tile_size.h)];
-        let em = collision_map[Math.floor(ox/this.tile_size.w)][Math.floor(oy/this.tile_size.h)];
+        let sm = smArr[Math.floor(ox/this.tile_size.w)][Math.floor(oy/this.tile_size.h)];
+        let cm = cmArr[Math.floor(ox/this.tile_size.w)][Math.floor(oy/this.tile_size.h)];
 
         // looking for an enemy
         if(this.name == "player"){
@@ -491,11 +504,12 @@ class Player extends Tile{
             sm.state = 2;
             detectStateChange(sm);
             this.fov.push(sm);
+            // console.log("sm", sm);
           }
-          if(em && em.state != 2){
-            em.state = 2;
-            detectStateChange(em);
-            this.fov.push(em);
+          if(cm && cm.state != 2){
+            cm.state = 2;
+            detectStateChange(cm);
+            this.fov.push(cm);
           }
         }
 
@@ -506,7 +520,7 @@ class Player extends Tile{
           }
         }
 
-        if(em && em.name && em.name == "collision"){
+        if(cm && cm.name && cm.name == "collision"){
           break;
         }
         ox += x;
@@ -516,12 +530,11 @@ class Player extends Tile{
   }
 
   setVisible(){
-
     // hide enemies when they are not in players FOV
     if(this.name == "player"){
       for(let i in this.fov){
         for(let j in enemies){
-          if(this.fov[i].sprite.x != enemies[j].sprite.x && this.fov[i].sprite.y != enemies[j].sprite.y){
+          if(this.fov[i].x != enemies[j].x && this.fov[i].y != enemies[j].y){
             enemies[j].state = 0;
             detectStateChange(enemies[j]);
           }
@@ -537,22 +550,6 @@ class Player extends Tile{
     }
   }
 
-  showSignAbove(sprite, sound){
-    if(this.sign){
-      let sign = this.sign;
-      sign.destroy();
-      this.sign = undefined;
-    }
-    let signSprite = stage.add.sprite(this.sprite.x, this.sprite.y-this.tile_size.h, sprite);
-    this.sign = signSprite;
-    sound.play();
-  }
-
-  removeSignAbove(sign){
-    if(sign)
-    sign.destroy();
-  }
-
 }// end of Player class
 
 
@@ -566,10 +563,10 @@ class Enemy extends Player{
     this.hasRanged = false;
     this.health = 50;
     this.attack = 5;
-    this.collectEnemies();
     this.portrait = portrait;
-
     this.counter = 1;
+
+    this.collectEnemies();
     this.doFOV();
     this.detectPlayer();
   }
@@ -581,12 +578,11 @@ class Enemy extends Player{
 
   detectPlayer(){
     if(this.fov.length > 0){
-      for(let i in this.fov){
-        if(this.fov[i].x == player.x*this.tile_size.w && this.fov[i].y == player.y*this.tile_size.h){
-
+      for(let i = 0; i < this.fov.length; i++){
+        if(this.fov[i].x == player.x && this.fov[i].y == player.y){
           // console.log(this.meleeR, Math.floor(Math.sqrt(Math.pow(((player.sprite.x)/32 - (this.sprite.x)/32),2) + Math.pow(((player.sprite.y)/32 - (this.sprite.y)/32),2))));
           if(this.magic >= this.activeWeapon.manaCost && this.activeWeapon.type == "melee" &&
-             this.meleeR < Math.floor(Math.sqrt(Math.pow(((player.sprite.x)/32 - (this.sprite.x)/32),2) + Math.pow(((player.sprite.y)/32 - (this.sprite.y)/32),2)))){
+             this.meleeR < Math.floor(Math.sqrt(Math.pow(((player.x)/32 - (this.x)/32),2) + Math.pow(((player.y)/32 - (this.y)/32),2)))){
             this.changeActiveWeapon();
           }else if(this.activeWeapon.type == "ranged" && this.magic < this.activeWeapon.manaCost){
             this.changeActiveWeapon();
@@ -617,6 +613,15 @@ class Item{
   }
 };
 
+class Armor extends Item{
+  constructor(name, price, weight, description, icon, type, armorValue, equipable, slot){
+    super(name, price, weight, description, icon);
+    this.equipable = equipable;
+    this.slot = slot;
+    this.armorValue = armorValue;
+    this.type = type;
+  }
+};
 
 class Weapon{
   constructor(obj){
@@ -632,22 +637,12 @@ class Weapon{
     this.manaCost = obj.manaCost;
     this.nature = obj.nature;
     this.slot = obj.slot;
+    this.wield = obj.wield;
   }
 };
-
-class Armor extends Item{
-  constructor(name, price, weight, description, icon, type, armorValue, equipable, slot){
-    super(name, price, weight, description, icon);
-    this.equipable = equipable;
-    this.slot = slot;
-    this.armorValue = armorValue;
-    this.type = type;
-  }
-};
-
 
 function detectStateChange(tile){
-  if(tile && tile.name != "player"){
+  if(tile && tile.name != "player" && tile.sprite){
     switch(tile.state){
       case 0:
         tile.sprite.tint = 0x000000;
@@ -701,7 +696,6 @@ function updateLog(message){
 function doStep(path){
   let i = 1;
 
-
   player.disableControl = true;
   // clearInterval(player.moveTimer);
   player.moveTimer = setInterval(function(){
@@ -715,8 +709,8 @@ function doStep(path){
         // let path = player.moveToPoint(px, py);
         player.sprite.x = path[i][0] * player.tile_size.w;
         player.sprite.y = path[i][1] * player.tile_size.h;
-        player.x = path[i][0];
-        player.y = path[i][1];
+        player.x = player.sprite.x;
+        player.y = player.sprite.y;
       }
 
       player.setVisible();
@@ -726,10 +720,9 @@ function doStep(path){
       player.moved = true;
 
       // let time = 0;
-      for(let j in enemies){
+      for(let j = 0; j < enemies.length; j++){
         let enemy = enemies[j];
         enemy.counter = 1;
-
         enemy.doFOV();
         enemy.detectPlayer();
         enemy.moved = false;
@@ -743,23 +736,23 @@ function doStep(path){
 
           clearInterval(player.moveTimer);
           player.disableControl = false;
-          if(enemy.activeWeapon.type == "melee"){
-            let epath = enemy.moveToPoint(player.sprite.x, player.sprite.y);
+          // if(enemy.activeWeapon.type == "melee"){
+            let epath = enemy.moveToPoint(player.x, player.y);
 
             if(epath && enemy.counter < epath.length - 1){
-              grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, true);
+              grid.setWalkableAt(enemy.x/enemy.tile_size.w, enemy.y/enemy.tile_size.h, true);
 
               enemy.sprite.x = epath[enemy.counter][0] * enemy.tile_size.w;
               enemy.sprite.y = epath[enemy.counter][1] * enemy.tile_size.h;
-              enemy.x = epath[enemy.counter][0];
-              enemy.y = epath[enemy.counter][1];
+              enemy.x = enemy.sprite.x;
+              enemy.y = enemy.sprite.y;
 
               enemy.moved = true;
 
-              grid.setWalkableAt(enemy.sprite.x/enemy.tile_size.w, enemy.sprite.y/enemy.tile_size.h, false);
+              grid.setWalkableAt(enemy.x/enemy.tile_size.w, enemy.y/enemy.tile_size.h, false);
               enemy.counter++;
             }
-          }
+          // }
           if(!enemy.moved){
             setTimeout(function(){
               enemy.hitTarget(player);
@@ -859,70 +852,113 @@ function preload() {
 
 }
 
-function create() {
-    // let plClass = prompt("Enter your class name [warrior or wizard]", 'warrior');
+Dungeon = {
+  display: null,
+  map_size: 40,
+  map: {},
 
-    let plClass = "warrior";
+  init: function() {
+    // this.display = new ROT.Display({width: this.map_size, height: this.map_size});
+    // document.body.appendChild(this.display.getContainer());
+    this._generateMap();
+  },
 
-    if(plClass != "warrior" && plClass != "wizard"){
-      plClass = "warrior"
+  _generateMap: function() {
+    var digger = new ROT.Map.Digger(this.map_size, this.map_size);
+    var freeCells = [];
+
+    var digCallback = function(x, y, value) {
+        if (value) {
+          var key = x+","+y;
+          this.map[key] = 0;
+          return;
+        }
+
+        var key = x+","+y;
+        this.map[key] = 1;
+        freeCells.push(key);
     }
+    digger.create(digCallback.bind(this));
+
+    this._generateBoxes(freeCells);
+
+    this._drawWholeMap();
+  },
+
+  _generateBoxes: function(freeCells) {
+    // for (var i=0;i<10;i++) {
+        var index = Math.floor(ROT.RNG.getUniform() * freeCells.length);
+        var key = freeCells.splice(index, 1)[0];
+        this.map[key] = "*";
+    // }
+  },
+  _drawWholeMap: function() {
+    for (let key in this.map) {
+      let parts = key.split(",");
+      let x = parseInt(parts[0]);
+      let y = parseInt(parts[1]);
+      // this.display.draw(x, y, this.map[key]);
+      if(this.map[key] == 1 || this.map[key] == "*"){
+        let chance = getRandomInt(1,100);
+        let floor;
+        if(chance <= 80){
+          floor = new Tile(x, y, 2, 't_floor', "floor");
+        }else{
+          floor = new Tile(x, y, 2, 't_floor2', "floor");
+        }
+        sprite_map.push(floor);
+        floor.addToStage();
+      }else{
+        let chance = getRandomInt(1,100);
+        let wall_01;
+        if(chance <= 80){
+          wall_01 = new Tile(x, y, 2, 't_wall', "collision");
+        }else{
+          wall_01 = new Tile(x, y, 2, 't_wall2', "collision");
+        }
+        collision_map.push(wall_01);
+        wall_01.sprite.inputEnabled = false;
+        wall_01.addToStage();
+        grid.setWalkableAt(x, y, false);
+      }
+    }
+  }
+
+};
+
+function create() {
+    grid = new PF.Grid(Dungeon.map_size, Dungeon.map_size);
 
     stage.world.setBounds(-Dungeon.map_size*32, -Dungeon.map_size*32, Dungeon.map_size*32*4, Dungeon.map_size*32*4);
 
-    grid = new PF.Grid(Dungeon.map_size, Dungeon.map_size);
+    Dungeon.init();
 
-    // draw only floor
     for(let i = 0; i < Dungeon.map_size; i++){
-      sprite_map[i] = [];
+      smArr[i] = [];
+      cmArr[i] = [];
       for(let j = 0; j < Dungeon.map_size; j++){
-        if(Dungeon.map[i][j] == 1){
-          let chance = getRandomInt(1,100);
-          let floor;
-          if(chance <= 80){
-            floor = new Tile(i, j, 2, 't_floor', "floor");
-          }else{
-            floor = new Tile(i, j, 2, 't_floor2', "floor");
+        for(let s in sprite_map){
+          if(sprite_map[s].x/32 == i && sprite_map[s].y/32 == j){
+            smArr[i][j] = sprite_map[s];
+            // continue;
           }
-          sprite_map[i][j] = floor;
-          sprite_map[i][j].addToStage();
+        }
+        for(let c in collision_map){
+          if(collision_map[c].x/32 == i && collision_map[c].y/32 == j){
+            cmArr[i][j] = collision_map[c];
+            // continue;
+          }
         }
       }
     }
 
-    // draw interactive objects on the floor
-    for(let i = 0; i < Dungeon.map_size; i++){
-      collision_map[i] = [];
-      for(let j = 0; j < Dungeon.map_size; j++){
-        if(Dungeon.map[i][j] == 2){
-          let chance = getRandomInt(1,100);
-          let wall_01;
-          if(chance <= 80){
-            wall_01 = new Tile(i, j, 2, 't_wall', "collision");
-          }else{
-            wall_01 = new Tile(i, j, 2, 't_wall2', "collision");
-          }
-          collision_map[i][j] = wall_01;
-          wall_01.sprite.inputEnabled = false;
-          wall_01.addToStage();
-          grid.setWalkableAt(i, j, false);
-        }
-      }
+    for(let i in sprite_map){
+      all_sprites.push(sprite_map[i]);
+    }
+    for(let i in collision_map){
+      all_sprites.push(collision_map[i]);
     }
 
-    for(let i = 0; i < Dungeon.map_size; i++){
-      for(let j = 0; j < Dungeon.map_size; j++){
-        if(collision_map[i][j])
-          all_sprites.push(collision_map[i][j]);
-      }
-    }
-
-    for(let i = 0; i < Dungeon.map_size; i++){
-      for(let j = 0; j < Dungeon.map_size; j++){
-        if(sprite_map[i][j])
-          all_sprites.push(sprite_map[i][j]);
-      }
-    }
 
     // // SOUNDS
     alert_s = stage.add.audio('alert');
@@ -936,8 +972,8 @@ function create() {
     pl_dead = stage.add.audio('pl_dead');
     game_over = stage.add.audio('game_over');
 
-    target_sp = new Phaser.Sprite();
-    stage.add.sprite(target_sp);
+    // target_sp = new Phaser.Sprite();
+    // stage.add.sprite(target_sp);
 
     // // ITEMS
     // WEAPONS
@@ -1032,19 +1068,48 @@ function create() {
       slot: "main_hand"
     });
 
+    let wizard_staff = new Weapon({
+      name: "Wizard's staff",
+      price: 0,
+      weight: 0,
+      description: "Basic wooden staff",
+      icon: undefined,
+      minDamage: 20,
+      maxDamage: 25,
+      type: "ranged",
+      manaCost: 1,
+      nature: "fire",
+      equipable: "true",
+      slot: "main_hand"
+    })
+
     // ARMOR
     // name, price, weight, description, icon, type, armorValue, equipable, slot
     let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "n/a", "armor", 15, true, "chest");
     let iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "n/a", "armor", 5, true, "boots")
     let magic_robe = new Armor("Leather robe", 0, 0, "Wizards rule", "n/a", "armor", 5, true, "chest");
-
+    let magic_socks = new Armor("Magic socks", 0, 0, "Stinks alot", "n/a", "armor", 3, true, "boots");
     // test
     let holy_plates = new Armor("Admin Admin", 0, 0, "Not for balance", "n/a", "armor", 80, true, "pants");
 
     // stage.physics.startSystem(Phaser.Physics.ARCADE);
 
+    let plClass = "warrior";
+
+    if(plClass != "warrior" && plClass != "wizard"){
+      plClass = "warrior"
+    }
+
     // SPAWN PLAYERS
-    player = new Player(1, 1, 3, "pl_"+plClass, 4, "player", "Hero " + plClass);
+    for(let key in Dungeon.map){
+      if(Dungeon.map[key] == "*"){
+        let parts = key.split(",");
+        let x = parseInt(parts[0]);
+        let y = parseInt(parts[1]);
+        player = new Player(x, y, 3, "pl_"+plClass, 4, "player", "Hero " + plClass);
+        break;
+      }
+    }
 
     switch(plClass){
       case "warrior":
@@ -1062,6 +1127,7 @@ function create() {
         player.equipItem(iron_sword);
         player.equipItem(fireball_sp);
         player.equipItem(magic_robe);
+        player.equipItem(magic_socks);
         player.inRangedCombat = true;
         player.stat.dexterity = 25;
         player.fovRadius = 5;
@@ -1086,8 +1152,8 @@ function create() {
       let rand_pos = getRandomPos();
       let skeleton = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "skeleton", 4, "enemy", "Spooky skeleton", "./images/skeleton_port.png");
       skeleton.stat.dexterity = 15;
-      skeleton.x = rand_pos.x/32;
-      skeleton.y = rand_pos.y/32;
+      skeleton.x = rand_pos.x;
+      skeleton.y = rand_pos.y;
       skeleton.setHealth(25);
       skeleton.setMagic(0);
       skeleton.equipItem(bone);
@@ -1098,8 +1164,8 @@ function create() {
       let rand_pos = getRandomPos();
       let dark_wizard = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dark_wizard", 6, "enemy", "Dark Wizard", "./images/dark_wizard_port.png");
       dark_wizard.stat.dexterity = 25;
-      dark_wizard.x = rand_pos.x/32;
-      dark_wizard.y = rand_pos.y/32;
+      dark_wizard.x = rand_pos.x;
+      dark_wizard.y = rand_pos.y;
       dark_wizard.setHealth(15);
       dark_wizard.setMagic(15);
       dark_wizard.equipItem(rusty_sword);
@@ -1111,8 +1177,8 @@ function create() {
       let rand_pos = getRandomPos();
       let skeleton2 = new Enemy(rand_pos.x/32, rand_pos.y/32, 4, "skeleton2", 4, "enemy", "Angry skeleton", "./images/skeleton2_port.png");
       skeleton2.stat.dexterity = 20;
-      skeleton2.x = rand_pos.x/32;
-      skeleton2.y = rand_pos.y/32;
+      skeleton2.x = rand_pos.x;
+      skeleton2.y = rand_pos.y;
       skeleton2.setHealth(30);
       skeleton2.setMagic(0);
       skeleton2.equipItem(rusty_sword);
@@ -1124,8 +1190,8 @@ function create() {
       let dragon = new Enemy(rand_pos.x/32, rand_pos.y/32, 3, "dummy", 4, "enemy", "Red fire dragon", "./images/dragon_port.png");
       dragon.stat.dexterity = 5;
       dragon.rangedR = dragon.fovRadius;
-      dragon.x = rand_pos.x/32;
-      dragon.y = rand_pos.y/32;
+      dragon.x = rand_pos.x;
+      dragon.y = rand_pos.y;
       dragon.setHealth(45);
       dragon.setMagic(3);
       dragon.equipItem(dragon_claws);

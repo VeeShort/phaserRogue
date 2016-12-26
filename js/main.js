@@ -29,7 +29,8 @@ let step_count = 0;
 let gameIsPaused = false;
 
 // SOUNDS
-let alert_s, pl_hit, en_hit, fire_hit, curse_hit, dead, pl_dead, game_over, miss, bad_hit;
+let alert_s, pl_hit, en_hit, fire_hit, curse_hit, dead, pl_dead, game_over, miss, bad_hit,
+    dooropened, doorclosed;
 
 let player_health, player_health_bg, pl_health_con = [];
 // PARTICLES
@@ -235,9 +236,9 @@ class Player extends Tile{
 
       // updateUI
       if(this.name == "player" && item.type == "armor")
-        $("#pl-"+item.slot).text(item.name+" ["+item.armorValue+"]");
+        $("#"+item.slot).css("background", "url("+item.icon+")").css("background-color", "#009688");
       if((item.type == "melee" || item.type == "ranged") && this.name === "player"){
-        $("#pl-"+item.slot).text(item.name+" ["+item.minDamage+"-"+item.maxDamage+"]");
+        $("#"+item.slot).css("background", "url("+item.icon+")").css("background-color", "#009688");
       }
     }
   }
@@ -553,10 +554,10 @@ class Enemy extends Player{
       for(let i = 0; i < this.fov.length; i++){
         if(this.fov[i].x == player.x && this.fov[i].y == player.y){
           // console.log(this.meleeR, Math.floor(Math.sqrt(Math.pow(((player.sprite.x)/32 - (this.sprite.x)/32),2) + Math.pow(((player.sprite.y)/32 - (this.sprite.y)/32),2))));
-          if(this.magic >= this.activeWeapon.manaCost && this.activeWeapon.type == "melee" &&
+          if(this.activeWeapon && this.magic >= this.activeWeapon.manaCost && this.activeWeapon.type == "melee" &&
              this.meleeR < Math.floor(Math.sqrt(Math.pow(((player.x)/32 - (this.x)/32),2) + Math.pow(((player.y)/32 - (this.y)/32),2)))){
             this.changeActiveWeapon();
-          }else if(this.activeWeapon.type == "ranged" && this.magic < this.activeWeapon.manaCost){
+          }else if(this.activeWeapon && this.activeWeapon.type == "ranged" && this.magic < this.activeWeapon.manaCost){
             this.changeActiveWeapon();
           }
 
@@ -683,6 +684,8 @@ function doStep(path){
           if(player.x == doors[j].x && player.y == doors[j].y){
             doors[j].name = "door_closed";
             doors[j].sprite.loadTexture("door_c");
+            doorclosed.play();
+            break;
           }
         }
 
@@ -695,6 +698,8 @@ function doStep(path){
           if(player.x == doors[j].x && player.y == doors[j].y){
             doors[j].name = "door_opened";
             doors[j].sprite.loadTexture("door_o");
+            dooropened.play();
+            break;
           }
         }
 
@@ -837,6 +842,8 @@ function preload() {
     stage.load.audio('pl_dead', "./sound/pl_dead.wav");
     stage.load.audio('miss', "./sound/miss.wav");
     stage.load.audio('bad_hit', "./sound/bad_hit.wav");
+    stage.load.audio('dooropened', "./sound/dooropened.wav");
+    stage.load.audio('doorclosed', "./sound/doorclosed.wav");
 }
 
 Dungeon = {
@@ -971,6 +978,8 @@ function create() {
     dead = stage.add.audio('dead');
     pl_dead = stage.add.audio('pl_dead');
     game_over = stage.add.audio('game_over');
+    dooropened = stage.add.audio('dooropened');
+    doorclosed = stage.add.audio('doorclosed');
 
     // target_sp = new Phaser.Sprite();
     // stage.add.sprite(target_sp);
@@ -1013,7 +1022,7 @@ function create() {
       price: 0,
       weight: 0,
       description: "Regular iron sword for killing stuff",
-      icon: undefined,
+      icon: "./images/icons/weapon/iron_sword.png",
       minDamage: 10,
       maxDamage: 15,
       type: "melee",
@@ -1044,8 +1053,8 @@ function create() {
       weight: 0,
       description: "Regular fireball",
       icon: undefined,
-      minDamage: 15,
-      maxDamage: 25,
+      minDamage: 13,
+      maxDamage: 20,
       type: "ranged",
       manaCost: 1,
       nature: "fire",
@@ -1081,12 +1090,27 @@ function create() {
       nature: "fire",
       equipable: "true",
       slot: "main_hand"
-    })
+    });
+
+    let scroll_of_fire = new Weapon({
+      name: "Scroll of Fire",
+      price: 0,
+      weight: 0,
+      description: "Old scroll",
+      icon: "./images/icons/weapon/scroll_white.png",
+      minDamage: 15,
+      maxDamage: 23,
+      type: "ranged",
+      manaCost: 1,
+      nature: "fire",
+      equipable: "true",
+      slot: "off_hand"
+    });
 
     // ARMOR
     // name, price, weight, description, icon, type, armorValue, equipable, slot
-    let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "n/a", "armor", 15, true, "chest");
-    let iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "n/a", "armor", 5, true, "boots")
+    let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "./images/icons/armor/iron_chest.png", "armor", 15, true, "chest");
+    let iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "./images/icons/armor/iron_boots.png", "armor", 5, true, "boots")
     let magic_robe = new Armor("Leather robe", 0, 0, "Wizards rule", "n/a", "armor", 5, true, "chest");
     let magic_socks = new Armor("Magic socks", 0, 0, "Stinks alot", "n/a", "armor", 3, true, "boots");
     // test
@@ -1116,7 +1140,7 @@ function create() {
         player.setHealth(50);
         player.setMagic(5);
         player.equipItem(iron_sword);
-        player.equipItem(fireball_sp);
+        player.equipItem(scroll_of_fire);
         player.equipItem(iron_chest);
         player.equipItem(iron_boots);
         player.stat.dexterity = 15;

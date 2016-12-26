@@ -16,6 +16,7 @@ let sprite_map = [];
 let collision_map = [];
 let item_map = [];
 let all_sprites = [];
+let doors = [];
 
 let smArr = [];
 let cmArr = [];
@@ -496,7 +497,7 @@ class Player extends Tile{
           }
         }
 
-        if(cm && cm.name && cm.name == "collision"){
+        if(cm && cm.name && (cm.name == "collision" || cm.name == "door_closed")){
           break;
         }
         ox += x;
@@ -515,12 +516,8 @@ class Player extends Tile{
             detectStateChange(enemies[j]);
           }
         }
-        for(let j = 0; j < all_sprites.length; j++){
-          if(this.fov[i] != all_sprites[j] && all_sprites[j].state == 2){
-            all_sprites[j].state = 1;
-            detectStateChange(all_sprites[j]);
-          }
-        }
+        this.fov[i].state = 1;
+        detectStateChange(this.fov[i]);
       }
     }
   }
@@ -681,11 +678,26 @@ function doStep(path){
       if(path){
         if($(".wait").not(":visible"))
           $(".wait").show();
-        // let path = player.moveToPoint(px, py);
+
+        for(let j = 0; j < doors.length; j++){
+          if(player.x == doors[j].x && player.y == doors[j].y){
+            doors[j].name = "door_closed";
+            doors[j].sprite.loadTexture("door_c");
+          }
+        }
+
         player.sprite.x = path[i][0] * player.tile_size.w;
         player.sprite.y = path[i][1] * player.tile_size.h;
         player.x = player.sprite.x;
         player.y = player.sprite.y;
+
+        for(let j = 0; j < doors.length; j++){
+          if(player.x == doors[j].x && player.y == doors[j].y){
+            doors[j].name = "door_opened";
+            doors[j].sprite.loadTexture("door_o");
+          }
+        }
+
       }
 
       player.setVisible();
@@ -804,7 +816,6 @@ function preload() {
     stage.load.image('t_path', './images/path_01.png');
     stage.load.image('dummy', './images/test_dragon.png');
     stage.load.image("path_end", "./images/path_end.png")
-    stage.load.image('walls', "./images/spritesheet/Objects/Wall.png");
     stage.load.image('t_alert', "./images/alert.png");
     stage.load.image("t_hit", "./images/hit_particle.png");
     stage.load.image("pl_dead", "./images/pl_dead.png");
@@ -812,6 +823,8 @@ function preload() {
     stage.load.image("skeleton", "./images/skeleton.png");
     stage.load.image("skeleton2", "./images/skeleton_2.png");
     stage.load.image("dark_wizard", "./images/dark_wizard.png");
+    stage.load.image("door_c", "./images/door_c.png");
+    stage.load.image("door_o", "./images/door_o.png");
 
     //AUDIO
     stage.load.audio('game_over', "./sound/ascending.mp3");
@@ -824,7 +837,6 @@ function preload() {
     stage.load.audio('pl_dead', "./sound/pl_dead.wav");
     stage.load.audio('miss', "./sound/miss.wav");
     stage.load.audio('bad_hit', "./sound/bad_hit.wav");
-
 }
 
 Dungeon = {
@@ -833,8 +845,6 @@ Dungeon = {
   map: {},
 
   init: function() {
-    // this.display = new ROT.Display({width: this.map_size, height: this.map_size});
-    // document.body.appendChild(this.display.getContainer());
     this._generateMap();
   },
 
@@ -843,21 +853,36 @@ Dungeon = {
     var freeCells = [];
 
     var digCallback = function(x, y, value) {
-        if (value) {
-          var key = x+","+y;
-          this.map[key] = 0;
-          return;
-        }
-
+      if (value) {
         var key = x+","+y;
-        this.map[key] = 1;
-        freeCells.push(key);
+        this.map[key] = 0;
+        return;
+      }
+
+      var key = x+","+y;
+      this.map[key] = 1;
+      freeCells.push(key);
     }
+
     digger.create(digCallback.bind(this));
 
     this._generateBoxes(freeCells);
 
     this._drawWholeMap();
+
+    var drawDoor = function(x, y) {
+      let door = new Tile(x, y, 2, 'door_c', 'door_closed');
+      doors.push(door);
+      door.addToStage();
+      collision_map.push(door);
+    }
+
+    var rooms = digger.getRooms();
+    for (var i = 0; i < rooms.length; i++) {
+        var room = rooms[i];
+        room.getDoors(drawDoor);
+    }
+
   },
 
   _generateBoxes: function(freeCells) {

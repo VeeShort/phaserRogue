@@ -219,3 +219,18 @@ body{
   margin-left: 106px;
   top: 111px;
 }
+
+/*INFO*/
+.info{
+  display: none;
+  position: absolute;
+  padding: 3px 5px;
+  background: #333;
+  width: 200px;
+}
+
+.info span{
+  color: #ccc;
+  display: block;
+  text-transform: capitalize;
+}

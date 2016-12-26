@@ -1251,11 +1251,30 @@ function create() {
     // player.sprite.animations.add('right', [8, 9, 10, 11], 10, true);
     // player.sprite.animations.add('up', [12, 13, 14, 15], 10, true);
     // player.sprite.animations.add('down', [0, 1, 2, 3], 10, true);
+    let info = $(".info");
+    $(".slot").hover(function(){
+      let self = $(this);
+
+      info.css({
+        display: "block",
+        left: $(this).offset().left - 10 - info.width() + "px",
+        top: $(this).offset().top + "px"
+      });
+      for(let i in player.equiped[self.attr("id")]){
+        if(i != "icon" && i != "equipable" && i)
+          info.append($("<span/>",{
+            text: i + ": " + player.equiped[self.attr("id")][i]
+          }));
+      }
+    }, function(){
+      info.empty();
+      info.hide();
+    });
 }
 
 function update(){
-  emitter.forEachAlive(function(p){	p.tint = 0xCC1100;	p.alpha= p.lifespan / emitter.lifespan;	});
-  death_effect.forEachAlive(function(p){	p.tint = 0x333333;	p.alpha= p.lifespan / emitter.lifespan;	});
+  emitter.forEachAlive(function(p){	p.tint = 0xCC1100;	p.alpha = p.lifespan / emitter.lifespan;	});
+  death_effect.forEachAlive(function(p){	p.tint = 0x333333;	p.alpha = p.lifespan / emitter.lifespan;	});
 }
 
 function render(){

@@ -249,6 +249,7 @@ body{
 }
 .container.inf{
   width: 50%;
+  height: 170px;
 }
 
 .info span{
@@ -258,10 +259,13 @@ body{
 }
 
 /*inventory*/
+.inventory{
+  width: 50%
+}
 .inventory span{
   display: inline-block;
   height: 32px;
   width: 32px;
   border: 1px solid #ccc;
-  margin: 0 1px 1px 0;
+  margin: -4px 1px 1px 0;
 }

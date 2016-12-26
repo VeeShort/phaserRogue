@@ -689,7 +689,7 @@ function doStep(path){
             doors[j].name = "door_closed";
             doors[j].sprite.loadTexture("door_c");
             doorclosed.play();
-            break;
+            // break;
           }
         }
 
@@ -703,7 +703,7 @@ function doStep(path){
             doors[j].name = "door_opened";
             doors[j].sprite.loadTexture("door_o");
             dooropened.play();
-            break;
+            // break;
           }
         }
 
@@ -1256,8 +1256,19 @@ function create() {
     // player.sprite.animations.add('up', [12, 13, 14, 15], 10, true);
     // player.sprite.animations.add('down', [0, 1, 2, 3], 10, true);
     player.giveItem(iron_boots);
+    player.giveItem(scroll_of_fire);
     player.giveItem(iron_boots);
     player.giveItem(iron_chest);
+    player.giveItem(iron_boots);
+    player.giveItem(scroll_of_fire);
+    player.giveItem(scroll_of_fire);
+    player.giveItem(iron_boots);
+    player.giveItem(iron_chest);
+    player.giveItem(iron_chest);
+    player.giveItem(scroll_of_fire);
+    player.giveItem(scroll_of_fire);
+    player.giveItem(scroll_of_fire);
+    player.giveItem(iron_boots);
 
     let inv = $(".inventory");
     for(let i = 0; i < player.inventory.length; i++){

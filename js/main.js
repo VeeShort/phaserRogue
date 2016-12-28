@@ -48,6 +48,12 @@ let isWarrior = false;
 // creating stage
 let stage = new Phaser.Game(608, 608, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
+// minimap
+let minimap = document.getElementById("minimap");
+let c = minimap.getContext("2d");
+c.canvas.width = 209;
+c.canvas.height = 209;
+
 class Tile {
   constructor(x, y, z_index, texture_path, name){
     let self = this;
@@ -768,6 +774,7 @@ function doStep(path){
       }
 
       i++;
+      updateMiniMap();
 
     }
   }, player.moveDelay);
@@ -807,6 +814,29 @@ function getRandomPos(){
     }
   }
   return rand_pos;
+}
+
+function updateMiniMap(){
+  let scale = c.canvas.width/Dungeon.map_size;
+  c.clearRect(0, 0, c.canvas.width, c.canvas.height);
+  for(let i = 0; i < all_sprites.length; i++){
+    if(all_sprites[i].name && all_sprites[i].state != 0){
+      if(all_sprites[i].name && all_sprites[i].name == "floor" && all_sprites[i].state == 2){
+        c.fillStyle = "#fff";
+        c.fillRect((all_sprites[i].x/32)*scale, (all_sprites[i].y/32)*scale, 32/scale, 32/scale);
+      }
+      if(all_sprites[i].name && all_sprites[i].name == "floor" && all_sprites[i].state == 1){
+        c.fillStyle = "#333";
+        c.fillRect((all_sprites[i].x/32)*scale, (all_sprites[i].y/32)*scale, 32/scale, 32/scale);
+      }
+      if(all_sprites[i].name == "door_closed" || all_sprites[i].name == "door_opened"){
+        c.fillStyle = "#893a02";
+        c.fillRect((all_sprites[i].x/32)*scale, (all_sprites[i].y/32)*scale, 32/scale, 32/scale);
+      }
+      c.fillStyle = "#2b8e1d";
+      c.fillRect((player.x/32)*scale, (player.y/32)*scale, 32/scale, 32/scale);
+    }
+  }
 }
 
 
@@ -1311,6 +1341,8 @@ function create() {
         info.hide();
       }
     });
+
+    updateMiniMap();
 
 }
 

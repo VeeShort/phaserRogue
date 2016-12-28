@@ -77,23 +77,10 @@ class Tile {
     this.disableControl = false;
     // texture and sprite
     this.texture_path = texture_path;
-    // this.sprite = new PIXI.Sprite(new PIXI.Texture.fromImage(this.texture_path));
 
-    // position
-    // this.sprite.position.x = x * this.tile_size.w;
-    // this.sprite.position.y = y * this.tile_size.h;
-
-    // this.x = this.sprite.position.x/this.tile_size.w;
-    // this.y = this.sprite.position.y/this.tile_size.h;
-    // interactive sprites
-    // this.sprite.interactive ;
-
-    // this.sprite = this.texture_path;
-    this.sprite = stage.add.sprite(this.x, this.y, this.texture_path);
+    // this.sprite = stage.add.sprite(this.x, this.y, this.texture_path);
+    this.addToStage();
     this.sprite.inputEnabled = true;
-
-    // sprite alpha
-    // this.sprite.alpha = 0;
 
     this.state = 0;
     // 0 - hidden
@@ -121,25 +108,25 @@ class Tile {
     if(this.name){
       switch(this.name){
         case "player":
-          gr_players.create(this.sprite);
+          this.sprite = gr_players.create(this.x, this.y, this.texture_path);
         break;
         case "enemy":
-          gr_players.create(this.sprite);
+          this.sprite = gr_players.create(this.x, this.y, this.texture_path);
         break;
         case "floor":
-          gr_map.create(this.sprite);
+          this.sprite = gr_map.create(this.x, this.y, this.texture_path);
         break;
         case "collision":
-          gr_map.create(this.sprite);
+          this.sprite = gr_map.create(this.x, this.y, this.texture_path);
         break;
         case "door_closed":
-          gr_map.create(this.sprite);
+          this.sprite = gr_items.create(this.x, this.y, this.texture_path);
         break;
         case "door_opened":
-          gr_map.create(this.sprite);
+          this.sprite = gr_items.create(this.x, this.y, this.texture_path);
         break;
         case "loot":
-          gr_items.create(this.sprite);
+          this.sprite = gr_items.create(this.x, this.y, this.texture_path);
         break;
       }
     }
@@ -409,7 +396,7 @@ class Player extends Tile{
           // death of other stuff (like enemies)
 
           // spawn loot
-          let loot_chest = new Chest(target.x/this.tile_size.w, target.y/this.tile_size.h, 3, "loot", "Loot from the Fallen", {
+          let loot_chest = new Chest(target.x/this.tile_size.w, target.y/this.tile_size.h, 3, "loot", "loot", {
             iron_sword,
             iron_boots
           });
@@ -417,7 +404,8 @@ class Player extends Tile{
           detectStateChange(loot_chest);
           this.fov.push(loot_chest);
 
-          target.sprite.destroy();
+          // target.sprite.destroy();
+          gr_players.remove(target.sprite);
           dead.play();
           grid.setWalkableAt(target.x/target.tile_size.w, target.y/target.tile_size.h, true);
 
@@ -940,7 +928,7 @@ Dungeon = {
     var drawDoor = function(x, y) {
       let door = new Tile(x, y, 2, 'door_c', 'door_closed');
       doors.push(door);
-      door.addToStage();
+      // door.addToStage();
       collision_map.push(door);
     }
 
@@ -974,7 +962,7 @@ Dungeon = {
           floor = new Tile(x, y, 2, 't_floor2', "floor");
         }
         sprite_map.push(floor);
-        floor.addToStage();
+        // floor.addToStage();
       }else{
         let chance = getRandomInt(1,100);
         let wall_01;
@@ -985,7 +973,7 @@ Dungeon = {
         }
         collision_map.push(wall_01);
         wall_01.sprite.inputEnabled = false;
-        wall_01.addToStage();
+        // wall_01.addToStage();
         grid.setWalkableAt(x, y, false);
       }
     }
@@ -1001,11 +989,11 @@ function create() {
     gr_map = stage.add.group();
     gr_items = stage.add.group();
     gr_players = stage.add.group();
+
     console.log("map:", gr_map.z, "items:", gr_items.z, "players:", gr_players.z);
+
     Dungeon.init();
 
-    stage.world.bringToTop(gr_players);
-    console.log("map:", gr_map.z, "items:", gr_items.z, "players:", gr_players.z);
     for(let i = 0; i < Dungeon.map_size; i++){
       smArr[i] = [];
       cmArr[i] = [];
@@ -1247,7 +1235,7 @@ function create() {
       skeleton.setHealth(25);
       skeleton.setMagic(0);
       skeleton.equipItem(bone);
-      skeleton.addToStage();
+      // skeleton.addToStage();
     }
 
     for(let i = 0; i < 1; i++){
@@ -1260,7 +1248,7 @@ function create() {
       dark_wizard.setMagic(15);
       dark_wizard.equipItem(rusty_sword);
       dark_wizard.equipItem(wand_of_curse);
-      dark_wizard.addToStage();
+      // dark_wizard.addToStage();
     }
 
     for(let i = 0; i < 5; i++){
@@ -1272,7 +1260,7 @@ function create() {
       skeleton2.setHealth(30);
       skeleton2.setMagic(0);
       skeleton2.equipItem(rusty_sword);
-      skeleton2.addToStage();
+      // skeleton2.addToStage();
     }
 
     for(let i = 0; i < 2; i++){
@@ -1286,7 +1274,7 @@ function create() {
       dragon.setMagic(3);
       dragon.equipItem(dragon_claws);
       dragon.equipItem(fireball_sp);
-      dragon.addToStage();
+      // dragon.addToStage();
     }
 
     emitter = stage.add.emitter(0, 0, 20);
@@ -1300,7 +1288,7 @@ function create() {
     death_effect.setYSpeed(-40, 10);
 	  death_effect.setXSpeed(-15, 15);
 
-    player.addToStage();
+    // player.addToStage();
     player.setVisible();
     player.doFOV();
     player.centerCamera();

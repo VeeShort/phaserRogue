@@ -17,6 +17,7 @@ let collision_map = [];
 let item_map = [];
 let all_sprites = [];
 let doors = [];
+let lootArr = [];
 
 let smArr = [];
 let cmArr = [];
@@ -402,7 +403,7 @@ class Player extends Tile{
           });
           loot_chest.state = 2;
           detectStateChange(loot_chest);
-          this.fov.push(loot_chest);
+          lootArr.push(loot_chest);
 
           // target.sprite.destroy();
           gr_players.remove(target.sprite);
@@ -698,6 +699,7 @@ function doStep(path){
     if(!gameIsPaused){
       if($(".warning").is(":visible"))
         $(".warning").hide();
+
       // move player to the next path section
       if(path){
         if($(".wait").not(":visible"))
@@ -726,6 +728,17 @@ function doStep(path){
           }
         }
 
+        for(let j = 0; j < lootArr.length; j++){
+          if(player.x == lootArr[j].x && player.y == lootArr[j].y){
+            if($(".on-loot").not(":visible")){
+              $(".on-loot").css("display", "block");
+              break;
+              }
+            }else if($(".on-loot").is(":visible")){
+                $(".on-loot").hide();
+            }
+        }
+
       }
 
       player.setVisible();
@@ -745,7 +758,7 @@ function doStep(path){
         if(enemy.targetFound){
 
           if($(".warning").not(":visible"))
-            $(".warning").show();
+            $(".warning").css("display", "block");
           if($(".wait").is(":visible"))
               $(".wait").hide();
 

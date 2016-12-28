@@ -20,6 +20,7 @@ let doors = [];
 
 let smArr = [];
 let cmArr = [];
+let lmArr = [];
 
 let moveTimer;
 
@@ -44,7 +45,7 @@ let isMage = false;
 let isWarrior = false;
 
 // let g = new PIXI.Graphics();
-
+let gr_map, gr_players, gr_items;
 // creating stage
 let stage = new Phaser.Game(608, 608, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
@@ -53,6 +54,8 @@ let minimap = document.getElementById("minimap");
 let c = minimap.getContext("2d");
 c.canvas.width = 209;
 c.canvas.height = 209;
+
+let iron_sword, iron_boots;
 
 class Tile {
   constructor(x, y, z_index, texture_path, name){
@@ -115,7 +118,32 @@ class Tile {
   }
 
   addToStage(){
-    stage.add.sprite(this.sprite);
+    if(this.name){
+      switch(this.name){
+        case "player":
+          gr_players.create(this.sprite);
+        break;
+        case "enemy":
+          gr_players.create(this.sprite);
+        break;
+        case "floor":
+          gr_map.create(this.sprite);
+        break;
+        case "collision":
+          gr_map.create(this.sprite);
+        break;
+        case "door_closed":
+          gr_map.create(this.sprite);
+        break;
+        case "door_opened":
+          gr_map.create(this.sprite);
+        break;
+        case "loot":
+          gr_items.create(this.sprite);
+        break;
+      }
+    }
+    // stage.add.sprite(this.sprite);
   }
 
   tileOnClick(){
@@ -144,21 +172,9 @@ class Tile {
 
 
 class Chest extends Tile{
-  constructor(x, y, z_index, texture_path){
+  constructor(x, y, z_index, texture_path, name, loot){
     super(x, y, z_index, texture_path, name);
-    let self = this;
-    this.container = [];
-
-    this.sprite.on("mouseup", function(){
-      // console.log(self.container);
-      chest_inv.innerHTML = "";
-      for(let i = 0; i < self.container.length; i++){
-        let item = document.createElement("DIV");
-        item.className = "item_cell";
-        item.style.background = "url("+self.container[i].icon+") no-repeat center";
-        chest_inv.appendChild(item);
-      }
-    });
+    this.loot = loot;
   }
 };
 
@@ -391,9 +407,20 @@ class Player extends Tile{
           death_effect.start(false, 2000, 100);
         }else{
           // death of other stuff (like enemies)
+
+          // spawn loot
+          let loot_chest = new Chest(target.x/this.tile_size.w, target.y/this.tile_size.h, 3, "loot", "Loot from the Fallen", {
+            iron_sword,
+            iron_boots
+          });
+          loot_chest.state = 2;
+          detectStateChange(loot_chest);
+          this.fov.push(loot_chest);
+
           target.sprite.destroy();
           dead.play();
           grid.setWalkableAt(target.x/target.tile_size.w, target.y/target.tile_size.h, true);
+
           var z = enemies.indexOf(target);
           if(z != -1) {
             enemies.splice(z, 1);
@@ -483,6 +510,7 @@ class Player extends Tile{
       for(let i = 0; i < this.tile_size.w*this.fovRadius; i++){
         let sm = smArr[Math.floor(ox/this.tile_size.w)][Math.floor(oy/this.tile_size.h)];
         let cm = cmArr[Math.floor(ox/this.tile_size.w)][Math.floor(oy/this.tile_size.h)];
+        // let lm = lmArr[Math.floor(ox/this.tile_size.w)][Math.floor(oy/this.tile_size.h)];
 
         // looking for an enemy
         if(this.name == "player"){
@@ -635,9 +663,6 @@ function detectStateChange(tile){
       break;
       case 2:
         tile.sprite.tint = 0xFFFFFF;
-      break;
-      case 3:
-        tile.sprite.alpha = 0.2;
       break;
     }
   }
@@ -864,6 +889,7 @@ function preload() {
     stage.load.image("dark_wizard", "./images/dark_wizard.png");
     stage.load.image("door_c", "./images/door_c.png");
     stage.load.image("door_o", "./images/door_o.png");
+    stage.load.image("loot", "./images/loot.png");
 
     //AUDIO
     stage.load.audio('game_over', "./sound/ascending.mp3");
@@ -972,8 +998,14 @@ function create() {
 
     stage.world.setBounds(-Dungeon.map_size*32, -Dungeon.map_size*32, Dungeon.map_size*32*4, Dungeon.map_size*32*4);
 
+    gr_map = stage.add.group();
+    gr_items = stage.add.group();
+    gr_players = stage.add.group();
+    console.log("map:", gr_map.z, "items:", gr_items.z, "players:", gr_players.z);
     Dungeon.init();
 
+    stage.world.bringToTop(gr_players);
+    console.log("map:", gr_map.z, "items:", gr_items.z, "players:", gr_players.z);
     for(let i = 0; i < Dungeon.map_size; i++){
       smArr[i] = [];
       cmArr[i] = [];
@@ -1051,7 +1083,7 @@ function create() {
       slot: "main_hand"
     });
 
-    let iron_sword = new Weapon({
+    iron_sword = new Weapon({
       name: "Iron Sword",
       price: 0,
       weight: 0,
@@ -1144,7 +1176,7 @@ function create() {
     // ARMOR
     // name, price, weight, description, icon, type, armorValue, equipable, slot
     let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "./images/icons/armor/iron_chest.png", "armor", 15, true, "chest");
-    let iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "./images/icons/armor/iron_boots.png", "armor", 5, true, "boots")
+    iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "./images/icons/armor/iron_boots.png", "armor", 5, true, "boots")
     let magic_robe = new Armor("Leather robe", 0, 0, "Wizards rule", "n/a", "armor", 5, true, "chest");
     let magic_socks = new Armor("Magic socks", 0, 0, "Stinks alot", "n/a", "armor", 3, true, "boots");
     // test

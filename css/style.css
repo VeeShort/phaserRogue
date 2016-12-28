@@ -269,3 +269,13 @@ body{
   border: 1px solid #ccc;
   margin: -4px 1px 1px 0;
 }
+
+/*minimap*/
+.container.minimap{
+  width: 100%;
+}
+#minimap{
+  float: left;
+  border: 1px solid #333;
+  margin: 0;
+}

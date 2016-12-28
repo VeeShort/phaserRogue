@@ -121,15 +121,18 @@ body{
 .pl-text span{
   color: #ccc;
 }
-.mini-icon{
-  display: none;
+.icon-container{
   position: absolute;
-}
-.warning{
-  top: 10px;
   left: -40px;
+  top: 10px;
+}
+.icon-container img{
+  display: none;
+  margin-bottom: 5px;
 }
 .wait{
+  display: none;
+  position: absolute;
   top: 10px;
   left: 15px;
 }

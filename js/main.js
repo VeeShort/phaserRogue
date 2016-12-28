@@ -405,6 +405,8 @@ class Player extends Tile{
           detectStateChange(loot_chest);
           lootArr.push(loot_chest);
 
+          this.fov.push(loot_chest);
+
           // target.sprite.destroy();
           gr_players.remove(target.sprite);
           dead.play();

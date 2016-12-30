@@ -136,7 +136,7 @@ class Tile {
 
   tileOnClick(){
     let self = this;
-    this.sprite.events.onInputDown.add(function(){
+    this.sprite.events.onInputDown.add(function(result){
       if(self.state != 0 && !player.disableControl){
         gameIsPaused = false;
         if(this.name && this.name != "enemy" && this.name != "player"){
@@ -239,6 +239,7 @@ class Player extends Tile{
 
   giveItem(item){
     this.inventory.push(item);
+    updateInvInfo();
   }
 
   equipItem(item){
@@ -253,6 +254,21 @@ class Player extends Tile{
         $("#"+item.slot).css("background", "url("+item.icon+")").css("background-color", "#009688");
       if((item.type == "melee" || item.type == "ranged") && this.name === "player"){
         $("#"+item.slot).css("background", "url("+item.icon+")").css("background-color", "#009688");
+      }
+    }
+  }
+
+  lootItems(){
+    if(!this.disableControl){
+      for(let i = 0; i < lootArr.length; i++){
+        if(this.x == lootArr[i].x && this.y == lootArr[i].y){
+          for(let j in lootArr[i].loot){
+            this.giveItem(lootArr[i].loot[j]);
+          }
+          updateInvInfo();
+          lootArr[i].sprite.destroy();
+          lootArr.splice(i, 1);
+        }
       }
     }
   }
@@ -689,6 +705,17 @@ function updateLog(message){
   }));
   if($(".log-container").children().length > 5){
     $(".log-container p").first().remove();
+  }
+}
+
+function updateInvInfo(){
+  let inv = $(".inventory");
+  inv.empty();
+  for(let i = 0; i < player.inventory.length; i++){
+    inv.append($("<span/>",{
+      class: "slot",
+      style: "background: url('"+player.inventory[i].icon+"'); background-size: cover"
+    }).data("num", i));
   }
 }
 
@@ -1315,6 +1342,12 @@ function create() {
     rKey.onDown.add(function(){
       player.changeActiveWeapon();
     }, this);
+
+    spaceKey = stage.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+    spaceKey.onDown.add(function(){
+      player.lootItems();
+    }, this);
     // player movement animation
     // player.sprite.animations.add('left', [4, 5, 6, 7], 10, true);
     // player.sprite.animations.add('right', [8, 9, 10, 11], 10, true);
@@ -1334,14 +1367,6 @@ function create() {
     player.giveItem(scroll_of_fire);
     player.giveItem(scroll_of_fire);
     player.giveItem(iron_boots);
-
-    let inv = $(".inventory");
-    for(let i = 0; i < player.inventory.length; i++){
-      inv.append($("<span/>",{
-        class: "slot",
-        style: "background: url('"+player.inventory[i].icon+"'); background-size: cover"
-      }).data("num", i));
-    }
 
     let info = $(".info");
     $(".slot").hover(function(){

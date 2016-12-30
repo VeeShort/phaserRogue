@@ -1277,6 +1277,7 @@ function create() {
       skeleton.setHealth(25);
       skeleton.setMagic(0);
       skeleton.equipItem(bone);
+      grid.setWalkableAt(skeleton.x, skeleton.y, false);
       // skeleton.addToStage();
     }
 
@@ -1290,6 +1291,7 @@ function create() {
       dark_wizard.setMagic(15);
       dark_wizard.equipItem(rusty_sword);
       dark_wizard.equipItem(wand_of_curse);
+      grid.setWalkableAt(dark_wizard.x, dark_wizard.y, false);
       // dark_wizard.addToStage();
     }
 
@@ -1302,6 +1304,7 @@ function create() {
       skeleton2.setHealth(30);
       skeleton2.setMagic(0);
       skeleton2.equipItem(rusty_sword);
+      grid.setWalkableAt(skeleton2.x, skeleton2.y, false);
       // skeleton2.addToStage();
     }
 
@@ -1353,20 +1356,6 @@ function create() {
     // player.sprite.animations.add('right', [8, 9, 10, 11], 10, true);
     // player.sprite.animations.add('up', [12, 13, 14, 15], 10, true);
     // player.sprite.animations.add('down', [0, 1, 2, 3], 10, true);
-    player.giveItem(iron_boots);
-    player.giveItem(scroll_of_fire);
-    player.giveItem(iron_boots);
-    player.giveItem(iron_chest);
-    player.giveItem(iron_boots);
-    player.giveItem(scroll_of_fire);
-    player.giveItem(scroll_of_fire);
-    player.giveItem(iron_boots);
-    player.giveItem(iron_chest);
-    player.giveItem(iron_chest);
-    player.giveItem(scroll_of_fire);
-    player.giveItem(scroll_of_fire);
-    player.giveItem(scroll_of_fire);
-    player.giveItem(iron_boots);
 
     let info = $(".info");
     $(".slot").hover(function(){

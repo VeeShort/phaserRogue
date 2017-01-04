@@ -1,4 +1,3 @@
-;
 'use strict';
 
 let renderer;
@@ -39,7 +38,7 @@ let player_health, player_health_bg, pl_health_con = [];
 let emitter, death_effect;
 
 // KEYS
-let rKey;
+let rKey, spaceKey;
 
 //CLASSES
 let isMage = false;
@@ -1277,7 +1276,7 @@ function create() {
       skeleton.setHealth(25);
       skeleton.setMagic(0);
       skeleton.equipItem(bone);
-      grid.setWalkableAt(skeleton.x, skeleton.y, false);
+      grid.setWalkableAt(skeleton.x/32, skeleton.y/32, false);
       // skeleton.addToStage();
     }
 
@@ -1291,7 +1290,7 @@ function create() {
       dark_wizard.setMagic(15);
       dark_wizard.equipItem(rusty_sword);
       dark_wizard.equipItem(wand_of_curse);
-      grid.setWalkableAt(dark_wizard.x, dark_wizard.y, false);
+      grid.setWalkableAt(dark_wizard.x/32, dark_wizard.y/32, false);
       // dark_wizard.addToStage();
     }
 
@@ -1304,7 +1303,7 @@ function create() {
       skeleton2.setHealth(30);
       skeleton2.setMagic(0);
       skeleton2.equipItem(rusty_sword);
-      grid.setWalkableAt(skeleton2.x, skeleton2.y, false);
+      grid.setWalkableAt(skeleton2.x/32, skeleton2.y/32, false);
       // skeleton2.addToStage();
     }
 

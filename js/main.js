@@ -267,6 +267,7 @@ class Player extends Tile{
           updateInvInfo();
           lootArr[i].sprite.destroy();
           lootArr.splice(i, 1);
+          if($(".on-loot").is(":visible")) $(".on-loot").hide();
         }
       }
     }
@@ -863,7 +864,7 @@ function getRandomPos(){
   let rand_pos;
   while(rand_pos === undefined){
     let point = all_sprites[getRandomInt(0, all_sprites.length-1)];
-    if(point && point.name && point.name == "floor" && point.name != "door_closed" && point.sprite.x != player.sprite.x && point.sprite.y != player.sprite.x){
+    if(point && point.name && point.name == "floor" && point.name != "door_closed" && point.x != player.x && point.y != player.y){
       rand_pos = point;
     }
   }

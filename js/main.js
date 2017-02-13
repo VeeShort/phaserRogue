@@ -82,6 +82,7 @@ function Timer(callback, delay) {
     this.resume();
 }
 
+
 function doStep(path){
   let i = 1;
 

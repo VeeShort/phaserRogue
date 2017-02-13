@@ -5,7 +5,7 @@ let canvas;
 let target_sp;
 let mc;
 
-let en_priority = [];
+let en_priority = []; // list of enemies that agro to you at the moment (updates dynamicaly)
 
 let chest_inv = document.getElementById("container");
 

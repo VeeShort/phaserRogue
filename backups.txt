@@ -1,0 +1,53 @@
+key movement
+// movePlayer(){
+//   let self = this;
+//   document.onkeydown = function(ev){
+//     switch(ev.keyCode){
+//       case KEYS.W:
+//         self.y -= self.tile_size.h;
+//       break;
+//       case KEYS.A:
+//         self.x -= self.tile_size.w;
+//       break;
+//       case KEYS.S:
+//         self.y += self.tile_size.h;
+//       break;
+//       case KEYS.D:
+//         self.x += self.tile_size.w;
+//       break;
+//     }
+//   }
+//   self.setVisible();
+// }
+
+fov visualisation
+//     // g.clear();
+//     // g.lineStyle(1, "0x00ff08", .8);
+//     // for(var i = 0; i < 64; i++){
+//     //   var x, y;
+//     //   g.moveTo(self.sprite.position.x + self.tile_size.w/2, self.sprite.position.y + self.tile_size.h/2);
+//     //   x = self.sprite.position.x + self.tile_size.w/2 + self.tile_size.w*self.fovRadius*Math.cos(i*0.0981747704);
+//     //   y = self.sprite.position.y + self.tile_size.h/2 + self.tile_size.h*self.fovRadius*Math.sin(i*0.0981747704);
+//     //   g.lineTo(x, y);
+//     // }
+//     // stage.addChild(g);
+//
+//
+//     self.setVisible();
+//   }
+// }
+
+animation
+// if(i < path.length-1 && path[i][0] > path[i+1][0] && path[i][1] == path[i+1][1]){
+//   player.sprite.play("left");
+// }
+// if(i < path.length-1 && path[i][0] < path[i+1][0] && path[i][1] == path[i+1][1]){
+//   player.sprite.play("right");
+// }
+// if(i < path.length-1 && path[i][0] == path[i+1][0] && path[i][1] > path[i+1][1]){
+//   player.sprite.play("up");
+// }
+// if(i < path.length-1 && path[i][0] == path[i+1][0] && path[i][1] < path[i+1][1]){
+//   player.sprite.play("down");
+// }
+// countStep();

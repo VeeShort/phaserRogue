@@ -1,0 +1,306 @@
+*{
+  padding: 0;
+  margin: 0;
+}
+canvas{
+  margin: 15px;
+  float: right;
+}
+
+@font-face {
+  font-family: "iso9";
+  src: url("/fonts/Px437_IBM_ISO9.ttf");
+}
+@font-face {
+  font-family: "pxl";
+  src: url("/fonts/Pxlvetica.ttf");
+}
+@font-face {
+  font-family: "munro narrow";
+  src: url("/fonts/MunroNarrow.ttf");
+}
+@font-face {
+  font-family: "munro";
+  src: url("/fonts/Munro.ttf");
+}
+@font-face {
+  font-family: "itt bios";
+  src: url("/fonts/Px437_ITT_BIOS.ttf");
+}
+
+
+body{
+  font-family: "iso9", sans-serif;
+  background: #000;
+  max-width: 1100px;
+  margin: auto;
+  height: 700px;
+  position: relative;
+}
+#container{
+  width: 256px;
+}
+#container:after{
+  content: '';
+  display: block;
+  clear: both;
+}
+#container .item_cell{
+  float: left;
+  border-collapse: collapse;
+  border: 1px solid #ddd;
+  width: 64px;
+  height: 64px;
+}
+
+#container .item_cell:hover{
+  background-size: cover!important;
+  cursor: pointer;
+}
+
+.bar-container{
+  width: 264px;
+  height: 16px;
+  right: 10px;
+  top: 10px;
+  background: #333;
+  z-index: 999;
+  text-align: center;
+  color: #fff;
+  line-height: 32px;
+  float: right;
+}
+
+.bar{
+  height: 100%;
+  width: 100%;
+}
+
+.health{
+  background: #52ff52;
+}
+.magic{
+  background: #0052ff;
+}
+.container{
+  width: 100%;
+  float: left;
+  position: relative;
+}
+.container:after{
+  content: '';
+  display: block;
+  clear: both;
+}
+.log-container{
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  background: rgba(0,0,0,.3);
+  padding: 5px;
+  width: 500px;
+  pointer-events: none;
+}
+.log-message{
+  margin-bottom: 5px;
+  color: #ebecac;
+  font-size: 14px;
+}
+.ui-container{
+  width: 450px;
+  float: right;
+  padding: 5px;
+  position: relative;
+}
+.pl-text{
+  display: inline-block;
+  color: lightblue;
+  font-size: 16px;
+}
+
+.pl-text span{
+  color: #ccc;
+}
+.icon-container{
+  position: absolute;
+  left: -40px;
+  top: 10px;
+}
+.icon-container img{
+  display: none;
+  margin-bottom: 5px;
+}
+.wait{
+  display: none;
+  position: absolute;
+  top: 10px;
+  left: 15px;
+}
+
+.container.stats .pl-text,
+.container.weapon .pl-text,
+.container.armor .pl-text{
+  color: #009688;
+  width: 25%;
+  box-sizing: inherit;
+  display: block;
+  float: left;
+}
+.container.weapon{
+  margin-top: 5px;
+}
+.container.weapon .pl-text{
+  width: 100%;
+}
+.container.armor .pl-text{
+  width: 50%;
+}
+.container.armor{
+  margin: 5px 0;
+}
+
+#pl-name{
+  color: darkseagreen;
+}
+#en-name{
+  color: coral;
+}
+#en-port{
+  float: left;
+  margin-right: 10px;
+  width: 32px;
+  height: 32px;
+}
+.container.stats{
+  margin: 5px 0;
+}
+
+.container.target{
+  opacity: 0;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.container.slots{
+  /*background: #333;*/
+  position: relative;
+  height: 166px;
+  width: 210px;
+}
+.slots .slot{
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  background-color: #000;
+}
+
+#helm{
+  left: 0;
+  top: 5px;
+}
+
+#chest{
+  left: 0;
+  top: 58px;
+}
+
+#waist{
+  left: 0;
+  top: 111px;
+}
+
+#pants{
+  left: 0;
+  margin-left: 159px;
+  top: 5px;
+}
+
+#wrist{
+  left: 0;
+  margin-left: 159px;
+  top: 58px;
+}
+
+#boots{
+  left: 0;
+  margin-left: 159px;
+  top: 111px;
+}
+
+
+#main_hand{
+  left: 0;
+  margin-left: 53px;
+  top: 111px;
+}
+#off_hand{
+  left: 0;
+  margin-left: 106px;
+  top: 111px;
+}
+
+/*INFO*/
+.info{
+  display: none;
+  position: absolute;
+  padding: 3px 5px;
+  background: #2c241d;
+  width: 200px;
+  margin: 5px;
+}
+.container.inf{
+  width: 50%;
+  height: 170px;
+}
+
+.info span{
+  color: #ffc112;
+  display: block;
+  text-transform: capitalize;
+}
+
+/*inventory*/
+.inventory{
+  width: 50%
+}
+.inventory span{
+  display: inline-block;
+  height: 32px;
+  width: 32px;
+  border: 1px solid #ccc;
+  margin: -4px 1px 1px 0;
+}
+
+/*minimap*/
+.container.minimap{
+  width: 100%;
+}
+#minimap{
+  float: left;
+  border: 1px solid #333;
+  margin: 0;
+}
+
+/*ENEMY-LIST*/
+.enemy-list{
+  position: absolute;
+  left: 5px;
+  top: 50px;
+  max-width: 40px;
+  background-color: #333;
+}
+.enemy-list img{
+  display: block;
+  width: 32px;
+  margin: 4px;
+  margin-bottom: 0;
+}
+.enemy-list .portrait-hp{
+  width: 32px;
+  height: 4px;
+  margin-left: 4px;
+  margin-bottom: 4px;
+  background-color: #52ff52;
+}

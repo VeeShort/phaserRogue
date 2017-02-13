@@ -299,34 +299,14 @@ class Player extends Tile{
   }
 
   moveToPoint(px, py){
-    // for(let i in this.player_path_map){
-    //   this.player_path_map[i].sprite.destroy();
-    // }
-    // this.player_path_map = [];
-
     let finder = new PF.AStarFinder({
       allowDiagonal: true,
       dontCrossCorners: false
     });
     let path = finder.findPath(Math.floor(this.x/this.tile_size.w), Math.floor(this.y/this.tile_size.h), Math.floor(px/this.tile_size.w), Math.floor(py/this.tile_size.h), grid.clone());
-
-    // if(path.length > 0 && this.name == "player"){
-    //   for(let i = 1; i < path.length; i++){
-    //     let pt = new Tile(path[i][0], path[i][1], 4, "t_path", "path");
-    //     pt.sprite.inputEnabled = false;
-    //     pt.state = 2;
-    //     detectStateChange(pt);
-    //     this.player_path_map.push(pt);
-    //   }
-    // }
-
-    // if(this.name == "player" && path.length > 1){
-    //   doStep(path);
-    // }
     if(path.length > 1)
       return path;
   }
-
 
 
   doFOV(){

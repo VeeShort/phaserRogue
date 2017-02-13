@@ -60,12 +60,39 @@ function updateInvInfo(){
   }
 }
 
+function Timer(callback, delay) {
+    var timerId, start, remaining = delay;
+
+    this.pause = function() {
+        window.clearTimeout(timerId);
+        remaining -= new Date() - start;
+    };
+
+    this.resume = function() {
+        start = new Date();
+        window.clearTimeout(timerId);
+        timerId = window.setTimeout(callback, remaining);
+    };
+
+    this.clear = function(){
+      window.clearTimeout(timerId);
+      remaining = 0;
+    }
+
+    this.resume();
+}
+
+let en_priority = [];
+
 function doStep(path){
   let i = 1;
 
-  player.disableControl = true;
+  player.disableControl = false;
   // clearInterval(player.moveTimer);
-  player.moveTimer = setInterval(function(){
+  // player.moveTimer = setInterval(function(){
+
+  player.moveTimer = new Timer(function(){
+    player.moveTimer.resume();
     if(!gameIsPaused){
       if($(".warning").is(":visible"))
         $(".warning").hide();
@@ -117,8 +144,10 @@ function doStep(path){
       player.centerCamera();
       player.moved = true;
 
-      // let time = 0;
       for(let j = 0; j < enemies.length; j++){
+        if(j == 0){
+          en_priority = [];
+        }
         let enemy = enemies[j];
         enemy.counter = 1;
         enemy.doFOV();
@@ -127,13 +156,31 @@ function doStep(path){
 
         if(enemy.targetFound){
 
+          en_priority.push(enemy);
+          if($(".enemy-list img").length > 0)
+            $(".enemy-list").empty();
+
+          for(let z in en_priority){
+            if(en_priority[z].portrait){
+              $(".enemy-list").append($("<img/>",{
+                src: en_priority[z].portrait,
+                class: "enemy-list-ico",
+                id: "en-l-"+z
+              }));
+            $("#en-l-"+z).after("<div class='portrait-hp' style='width:"+en_priority[z].health*$("#en-l-"+z).width()/en_priority[z].maxHealth+"px'><div/>");
+            }
+          }
+
           if($(".warning").not(":visible"))
             $(".warning").css("display", "block");
           if($(".wait").is(":visible"))
               $(".wait").hide();
 
-          clearInterval(player.moveTimer);
+          // clearInterval(player.moveTimer);
+          player.moveTimer.clear();
+
           player.disableControl = false;
+
           if(enemy.activeWeapon.type == "melee"){
             let epath = enemy.moveToPoint(player.x, player.y);
 
@@ -152,9 +199,10 @@ function doStep(path){
             }
           }
           if(!enemy.moved){
+            console.log(enemies.length);
             setTimeout(function(){
               enemy.hitTarget(player);
-            }, 200);
+            }, 200); //def: 200
           }
         }
       }
@@ -166,7 +214,8 @@ function doStep(path){
         player.disableControl = false;
         if($(".wait").is(":visible"))
           $(".wait").hide();
-        clearInterval(player.moveTimer);
+        // clearInterval(player.moveTimer);
+        player.moveTimer.clear();
       }
 
       i++;
@@ -205,7 +254,7 @@ function getRandomPos(){
   let rand_pos;
   while(rand_pos === undefined){
     let point = all_sprites[getRandomInt(0, all_sprites.length-1)];
-    if(point && point.name && point.name == "floor" && point.name != "door_closed" && point.x != player.x && point.y != player.y){
+    if(point && point.name && point.name == "floor" && point.name != "door_closed" && point.name != "door_opened" && point.x != player.x && point.y != player.y){
       rand_pos = point;
     }
   }

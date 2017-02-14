@@ -82,6 +82,32 @@ function Timer(callback, delay) {
     this.resume();
 }
 
+function destroyProp(destructor){
+  if(destructor.name == "enemy"){
+    console.log(destructor.fov);
+  }
+  for(let j = 0; j < destructor.fov.length; j++){
+    if(destructor.fov[j].name == "destructible" && destructor.fov[j].x == destructor.x && destructor.fov[j].y == destructor.y){
+
+      destructor.fov[j].sprite.loadTexture("destr_wood"+getRandomInt(1,3) ,0);
+      destructor.fov[j].name = "floor";
+      // let destr_dummy = new Tile(destructor.fov[j].x/destructor.fov[j].tile_size.w, destructor.fov[j].y/destructor.fov[j].tile_size.h, "destr_wood"+getRandomInt(1,3), "collision");
+
+      destruct_wood = stage.add.emitter(0, 0, 20);
+      destruct_wood.makeParticles('t_destr');
+      destruct_wood.gravity = 150;
+
+      // position the hit particles on destructible object
+      destruct_wood.x = destructor.fov[j].x + destructor.fov[j].tile_size.w/2;
+      destruct_wood.y = destructor.fov[j].y + destructor.fov[j].tile_size.h/2;
+      // start to draw destruction particles
+      destruct_wood.start(true, 250, null, 20);
+
+      let destr = stage.add.audio("destr"+getRandomInt(1,3));
+      destr.play();
+    }
+  }
+}
 
 function doStep(path){
   let i = 1;
@@ -115,30 +141,7 @@ function doStep(path){
         player.x = player.sprite.x;
         player.y = player.sprite.y;
 
-        for(let j = 0; j < player.fov.length; j++){
-          if(player.fov[j].name == "destructible" && player.fov[j].x == player.x && player.fov[j].y == player.y){
-
-            gr_items.remove(player.fov[j].sprite);
-            let z = collision_map.indexOf(player.fov[j]);
-            if(z != -1) {
-              console.log(z, collision_map[z]);
-              collision_map.splice(z, 1);
-            }
-
-            destruct_wood = stage.add.emitter(0, 0, 20);
-            destruct_wood.makeParticles('t_destr');
-            destruct_wood.gravity = 150;
-
-            // position the hit particles on destructible object
-            destruct_wood.x = player.fov[j].x + player.fov[j].tile_size.w/2;
-            destruct_wood.y = player.fov[j].y + player.fov[j].tile_size.h/2;
-            // start to draw destruction particles
-            destruct_wood.start(true, 500, null, 20);
-
-            let destr = stage.add.audio("destr"+getRandomInt(1,3));
-            destr.play();
-          }
-        }
+        destroyProp(player);
 
         for(let j = 0; j < doors.length; j++){
           if(player.x == doors[j].x && player.y == doors[j].y){
@@ -217,6 +220,8 @@ function doStep(path){
               enemy.sprite.y = epath[enemy.counter][1] * enemy.tile_size.h;
               enemy.x = enemy.sprite.x;
               enemy.y = enemy.sprite.y;
+
+              destroyProp(enemy);
 
               enemy.moved = true;
 

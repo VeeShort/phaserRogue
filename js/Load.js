@@ -35,6 +35,9 @@ function preload() {
     stage.load.image("barrel_wood4", "./images/barrel_wood4.png");
     stage.load.image("table_wood1", "./images/table_wood1.png");
     stage.load.image("table_wood2", "./images/table_wood2.png");
+    stage.load.image("destr_wood1", "./images/destr_wood1.png");
+    stage.load.image("destr_wood2", "./images/destr_wood2.png");
+    stage.load.image("destr_wood3", "./images/destr_wood3.png");
 
     //AUDIO
     stage.load.audio('game_over', "./sound/ascending.mp3");
@@ -358,8 +361,6 @@ function create() {
     emitter = stage.add.emitter(0, 0, 20);
     emitter.makeParticles('t_hit');
     emitter.gravity = 200;
-
-
 
     death_effect = stage.add.emitter(0, 0, 500);
     death_effect.makeParticles("t_hit");

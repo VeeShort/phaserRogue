@@ -115,6 +115,31 @@ function doStep(path){
         player.x = player.sprite.x;
         player.y = player.sprite.y;
 
+        for(let j = 0; j < player.fov.length; j++){
+          if(player.fov[j].name == "destructible" && player.fov[j].x == player.x && player.fov[j].y == player.y){
+
+            gr_items.remove(player.fov[j].sprite);
+            let z = collision_map.indexOf(player.fov[j]);
+            if(z != -1) {
+              console.log(z, collision_map[z]);
+              collision_map.splice(z, 1);
+            }
+
+            destruct_wood = stage.add.emitter(0, 0, 20);
+            destruct_wood.makeParticles('t_destr');
+            destruct_wood.gravity = 150;
+
+            // position the hit particles on destructible object
+            destruct_wood.x = player.fov[j].x + player.fov[j].tile_size.w/2;
+            destruct_wood.y = player.fov[j].y + player.fov[j].tile_size.h/2;
+            // start to draw destruction particles
+            destruct_wood.start(true, 500, null, 20);
+
+            let destr = stage.add.audio("destr"+getRandomInt(1,3));
+            destr.play();
+          }
+        }
+
         for(let j = 0; j < doors.length; j++){
           if(player.x == doors[j].x && player.y == doors[j].y){
             doors[j].name = "door_opened";
@@ -142,6 +167,8 @@ function doStep(path){
       // player.removePathAfter(i);
       player.centerCamera();
       player.moved = true;
+
+
 
       for(let j = 0; j < enemies.length; j++){
         if(j == 0){
@@ -198,7 +225,7 @@ function doStep(path){
             }
           }
           if(!enemy.moved){
-            console.log(enemies.length);
+            // console.log(enemies.length);
             setTimeout(function(){
               enemy.hitTarget(player);
             }, 200); //def: 200
@@ -330,17 +357,19 @@ Dungeon = {
   },
 
   _generateBoxes: function(freeCells) {
-    // for (var i=0;i<10;i++) {
-        var index = Math.floor(ROT.RNG.getUniform() * freeCells.length);
-        var key = freeCells.splice(index, 1)[0];
-        this.map[key] = "*";
+    // for (var i = 0; i < 31; i++) {
+      var index = Math.floor(ROT.RNG.getUniform() * freeCells.length);
+      var key = freeCells.splice(index, 1)[0];
+      this.map[key] = "*";
     // }
+
   },
   _drawWholeMap: function() {
     for (let key in this.map) {
       let parts = key.split(",");
       let x = parseInt(parts[0]);
       let y = parseInt(parts[1]);
+
       // this.display.draw(x, y, this.map[key]);
       if(this.map[key] == 1 || this.map[key] == "*"){
         let chance = getRandomInt(1,100);
@@ -351,6 +380,12 @@ Dungeon = {
           floor = new Tile(x, y, 2, 't_floor2', "floor");
         }
         sprite_map.push(floor);
+
+        // let barrel;
+        // if(this.map[key] == "brl"){
+        //   barrel = new Tile(x, y, 2, 'barrel_wood', "floor");
+        //   sprite_map.push(barrel);
+        // }
         // floor.addToStage();
       }else{
         let chance = getRandomInt(1,100);
@@ -364,6 +399,60 @@ Dungeon = {
         wall_01.sprite.inputEnabled = false;
         // wall_01.addToStage();
         grid.setWalkableAt(x, y, false);
+      }
+      if(this.map[x+","+y] == 1 &&
+         this.map[(x-1)+","+y] == 0 &&
+         this.map[x+","+(y-1)] == 0 &&
+         this.map[(x+1)+","+y] == 1 &&
+         this.map[x+","+(y+1)] == 1 &&
+         this.map[(x-1)+","+(y-1)] == 0 &&
+         this.map[(x+1)+","+(y+1)] == 1 ||
+
+         this.map[x+","+y] == 1 &&
+         this.map[(x-1)+","+(y-1)] == 0 &&
+         this.map[x+","+(y-1)] == 0 &&
+         this.map[(x+1)+","+(y-1)] == 0 &&
+         this.map[x+","+(y+1)] == 1 &&
+         this.map[(x+1)+","+(y+1)] == 1 &&
+         this.map[(x-1)+","+(y+1)] == 1 ||
+
+         this.map[x+","+y] == 1 &&
+         this.map[(x-1)+","+(y+1)] == 0 &&
+         this.map[x+","+(y+1)] == 0 &&
+         this.map[(x+1)+","+(y+1)] == 0 &&
+         this.map[x+","+(y-1)] == 1 &&
+         this.map[(x+1)+","+(y-1)] == 1 &&
+         this.map[(x-1)+","+(y-1)] == 1 ||
+
+         this.map[x+","+y] == 1 &&
+         this.map[(x+1)+","+y] == 0 &&
+         this.map[x+","+(y-1)] == 0 &&
+         this.map[(x-1)+","+y] == 1 &&
+         this.map[x+","+(y+1)] == 1 &&
+         this.map[(x+1)+","+(y-1)] == 0 &&
+         this.map[(x-1)+","+(y+1)] == 1 ||
+
+         this.map[x+","+y] == 1 &&
+         this.map[(x+1)+","+y] == 0 &&
+         this.map[x+","+(y-1)] == 0 &&
+         this.map[(x-1)+","+y] == 1 &&
+         this.map[x+","+(y+1)] == 1 &&
+         this.map[(x+1)+","+(y-1)] == 0 &&
+         this.map[(x-1)+","+(y+1)] == 1
+       ){
+         if(getRandomInt(1, 100) <= 70){
+           if(getRandomInt(1, 100) <= 30){
+             let barrel = new Tile(x, y, 3, "barrel_wood"+getRandomInt(1, 4), "destructible");
+             collision_map.push(barrel);
+             grid.setWalkableAt(x, y, true);
+           }
+       }else{
+         if(getRandomInt(1, 100) <= 30){
+           let table = new Tile(x, y, 3, "table_wood"+getRandomInt(1, 2), "destructible");
+           collision_map.push(table);
+           grid.setWalkableAt(x, y, true);
+         }
+       }
       }
     }
   }

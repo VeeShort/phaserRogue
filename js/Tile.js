@@ -71,6 +71,9 @@ class Tile {
         case "loot":
           this.sprite = gr_items.create(this.x, this.y, this.texture_path);
         break;
+        case "destructible":
+          this.sprite = gr_items.create(this.x, this.y, this.texture_path);
+        break;
       }
     }
     // stage.add.sprite(this.sprite);

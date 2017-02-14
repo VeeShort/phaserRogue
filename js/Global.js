@@ -37,7 +37,7 @@ let alert_s, pl_hit, en_hit, fire_hit, curse_hit, dead, pl_dead, game_over, miss
 
 let player_health, player_health_bg, pl_health_con = [];
 // PARTICLES
-let emitter, death_effect;
+let emitter, death_effect, destruct_wood;
 
 // KEYS
 let rKey, spaceKey;

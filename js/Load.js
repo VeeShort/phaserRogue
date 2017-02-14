@@ -14,8 +14,12 @@ function preload() {
     stage.load.image('dummy', './images/test_dragon.png');
     stage.load.image("path_end", "./images/path_end.png")
     stage.load.image('t_alert', "./images/alert.png");
+
+    // particles
     stage.load.image("t_hit", "./images/hit_particle.png");
+    stage.load.image("t_destr", "./images/destr_particle.png");
     stage.load.image("pl_dead", "./images/pl_dead.png");
+
     stage.load.image("loot", "./images/loot.png");
     stage.load.image("skeleton", "./images/skeleton.png");
     stage.load.image("skeleton2", "./images/skeleton_2.png");
@@ -23,6 +27,14 @@ function preload() {
     stage.load.image("door_c", "./images/door_c.png");
     stage.load.image("door_o", "./images/door_o.png");
     stage.load.image("loot", "./images/loot.png");
+
+    // destructible
+    stage.load.image("barrel_wood1", "./images/barrel_wood1.png");
+    stage.load.image("barrel_wood2", "./images/barrel_wood2.png");
+    stage.load.image("barrel_wood3", "./images/barrel_wood3.png");
+    stage.load.image("barrel_wood4", "./images/barrel_wood4.png");
+    stage.load.image("table_wood1", "./images/table_wood1.png");
+    stage.load.image("table_wood2", "./images/table_wood2.png");
 
     //AUDIO
     stage.load.audio('game_over', "./sound/ascending.mp3");
@@ -37,6 +49,11 @@ function preload() {
     stage.load.audio('bad_hit', "./sound/bad_hit.wav");
     stage.load.audio('dooropened', "./sound/dooropened.wav");
     stage.load.audio('doorclosed', "./sound/doorclosed.wav");
+
+    // destruction audio
+    stage.load.audio('destr1', "./sound/destr1.wav");
+    stage.load.audio('destr2', "./sound/destr2.wav");
+    stage.load.audio('destr3', "./sound/destr3.wav");
 }
 
 
@@ -49,7 +66,6 @@ function create() {
     gr_items = stage.add.group();
     gr_players = stage.add.group();
 
-    console.log("map:", gr_map.z, "items:", gr_items.z, "players:", gr_players.z);
 
     Dungeon.init();
 
@@ -343,6 +359,8 @@ function create() {
     emitter.makeParticles('t_hit');
     emitter.gravity = 200;
 
+
+
     death_effect = stage.add.emitter(0, 0, 500);
     death_effect.makeParticles("t_hit");
     death_effect.gravity = 0;
@@ -414,6 +432,7 @@ function create() {
 
 function update(){
   emitter.forEachAlive(function(p){	p.tint = 0xCC1100; p.alpha = p.lifespan/emitter.lifespan; });
+  // destruct_wood.forEachAlive(function(p){	p.tint = 0x633C14; p.alpha = p.lifespan/emitter.lifespan; });
   death_effect.forEachAlive(function(p){ p.tint = 0x333333; p.alpha = p.lifespan/emitter.lifespan; });
 }
 

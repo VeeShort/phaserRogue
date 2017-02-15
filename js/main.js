@@ -83,9 +83,6 @@ function Timer(callback, delay) {
 }
 
 function destroyProp(destructor){
-  if(destructor.name == "enemy"){
-    console.log(destructor.fov);
-  }
   for(let j = 0; j < destructor.fov.length; j++){
     if(destructor.fov[j].name == "destructible" && destructor.fov[j].x == destructor.x && destructor.fov[j].y == destructor.y){
 
@@ -285,8 +282,9 @@ function getRandomPos(){
   let rand_pos;
   while(rand_pos === undefined){
     let point = all_sprites[getRandomInt(0, all_sprites.length-1)];
-    if(point && point.name && point.name == "floor" && point.name != "door_closed" && point.name != "door_opened" && point.x != player.x && point.y != player.y){
+    if(point.name && point.name != "collision" && point.name != "door_closed" && point.name != "door_opened" && point.name != "destructible"){
       rand_pos = point;
+      console.log(rand_pos);
     }
   }
   return rand_pos;
@@ -449,12 +447,14 @@ Dungeon = {
            if(getRandomInt(1, 100) <= 30){
              let barrel = new Tile(x, y, 3, "barrel_wood"+getRandomInt(1, 4), "destructible");
              collision_map.push(barrel);
+             all_sprites.push(barrel);
              grid.setWalkableAt(x, y, true);
            }
        }else{
          if(getRandomInt(1, 100) <= 30){
            let table = new Tile(x, y, 3, "table_wood"+getRandomInt(1, 2), "destructible");
            collision_map.push(table);
+           all_sprites.push(table);
            grid.setWalkableAt(x, y, true);
          }
        }

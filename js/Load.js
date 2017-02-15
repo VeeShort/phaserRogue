@@ -91,14 +91,6 @@ function create() {
       }
     }
 
-    for(let i in sprite_map){
-      all_sprites.push(sprite_map[i]);
-    }
-    for(let i in collision_map){
-      all_sprites.push(collision_map[i]);
-    }
-
-
     // // SOUNDS
     alert_s = stage.add.audio('alert');
     en_hit = stage.add.audio('en_hit');
@@ -115,6 +107,13 @@ function create() {
 
     // target_sp = new Phaser.Sprite();
     // stage.add.sprite(target_sp);
+
+    for(let i in sprite_map){
+      all_sprites.push(sprite_map[i]);
+    }
+    for(let i in collision_map){
+      all_sprites.push(collision_map[i]);
+    }
 
     // // ITEMS
     // WEAPONS

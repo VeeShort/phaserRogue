@@ -360,6 +360,10 @@ class Player extends Tile{
             this.fov.push(sm);
             this.fov = unique(this.fov);
           }
+          if(cm && cm.name == "destructible"){
+            this.fov.push(cm);
+            this.fov = unique(this.fov);
+          }
         }
 
         if(cm && cm.name && (cm.name == "collision" || cm.name == "door_closed")){

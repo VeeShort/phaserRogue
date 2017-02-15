@@ -60,28 +60,6 @@ function updateInvInfo(){
   }
 }
 
-function Timer(callback, delay) {
-    var timerId, start, remaining = delay;
-
-    this.pause = function() {
-        window.clearTimeout(timerId);
-        remaining -= new Date() - start;
-    };
-
-    this.resume = function() {
-        start = new Date();
-        window.clearTimeout(timerId);
-        timerId = window.setTimeout(callback, remaining);
-    };
-
-    this.clear = function(){
-      window.clearTimeout(timerId);
-      remaining = 0;
-    }
-
-    this.resume();
-}
-
 function destroyProp(destructor){
   for(let j = 0; j < destructor.fov.length; j++){
     if(destructor.fov[j].name == "destructible" && destructor.fov[j].x == destructor.x && destructor.fov[j].y == destructor.y){

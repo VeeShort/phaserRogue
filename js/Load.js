@@ -1,3 +1,25 @@
+function Timer(callback, delay) {
+    var timerId, start, remaining = delay;
+
+    this.pause = function() {
+        window.clearTimeout(timerId);
+        remaining -= new Date() - start;
+    };
+
+    this.resume = function() {
+        start = new Date();
+        window.clearTimeout(timerId);
+        timerId = window.setTimeout(callback, remaining);
+    };
+
+    this.clear = function(){
+      window.clearTimeout(timerId);
+      remaining = 0;
+    }
+
+    this.resume();
+}
+
 function preload() {
     // SPRITSHEET
     // player walk animation
@@ -386,6 +408,7 @@ function create() {
     spaceKey.onDown.add(function(){
       player.lootItems();
     }, this);
+    
     // player movement animation
     // player.sprite.animations.add('left', [4, 5, 6, 7], 10, true);
     // player.sprite.animations.add('right', [8, 9, 10, 11], 10, true);

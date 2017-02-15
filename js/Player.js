@@ -14,6 +14,7 @@ class Player extends Tile{
     this.moveTimer;
     this.moveDelay = 45; // default - 85, fast - 45
     this.isDetected = false;
+    this.movePath = undefined;
 
     this.health = undefined;
     this.maxHealth = undefined;

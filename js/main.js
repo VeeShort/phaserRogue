@@ -1,106 +1,106 @@
 'use strict';
 
-function detectStateChange(tile){
-  if(tile && tile.name != "player" && tile.sprite){
-    switch(tile.state){
+function detectStateChange(tile) {
+  if (tile && tile.name != "player" && tile.sprite) {
+    switch (tile.state) {
       case 0:
         tile.sprite.tint = 0x000000;
-      break;
+        break;
       case 1:
         tile.sprite.tint = 0x5e5e5e;
-      break;
+        break;
       case 2:
         tile.sprite.tint = 0xFFFFFF;
-      break;
+        break;
     }
   }
 }
 
-function updateUI(player, target){
+function updateUI(player, target) {
   // update player HP
-  if(target.name == "player"){
+  if (target.name == "player") {
     var hp = $("#health");
     var hp_c = $("#health_container");
     $("#current-hp").text(target.health);
-    hp.width(target.health*hp_c.width()/target.maxHealth);
-  }else {
+    hp.width(target.health * hp_c.width() / target.maxHealth);
+  } else {
     // update player MP
     var mp = $("#magic");
     var mp_c = $("#magic_container");
     $("#current-mp").text(player.magic);
-    mp.width(player.magic*mp_c.width()/player.maxMagic);
+    mp.width(player.magic * mp_c.width() / player.maxMagic);
 
     // update enemy HP
     var hp = $("#en-health");
     var hp_c = $("#en-health_container");
     $("#en-current-hp").text(target.health);
-    hp.width(target.health*hp_c.width()/target.maxHealth);
+    hp.width(target.health * hp_c.width() / target.maxHealth);
   }
 }
 
-function updateLog(message){
-  $(".log-container").append($("<p/>",{
+function updateLog(message) {
+  $(".log-container").append($("<p/>", {
     text: message,
     class: "log-message"
   }));
-  if($(".log-container").children().length > 5){
+  if ($(".log-container").children().length > 5) {
     $(".log-container p").first().remove();
   }
 }
 
-function updateInvInfo(){
+function updateInvInfo() {
   let inv = $(".inventory");
   inv.empty();
-  for(let i = 0; i < player.inventory.length; i++){
-    inv.append($("<span/>",{
+  for (let i = 0; i < player.inventory.length; i++) {
+    inv.append($("<span/>", {
       class: "slot",
-      style: "background: url('"+player.inventory[i].icon+"'); background-size: cover"
+      style: "background: url('" + player.inventory[i].icon + "'); background-size: cover"
     }).data("num", i));
   }
 }
 
 function Timer(callback, delay) {
-    var timerId, start, remaining = delay;
+  var timerId, start, remaining = delay;
 
-    this.pause = function() {
-        window.clearTimeout(timerId);
-        remaining -= new Date() - start;
-    };
+  this.pause = function() {
+    window.clearTimeout(timerId);
+    remaining -= new Date() - start;
+  };
 
-    this.resume = function() {
-        start = new Date();
-        window.clearTimeout(timerId);
-        timerId = window.setTimeout(callback, remaining);
-    };
+  this.resume = function() {
+    start = new Date();
+    window.clearTimeout(timerId);
+    timerId = window.setTimeout(callback, remaining);
+  };
 
-    this.clear = function(){
-      window.clearTimeout(timerId);
-      remaining = 0;
-    };
+  this.clear = function() {
+    window.clearTimeout(timerId);
+    remaining = 0;
+  };
 
-    this.resume();
+  this.resume();
 }
 
-function doStep(path){
+function doStep(path) {
   let i = 1;
 
   player.disableControl = false;
   // clearInterval(player.moveTimer);
   // player.moveTimer = setInterval(function(){
 
-  player.moveTimer = new Timer(function(){
+  player.moveTimer = new Timer(function() {
     player.moveTimer.resume();
-    if(!gameIsPaused){
-      if($(".warning").is(":visible"))
+    if (!gameIsPaused) {
+      if ($(".warning").is(":visible"))
         $(".warning").hide();
 
       // move player to the next path section
-      if(path){
-        if($(".wait").not(":visible"))
+      if (path) {
+        if ($(".wait").not(":visible"))
           $(".wait").show();
 
-        for(let j = 0; j < doors.length; j++){
-          if(player.x == doors[j].x && player.y == doors[j].y){
+        for (let j = 0; j < doors.length; j++) {
+          if (player.x == doors[j].x && player.y == doors[j].y) {
             doors[j].name = "door_closed";
             doors[j].sprite.loadTexture("door_c");
             doorclosed.play();
@@ -115,8 +115,8 @@ function doStep(path){
 
         player.destroyProp();
 
-        for(let j = 0; j < doors.length; j++){
-          if(player.x == doors[j].x && player.y == doors[j].y){
+        for (let j = 0; j < doors.length; j++) {
+          if (player.x == doors[j].x && player.y == doors[j].y) {
             doors[j].name = "door_opened";
             doors[j].sprite.loadTexture("door_o");
             dooropened.play();
@@ -124,13 +124,13 @@ function doStep(path){
           }
         }
 
-        for(let j = 0; j < lootArr.length; j++){
-          if(player.x == lootArr[j].x && player.y == lootArr[j].y){
-            if($(".on-loot").not(":visible")){
+        for (let j = 0; j < lootArr.length; j++) {
+          if (player.x == lootArr[j].x && player.y == lootArr[j].y) {
+            if ($(".on-loot").not(":visible")) {
               $(".on-loot").css("display", "block");
               break;
             }
-          }else if($(".on-loot").is(":visible")){
+          } else if ($(".on-loot").is(":visible")) {
             $(".on-loot").hide();
           }
         }
@@ -143,8 +143,8 @@ function doStep(path){
       player.centerCamera();
       player.moved = true;
 
-      for(let j = 0; j < enemies.length; j++){
-        if(j == 0){
+      for (let j = 0; j < enemies.length; j++) {
+        if (j == 0) {
           en_priority = [];
         }
         let enemy = enemies[j];
@@ -153,55 +153,64 @@ function doStep(path){
         enemy.detectPlayer();
         enemy.moved = false;
 
-        if(enemy.targetFound){
+        if (enemy.targetFound) {
 
           en_priority.push(enemy);
-          if($(".enemy-list img").length > 0)
+          if ($(".enemy-list img").length > 0)
             $(".enemy-list").empty();
 
-          for(let z in en_priority){
-            if(en_priority[z].portrait){
-              $(".enemy-list").append($("<img/>",{
+          for (let z in en_priority) {
+            if (en_priority[z].portrait) {
+              $(".enemy-list").append($("<img/>", {
                 src: en_priority[z].portrait,
                 class: "enemy-list-ico",
-                id: "en-l-"+z
+                id: "en-l-" + z
               }));
-            $("#en-l-"+z).after("<div class='portrait-hp' style='width:"+en_priority[z].health*$("#en-l-"+z).width()/en_priority[z].maxHealth+"px'><div/>");
+              $("#en-l-" + z).after("<div class='portrait-hp' style='width:" + en_priority[z].health * $("#en-l-" + z).width() / en_priority[z].maxHealth + "px'><div/>");
             }
           }
 
-          if($(".warning").not(":visible"))
+          if ($(".warning").not(":visible"))
             $(".warning").css("display", "block");
-          if($(".wait").is(":visible"))
-              $(".wait").hide();
+          if ($(".wait").is(":visible"))
+            $(".wait").hide();
 
           // clearInterval(player.moveTimer);
           player.moveTimer.clear();
 
           player.disableControl = false;
 
-          if(enemy.activeWeapon.type == "melee"){
+          if (enemy.activeWeapon.type == "melee") {
             let epath = enemy.moveToPoint(player.x, player.y);
 
-            if(epath && enemy.counter < epath.length - 1){
-              grid.setWalkableAt(enemy.x/enemy.tile_size.w, enemy.y/enemy.tile_size.h, true);
+            if (epath && enemy.counter < epath.length - 1) {
+              grid.setWalkableAt(enemy.x / enemy.tile_size.w, enemy.y / enemy.tile_size.h, true);
 
               enemy.sprite.x = epath[enemy.counter][0] * enemy.tile_size.w;
               enemy.sprite.y = epath[enemy.counter][1] * enemy.tile_size.h;
               enemy.x = enemy.sprite.x;
               enemy.y = enemy.sprite.y;
 
+              for (let j = 0; j < doors.length; j++) {
+                if (enemy.x == doors[j].x && enemy.y == doors[j].y) {
+                  doors[j].name = "door_opened";
+                  doors[j].sprite.loadTexture("door_o");
+                  dooropened.play();
+                  // break;
+                }
+              }
+
               enemy.destroyProp();
 
               enemy.moved = true;
 
-              grid.setWalkableAt(enemy.x/enemy.tile_size.w, enemy.y/enemy.tile_size.h, false);
+              grid.setWalkableAt(enemy.x / enemy.tile_size.w, enemy.y / enemy.tile_size.h, false);
               enemy.counter++;
             }
           }
-          if(!enemy.moved){
+          if (!enemy.moved) {
             // console.log(enemies.length);
-            setTimeout(function(){
+            setTimeout(function() {
               enemy.hitTarget(player);
             }, 200); //def: 200
           }
@@ -211,9 +220,9 @@ function doStep(path){
       player.setVisible();
       player.doFOV();
 
-      if(path && i == path.length - 1 || !path){
+      if (path && i == path.length - 1 || !path) {
         player.disableControl = false;
-        if($(".wait").is(":visible"))
+        if ($(".wait").is(":visible"))
           $(".wait").hide();
         // clearInterval(player.moveTimer);
         player.moveTimer.clear();
@@ -226,7 +235,7 @@ function doStep(path){
   }, player.moveDelay);
 }
 
-function countStep(){
+function countStep() {
   step_count++;
 }
 
@@ -251,45 +260,59 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function getRandomPos(){
+function getRandomPos() {
+  console.log("-------- new --------");
   let rand_pos;
   let canSpawn = false;
-  while(rand_pos === undefined){
-    let point = all_sprites[getRandomInt(0, all_sprites.length-1)];
-    if(collision_map.indexOf(point) == -1 &&
-       point.x != player.x &&
-       point.y != player.y){
-         for(let i in collision_map){
-           if(collision_map[i].x != point.x &&
-              collision_map[i].y != point.y){
-                rand_pos = point;
-                break;
-            }
-         }
+  let posBuf;
+  while (rand_pos === undefined) {
+    let point = all_sprites[getRandomInt(0, all_sprites.length - 1)];
+    posBuf = undefined;
+    if (collision_map.indexOf(point) == -1 &&
+      point.x != player.x &&
+      point.y != player.y) {
+      for (let i = 0; i < doors.length; i++) {
+        // console.log("=================");
+        // console.log(doors[i].x, doors[i].y);
+        if (doors[i].x != point.x &&
+          doors[i].y != point.y) {
+          canSpawn = true;
+          posBuf = point;
+        }
+        else{
+          canSpawn = false;
+        }
+      }
+      if(canSpawn){
+        rand_pos = {
+          x: posBuf.x,
+          y: posBuf.y
+        };
+      }
     }
   }
   return rand_pos;
 }
 
-function updateMiniMap(){
-  let scale = c.canvas.width/Dungeon.map_size;
+function updateMiniMap() {
+  let scale = c.canvas.width / Dungeon.map_size;
   c.clearRect(0, 0, c.canvas.width, c.canvas.height);
-  for(let i = 0; i < all_sprites.length; i++){
-    if(all_sprites[i].name && all_sprites[i].state != 0){
-      if(all_sprites[i].name && all_sprites[i].name == "floor" && all_sprites[i].state == 2){
+  for (let i = 0; i < all_sprites.length; i++) {
+    if (all_sprites[i].name && all_sprites[i].state != 0) {
+      if (all_sprites[i].name && all_sprites[i].name == "floor" && all_sprites[i].state == 2) {
         c.fillStyle = "#fff";
-        c.fillRect((all_sprites[i].x/32)*scale, (all_sprites[i].y/32)*scale, 32/scale, 32/scale);
+        c.fillRect((all_sprites[i].x / 32) * scale, (all_sprites[i].y / 32) * scale, 32 / scale, 32 / scale);
       }
-      if(all_sprites[i].name && all_sprites[i].name == "floor" && all_sprites[i].state == 1){
+      if (all_sprites[i].name && all_sprites[i].name == "floor" && all_sprites[i].state == 1) {
         c.fillStyle = "#333";
-        c.fillRect((all_sprites[i].x/32)*scale, (all_sprites[i].y/32)*scale, 32/scale, 32/scale);
+        c.fillRect((all_sprites[i].x / 32) * scale, (all_sprites[i].y / 32) * scale, 32 / scale, 32 / scale);
       }
-      if(all_sprites[i].name == "door_closed" || all_sprites[i].name == "door_opened"){
+      if (all_sprites[i].name == "door_closed" || all_sprites[i].name == "door_opened") {
         c.fillStyle = "#893a02";
-        c.fillRect((all_sprites[i].x/32)*scale, (all_sprites[i].y/32)*scale, 32/scale, 32/scale);
+        c.fillRect((all_sprites[i].x / 32) * scale, (all_sprites[i].y / 32) * scale, 32 / scale, 32 / scale);
       }
       c.fillStyle = "#2b8e1d";
-      c.fillRect((player.x/32)*scale, (player.y/32)*scale, 32/scale, 32/scale);
+      c.fillRect((player.x / 32) * scale, (player.y / 32) * scale, 32 / scale, 32 / scale);
     }
   }
 }
@@ -309,12 +332,12 @@ Dungeon = {
 
     var digCallback = function(x, y, value) {
       if (value) {
-        var key = x+","+y;
+        var key = x + "," + y;
         this.map[key] = 0;
         return;
       }
 
-      var key = x+","+y;
+      var key = x + "," + y;
       this.map[key] = 1;
       freeCells.push(key);
     }
@@ -334,17 +357,17 @@ Dungeon = {
 
     var rooms = digger.getRooms();
     for (var i = 0; i < rooms.length; i++) {
-        var room = rooms[i];
-        room.getDoors(drawDoor);
+      var room = rooms[i];
+      room.getDoors(drawDoor);
     }
 
   },
 
   _generateBoxes: function(freeCells) {
     // for (var i = 0; i < 31; i++) {
-      var index = Math.floor(ROT.RNG.getUniform() * freeCells.length);
-      var key = freeCells.splice(index, 1)[0];
-      this.map[key] = "*";
+    var index = Math.floor(ROT.RNG.getUniform() * freeCells.length);
+    var key = freeCells.splice(index, 1)[0];
+    this.map[key] = "*";
     // }
 
   },
@@ -355,12 +378,12 @@ Dungeon = {
       let y = parseInt(parts[1]);
 
       // this.display.draw(x, y, this.map[key]);
-      if(this.map[key] == 1 || this.map[key] == "*"){
-        let chance = getRandomInt(1,100);
+      if (this.map[key] == 1 || this.map[key] == "*") {
+        let chance = getRandomInt(1, 100);
         let floor;
-        if(chance <= 80){
+        if (chance <= 80) {
           floor = new Tile(x, y, 2, 't_floor', "floor");
-        }else{
+        } else {
           floor = new Tile(x, y, 2, 't_floor2', "floor");
         }
         sprite_map.push(floor);
@@ -371,12 +394,12 @@ Dungeon = {
         //   sprite_map.push(barrel);
         // }
         // floor.addToStage();
-      }else{
-        let chance = getRandomInt(1,100);
+      } else {
+        let chance = getRandomInt(1, 100);
         let wall_01;
-        if(chance <= 80){
+        if (chance <= 80) {
           wall_01 = new Tile(x, y, 2, 't_wall', "collision");
-        }else{
+        } else {
           wall_01 = new Tile(x, y, 2, 't_wall2', "collision");
         }
         collision_map.push(wall_01);
@@ -384,61 +407,61 @@ Dungeon = {
         // wall_01.addToStage();
         grid.setWalkableAt(x, y, false);
       }
-      if(this.map[x+","+y] == 1 &&
-         this.map[(x-1)+","+y] == 0 &&
-         this.map[x+","+(y-1)] == 0 &&
-         this.map[(x+1)+","+y] == 1 &&
-         this.map[x+","+(y+1)] == 1 &&
-         this.map[(x-1)+","+(y-1)] == 0 &&
-         this.map[(x+1)+","+(y+1)] == 1 ||
+      if (this.map[x + "," + y] == 1 &&
+        this.map[(x - 1) + "," + y] == 0 &&
+        this.map[x + "," + (y - 1)] == 0 &&
+        this.map[(x + 1) + "," + y] == 1 &&
+        this.map[x + "," + (y + 1)] == 1 &&
+        this.map[(x - 1) + "," + (y - 1)] == 0 &&
+        this.map[(x + 1) + "," + (y + 1)] == 1 ||
 
-         this.map[x+","+y] == 1 &&
-         this.map[(x-1)+","+(y-1)] == 0 &&
-         this.map[x+","+(y-1)] == 0 &&
-         this.map[(x+1)+","+(y-1)] == 0 &&
-         this.map[x+","+(y+1)] == 1 &&
-         this.map[(x+1)+","+(y+1)] == 1 &&
-         this.map[(x-1)+","+(y+1)] == 1 ||
+        this.map[x + "," + y] == 1 &&
+        this.map[(x - 1) + "," + (y - 1)] == 0 &&
+        this.map[x + "," + (y - 1)] == 0 &&
+        this.map[(x + 1) + "," + (y - 1)] == 0 &&
+        this.map[x + "," + (y + 1)] == 1 &&
+        this.map[(x + 1) + "," + (y + 1)] == 1 &&
+        this.map[(x - 1) + "," + (y + 1)] == 1 ||
 
-         this.map[x+","+y] == 1 &&
-         this.map[(x-1)+","+(y+1)] == 0 &&
-         this.map[x+","+(y+1)] == 0 &&
-         this.map[(x+1)+","+(y+1)] == 0 &&
-         this.map[x+","+(y-1)] == 1 &&
-         this.map[(x+1)+","+(y-1)] == 1 &&
-         this.map[(x-1)+","+(y-1)] == 1 ||
+        this.map[x + "," + y] == 1 &&
+        this.map[(x - 1) + "," + (y + 1)] == 0 &&
+        this.map[x + "," + (y + 1)] == 0 &&
+        this.map[(x + 1) + "," + (y + 1)] == 0 &&
+        this.map[x + "," + (y - 1)] == 1 &&
+        this.map[(x + 1) + "," + (y - 1)] == 1 &&
+        this.map[(x - 1) + "," + (y - 1)] == 1 ||
 
-         this.map[x+","+y] == 1 &&
-         this.map[(x+1)+","+y] == 0 &&
-         this.map[x+","+(y-1)] == 0 &&
-         this.map[(x-1)+","+y] == 1 &&
-         this.map[x+","+(y+1)] == 1 &&
-         this.map[(x+1)+","+(y-1)] == 0 &&
-         this.map[(x-1)+","+(y+1)] == 1 ||
+        this.map[x + "," + y] == 1 &&
+        this.map[(x + 1) + "," + y] == 0 &&
+        this.map[x + "," + (y - 1)] == 0 &&
+        this.map[(x - 1) + "," + y] == 1 &&
+        this.map[x + "," + (y + 1)] == 1 &&
+        this.map[(x + 1) + "," + (y - 1)] == 0 &&
+        this.map[(x - 1) + "," + (y + 1)] == 1 ||
 
-         this.map[x+","+y] == 1 &&
-         this.map[(x+1)+","+y] == 0 &&
-         this.map[x+","+(y-1)] == 0 &&
-         this.map[(x-1)+","+y] == 1 &&
-         this.map[x+","+(y+1)] == 1 &&
-         this.map[(x+1)+","+(y-1)] == 0 &&
-         this.map[(x-1)+","+(y+1)] == 1
-       ){
-         if(getRandomInt(1, 100) <= 70){
-           if(getRandomInt(1, 100) <= 30){
-             let barrel = new Tile(x, y, 3, "barrel_wood"+getRandomInt(1, 4), "destructible");
-             collision_map.push(barrel);
-             all_sprites.push(barrel);
-             grid.setWalkableAt(x, y, true);
-           }
-       }else{
-         if(getRandomInt(1, 100) <= 30){
-           let table = new Tile(x, y, 3, "table_wood"+getRandomInt(1, 2), "destructible");
-           collision_map.push(table);
-           all_sprites.push(table);
-           grid.setWalkableAt(x, y, true);
-         }
-       }
+        this.map[x + "," + y] == 1 &&
+        this.map[(x + 1) + "," + y] == 0 &&
+        this.map[x + "," + (y - 1)] == 0 &&
+        this.map[(x - 1) + "," + y] == 1 &&
+        this.map[x + "," + (y + 1)] == 1 &&
+        this.map[(x + 1) + "," + (y - 1)] == 0 &&
+        this.map[(x - 1) + "," + (y + 1)] == 1
+      ) {
+        if (getRandomInt(1, 100) <= 70) {
+          if (getRandomInt(1, 100) <= 30) {
+            let barrel = new Tile(x, y, 3, "barrel_wood" + getRandomInt(1, 4), "destructible");
+            collision_map.push(barrel);
+            all_sprites.push(barrel);
+            grid.setWalkableAt(x, y, true);
+          }
+        } else {
+          if (getRandomInt(1, 100) <= 30) {
+            let table = new Tile(x, y, 3, "table_wood" + getRandomInt(1, 2), "destructible");
+            collision_map.push(table);
+            all_sprites.push(table);
+            grid.setWalkableAt(x, y, true);
+          }
+        }
       }
     }
   }

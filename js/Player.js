@@ -49,6 +49,30 @@ class Player extends Tile{
     this.hasActiveSigns = false;
   }
 
+  destroyProp(){
+    for(let j = 0; j < this.fov.length; j++){
+      if(this.fov[j].name == "destructible" && this.fov[j].x == this.x && this.fov[j].y == this.y){
+
+        this.fov[j].sprite.loadTexture("destr_wood"+getRandomInt(1,3) ,0);
+        this.fov[j].name = "floor";
+        // let destr_dummy = new Tile(this.fov[j].x/this.fov[j].tile_size.w, this.fov[j].y/this.fov[j].tile_size.h, "destr_wood"+getRandomInt(1,3), "collision");
+
+        destruct_wood = stage.add.emitter(0, 0, 20);
+        destruct_wood.makeParticles('t_destr');
+        destruct_wood.gravity = 150;
+
+        // position the hit particles on destructible object
+        destruct_wood.x = this.fov[j].x + this.fov[j].tile_size.w/2;
+        destruct_wood.y = this.fov[j].y + this.fov[j].tile_size.h/2;
+        // start to draw destruction particles
+        destruct_wood.start(true, 250, null, 20);
+
+        let destr = stage.add.audio("destr"+getRandomInt(1,3));
+        destr.play();
+      }
+    }
+  }
+
   getTotalArmorPoints(){
     let totalArmor = 0;
     for(let i in this.equiped){

@@ -17,7 +17,6 @@ function detectStateChange(tile){
 }
 
 function updateUI(player, target){
-
   // update player HP
   if(target.name == "player"){
     var hp = $("#health");
@@ -60,28 +59,26 @@ function updateInvInfo(){
   }
 }
 
-function destroyProp(destructor){
-  for(let j = 0; j < destructor.fov.length; j++){
-    if(destructor.fov[j].name == "destructible" && destructor.fov[j].x == destructor.x && destructor.fov[j].y == destructor.y){
+function Timer(callback, delay) {
+    var timerId, start, remaining = delay;
 
-      destructor.fov[j].sprite.loadTexture("destr_wood"+getRandomInt(1,3) ,0);
-      destructor.fov[j].name = "floor";
-      // let destr_dummy = new Tile(destructor.fov[j].x/destructor.fov[j].tile_size.w, destructor.fov[j].y/destructor.fov[j].tile_size.h, "destr_wood"+getRandomInt(1,3), "collision");
+    this.pause = function() {
+        window.clearTimeout(timerId);
+        remaining -= new Date() - start;
+    };
 
-      destruct_wood = stage.add.emitter(0, 0, 20);
-      destruct_wood.makeParticles('t_destr');
-      destruct_wood.gravity = 150;
+    this.resume = function() {
+        start = new Date();
+        window.clearTimeout(timerId);
+        timerId = window.setTimeout(callback, remaining);
+    };
 
-      // position the hit particles on destructible object
-      destruct_wood.x = destructor.fov[j].x + destructor.fov[j].tile_size.w/2;
-      destruct_wood.y = destructor.fov[j].y + destructor.fov[j].tile_size.h/2;
-      // start to draw destruction particles
-      destruct_wood.start(true, 250, null, 20);
+    this.clear = function(){
+      window.clearTimeout(timerId);
+      remaining = 0;
+    };
 
-      let destr = stage.add.audio("destr"+getRandomInt(1,3));
-      destr.play();
-    }
-  }
+    this.resume();
 }
 
 function doStep(path){
@@ -116,7 +113,7 @@ function doStep(path){
         player.x = player.sprite.x;
         player.y = player.sprite.y;
 
-        destroyProp(player);
+        player.destroyProp();
 
         for(let j = 0; j < doors.length; j++){
           if(player.x == doors[j].x && player.y == doors[j].y){
@@ -132,10 +129,10 @@ function doStep(path){
             if($(".on-loot").not(":visible")){
               $(".on-loot").css("display", "block");
               break;
-              }
-            }else if($(".on-loot").is(":visible")){
-                $(".on-loot").hide();
             }
+          }else if($(".on-loot").is(":visible")){
+            $(".on-loot").hide();
+          }
         }
 
       }
@@ -145,8 +142,6 @@ function doStep(path){
       // player.removePathAfter(i);
       player.centerCamera();
       player.moved = true;
-
-
 
       for(let j = 0; j < enemies.length; j++){
         if(j == 0){
@@ -196,7 +191,7 @@ function doStep(path){
               enemy.x = enemy.sprite.x;
               enemy.y = enemy.sprite.y;
 
-              destroyProp(enemy);
+              enemy.destroyProp();
 
               enemy.moved = true;
 
@@ -258,11 +253,19 @@ function getRandomInt(min, max) {
 
 function getRandomPos(){
   let rand_pos;
+  let canSpawn = false;
   while(rand_pos === undefined){
     let point = all_sprites[getRandomInt(0, all_sprites.length-1)];
-    if(point.name && point.name != "collision" && point.name != "door_closed" && point.name != "door_opened" && point.name != "destructible"){
-      rand_pos = point;
-      console.log(rand_pos);
+    if(collision_map.indexOf(point) == -1 &&
+       point.x != player.x &&
+       point.y != player.y){
+         for(let i in collision_map){
+           if(collision_map[i].x != point.x &&
+              collision_map[i].y != point.y){
+                rand_pos = point;
+                break;
+            }
+         }
     }
   }
   return rand_pos;

@@ -23,7 +23,8 @@ class Player extends Tile{
     this.maxMagic = undefined;
 
     this.stat = {
-      dexterity: 20
+      dexterity: 20,
+      luck: 50
     }
 
     this.sign;
@@ -103,18 +104,14 @@ class Player extends Tile{
 
   equipItem(item){
     if(item.equipable){
-      this.equiped[item.slot] = item;
-      if(item.slot == "main_hand"){
-        this.activeWeapon = item;
+      let dummyItem = item;
+      this.equiped[item.slot] = dummyItem;
+      if(dummyItem.slot == "main_hand"){
+        this.activeWeapon = dummyItem;
       }
+      dummyItem.isEquiped = true;
+      // updateUI (inventory)
       updateInvInfo();
-
-      // updateUI
-      // if(this.name == "player" && item.type == "armor")
-      //   $("#"+item.slot).css("background", "url("+item.icon+")").css("background-color", "#009688");
-      // if((item.type == "melee" || item.type == "ranged") && this.name === "player"){
-      //   $("#"+item.slot).css("background", "url("+item.icon+")").css("background-color", "#009688");
-      // }
     }
   }
 
@@ -122,7 +119,7 @@ class Player extends Tile{
     if(!this.disableControl){
       for(let i = 0; i < lootArr.length; i++){
         if(this.x == lootArr[i].x && this.y == lootArr[i].y){
-          for(let j in lootArr[i].loot){
+          for(let j = 0; j < lootArr[i].loot.length; j++){
             this.giveItem(lootArr[i].loot[j]);
           }
           updateInvInfo();
@@ -195,6 +192,31 @@ class Player extends Tile{
     }
   }
 
+  getRandomLoot(){
+    let loot = [];
+    let totalToLoot = getRandomInt(1, Object.keys(this.equiped).length); // total number of looted items
+    let itemsToLoot = [];
+    itemsToLoot.push(getRandomInt(1, totalToLoot)); // numbers of items to loot
+    let currentLoot = undefined;
+
+    while(itemsToLoot.length < totalToLoot){
+      currentLoot = getRandomInt(1, totalToLoot);
+      if(!itemsToLoot.includes(currentLoot))
+        itemsToLoot.push(currentLoot);
+    }
+
+    let i = 0;
+    for(let currentLoot in this.equiped){
+      i++;
+      if(itemsToLoot.includes(i) && this.equiped[currentLoot]){
+        this.equiped[currentLoot].isEquiped = false;
+        loot.push(this.equiped[currentLoot]);
+      }
+    }
+    console.log("loot:", loot);
+    return loot;
+  }
+
   hitTarget(target){
     if(target.health > 0 && this.checkHitAvailability(target)){
 
@@ -207,7 +229,7 @@ class Player extends Tile{
       emitter.x = target.sprite.x + target.tile_size.w/2;
       emitter.y = target.sprite.y + target.tile_size.h/2;
 
-      // start to draw melee particles
+      // start to draw hit particles
       emitter.start(true, 800, null, 5);
 
       // calculating weapon damage
@@ -274,15 +296,13 @@ class Player extends Tile{
           // death of other stuff (like enemies)
 
           // spawn loot
-          let loot_chest = new Chest(target.x/this.tile_size.w, target.y/this.tile_size.h, 3, "loot", "loot", {
-            iron_sword,
-            iron_boots
-          });
-          loot_chest.state = 2;
-          detectStateChange(loot_chest);
-          lootArr.push(loot_chest);
-
-          this.fov.push(loot_chest);
+          if(getRandomInt(0, 100) <= this.stat.luck){
+            let loot_chest = new Chest(target.x/this.tile_size.w, target.y/this.tile_size.h, 3, "loot", "loot", target.getRandomLoot());
+            loot_chest.state = 2;
+            detectStateChange(loot_chest);
+            lootArr.push(loot_chest);
+            this.fov.push(loot_chest);
+          }
 
           // target.sprite.destroy();
           gr_players.remove(target.sprite);

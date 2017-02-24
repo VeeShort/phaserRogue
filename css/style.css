@@ -282,7 +282,8 @@ body{
   border-collapse: collapse;
   position: relative;
 }
-.inventory .inv-tile .inv-equiped{
+.inventory .inv-tile.isEquiped:before{
+  content: 'E';
   display: block;
   position: absolute;
   right: 0px;

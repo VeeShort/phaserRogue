@@ -52,17 +52,20 @@ function updateInvInfo() {
   for(let i = 0; i < player.inventory.container.length; i++){
     if(player.inventory.container[i]){
       $("#inv-"+i).css("background", "url('"+player.inventory.container[i].icon+"')").css("background-size", "cover");
-      if(player.inventory.container[i].isEquiped){
-        $("#inv-"+i).append("<span class='inv-equiped'>E</span>");
+      if(player.inventory.container[i].isEquiped && !$("#inv-"+i).hasClass("isEquiped")){
+        $("#inv-"+i).addClass("isEquiped");
+      }
+      if(!player.inventory.container[i].icon){
+        player.inventory.container[i].icon = "./images/icons/noico.png";
       }
     }
+    $("#inv-"+i).off();
+    $("#inv-"+i).hover(function(){
+      
+    }, function(){
+
+    });
   }
-  // for (let i = 0; i < player.inventory.container.length; i++) {
-  //   inv.append($("<span/>", {
-  //     class: "slot",
-  //     style: "background: url('" + player.inventory.container[i].icon + "'); background-size: cover"
-  //   }).data("num", i));
-  // }
 }
 
 function Timer(callback, delay) {
@@ -267,7 +270,6 @@ function getRandomInt(min, max) {
 }
 
 function getRandomPos() {
-  console.log("-------- new --------");
   let rand_pos;
   let canSpawn = false;
   let posBuf;

@@ -137,7 +137,7 @@ function create() {
       price: 0,
       weight: 0,
       description: "Skeletons have these",
-      icon: undefined,
+      icon: "./images/icons/weapon/skeleton_hand.png",
       minDamage: 1,
       maxDamage: 3,
       type: "melee",
@@ -167,7 +167,7 @@ function create() {
       price: 0,
       weight: 0,
       description: "Ancient sword covered with rust",
-      icon: undefined,
+      icon: "./images/icons/weapon/rusty_sword.png",
       minDamage: 3,
       maxDamage: 6,
       type: "melee",
@@ -197,7 +197,7 @@ function create() {
       price: 0,
       weight: 0,
       description: "Dark wizards make this at home",
-      icon: undefined,
+      icon: "./images/icons/weapon/wand_of_curse.png",
       minDamage: 8,
       maxDamage: 10,
       type: "ranged",
@@ -218,7 +218,7 @@ function create() {
       type: "ranged",
       manaCost: 1,
       nature: "fire",
-      equipable: "true",
+      equipable: true,
       slot: "main_hand"
     });
 
@@ -306,7 +306,7 @@ function create() {
           id: "inv-"+i
         }));
     }
-    
+
     updateInvInfo();
 
     $("#current-hp").text(player.health);

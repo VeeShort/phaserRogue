@@ -49,19 +49,21 @@ function updateLog(message) {
 }
 
 function updateInvInfo() {
-  for(let i = 0; i < player.inventory.container.length; i++){
-    if(player.inventory.container[i]){
-      $("#inv-"+i).css("background", "url('"+player.inventory.container[i].icon+"')").css("background-size", "cover");
-      if(player.inventory.container[i].isEquiped && !$("#inv-"+i).hasClass("isEquiped")){
+  let inv = player.inventory.container;
+  for(let i = 0; i < inv.length; i++){
+    if(inv[i]){
+      $("#inv-"+i).css("background", "url('"+inv[i].icon+"')").css("background-size", "cover");
+      if(inv[i].isEquiped && !$("#inv-"+i).hasClass("isEquiped")){
         $("#inv-"+i).addClass("isEquiped");
       }
-      if(!player.inventory.container[i].icon){
-        player.inventory.container[i].icon = "./images/icons/noico.png";
+      if(!inv[i].icon){
+        inv[i].icon = "./images/icons/noico.png";
       }
     }
+
     $("#inv-"+i).off();
     $("#inv-"+i).hover(function(){
-      
+
     }, function(){
 
     });

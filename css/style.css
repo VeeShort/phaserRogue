@@ -28,7 +28,10 @@ canvas{
   src: url("/fonts/Px437_ITT_BIOS.ttf");
 }
 
-
+html{
+  height: 100%;
+  width: 100%;
+}
 body{
   font-family: "iso9", sans-serif;
   background: #000;
@@ -36,7 +39,8 @@ body{
   margin: auto;
   position: relative;
 }
-body:after{
+
+.scene-container:after{
   content: '';
   clear: both;
   display: block;

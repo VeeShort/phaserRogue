@@ -1,54 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Rogue</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
+  <div id="main-scene" class="scene-container">
+    <img src="./images/wait.png" class="mini-icon wait">
 
-  <img src="./images/wait.png" class="mini-icon wait">
-
-  <div class="enemy-list">
-  </div>
-
-  <div class="ui-container">
-
-    <div class="icon-container">
-      <img src="./images/warning.png" class="mini-icon warning">
-      <img src="./images/on-loot.png" class="mini-icon on-loot">
+    <div class="enemy-list">
     </div>
 
-    <div class="container">
-      <p class="player-name" id="pl-name"></p>
-      <p class="pl-text">Health: <span id="current-hp"></span>/<span id="max-hp"></span></p>
-      <div id="health_container" class="bar-container">
-        <div id="health" class="bar health"></div>
+    <div class="ui-container">
+
+      <div class="icon-container">
+        <img src="./images/warning.png" class="mini-icon warning">
+        <img src="./images/on-loot.png" class="mini-icon on-loot">
       </div>
-    </div>
 
-    <div class="container">
-      <p class="pl-text">Magic: <span id="current-mp"></span>/<span id="max-mp"></span></p>
-      <div id="magic_container" class="bar-container">
-        <div id="magic" class="bar magic"></div>
+      <div class="container">
+        <p class="player-name" id="pl-name"></p>
+        <p class="pl-text">Health: <span id="current-hp"></span>/<span id="max-hp"></span></p>
+        <div id="health_container" class="bar-container">
+          <div id="health" class="bar health"></div>
+        </div>
       </div>
-    </div>
 
-    <div class="container stats">
-      <p class="pl-text">Arm: <span id="pl-arm">-</span></p>
-      <p class="pl-text">Dex: <span id="pl-dex">-</span></p>
-    </div>
+      <div class="container">
+        <p class="pl-text">Magic: <span id="current-mp"></span>/<span id="max-mp"></span></p>
+        <div id="magic_container" class="bar-container">
+          <div id="magic" class="bar magic"></div>
+        </div>
+      </div>
 
-    <div class="container active-weapon">
-      <p class="pl-text">Wpn: <span id="pl-weapon">-</span></p>
-    </div>
+      <div class="container stats">
+        <p class="pl-text">Arm: <span id="pl-arm">-</span></p>
+        <p class="pl-text">Dex: <span id="pl-dex">-</span></p>
+      </div>
 
-    <div class="container weapon">
-      <p class="pl-text">MnH: <span id="pl-main_hand">-</span></p>
-      <p class="pl-text">OfH: <span id="pl-off_hand">-</span></p>
-    </div>
+      <div class="container active-weapon">
+        <p class="pl-text">Wpn: <span id="pl-weapon">-</span></p>
+      </div>
 
-    <!-- <div class="container armor">
+      <div class="container weapon">
+        <p class="pl-text">MnH: <span id="pl-main_hand">-</span></p>
+        <p class="pl-text">OfH: <span id="pl-off_hand">-</span></p>
+      </div>
+
+      <!-- <div class="container armor">
       <p class="pl-text">Hlm: <span id="pl-helm">-</span></p>
       <p class="pl-text">Cht: <span id="pl-chest">-</span></p>
       <p class="pl-text">Wrt: <span id="pl-wrist">-</span></p>
@@ -57,26 +59,27 @@
       <p class="pl-text">Bts: <span id="pl-boots">-</span></p>
     </div> -->
 
-    <div class="container target">
-      <img src="" alt="enemy portrait" id="en-port">
-      <p class="player-name" id="en-name"></p>
-      <p class="pl-text">Health: <span id="en-current-hp"></span>/<span id="en-max-hp"></span></p>
-      <div id="en-health_container" class="bar-container">
-        <div id="en-health" class="bar health"></div>
+      <div class="container target">
+        <img src="" alt="enemy portrait" id="en-port">
+        <p class="player-name" id="en-name"></p>
+        <p class="pl-text">Health: <span id="en-current-hp"></span>/<span id="en-max-hp"></span></p>
+        <div id="en-health_container" class="bar-container">
+          <div id="en-health" class="bar health"></div>
+        </div>
       </div>
+
+      <div class="container inventory">
+      </div>
+
+      <div class="container minimap">
+        <canvas id="minimap"></canvas>
+      </div>
+
     </div>
 
-    <div class="container inventory">
-    </div>
-    
-    <div class="container minimap">
-      <canvas id="minimap"></canvas>
-    </div>
 
+    <div class="log-container"></div>
   </div>
-
-
-  <div class="log-container"></div>
 
   <script src="js/jquery-1.11.3.min.js"></script>
   <script src="js/phaser.min.js" defer></script>
@@ -95,4 +98,5 @@
 
   <script src="js/main.js" defer></script>
 </body>
+
 </html>

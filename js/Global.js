@@ -49,7 +49,7 @@ let isWarrior = false;
 // let g = new PIXI.Graphics();
 let gr_map, gr_players, gr_items;
 // creating stage
-let stage = new Phaser.Game(608, 608, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+let stage = new Phaser.Game(608, 608, Phaser.AUTO, 'main-scene', { preload: preload, create: create, update: update, render: render });
 
 // minimap
 let minimap = document.getElementById("minimap");

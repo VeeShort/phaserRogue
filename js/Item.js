@@ -7,5 +7,6 @@ class Item{
     this.weight = weight;
     this.description = description;
     this.icon = icon;
+    this.isEquiped = false;
   }
 };

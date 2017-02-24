@@ -15,5 +15,6 @@ class Weapon{
     this.nature = obj.nature;
     this.slot = obj.slot;
     this.wield = obj.wield;
+    this.isEquiped = false;
   }
 };

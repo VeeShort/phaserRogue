@@ -49,14 +49,20 @@ function updateLog(message) {
 }
 
 function updateInvInfo() {
-  let inv = $(".inventory");
-  inv.empty();
-  for (let i = 0; i < player.inventory.length; i++) {
-    inv.append($("<span/>", {
-      class: "slot",
-      style: "background: url('" + player.inventory[i].icon + "'); background-size: cover"
-    }).data("num", i));
+  for(let i = 0; i < player.inventory.container.length; i++){
+    if(player.inventory.container[i]){
+      $("#inv-"+i).css("background", "url('"+player.inventory.container[i].icon+"')").css("background-size", "cover");
+      if(player.inventory.container[i].isEquiped){
+        $("#inv-"+i).append("<span class='inv-equiped'>E</span>");
+      }
+    }
   }
+  // for (let i = 0; i < player.inventory.container.length; i++) {
+  //   inv.append($("<span/>", {
+  //     class: "slot",
+  //     style: "background: url('" + player.inventory.container[i].icon + "'); background-size: cover"
+  //   }).data("num", i));
+  // }
 }
 
 function Timer(callback, delay) {
@@ -327,7 +333,13 @@ Dungeon = {
   },
 
   _generateMap: function() {
-    var digger = new ROT.Map.Digger(this.map_size, this.map_size);
+    var map = new ROT.Map.Digger(
+      this.map_size, this.map_size, {
+      roomWidth: [4,10],
+      roomHeight: [4, 10],
+      timeLimit: 4000
+    }
+  );
     var freeCells = [];
 
     var digCallback = function(x, y, value) {
@@ -342,11 +354,12 @@ Dungeon = {
       freeCells.push(key);
     }
 
-    digger.create(digCallback.bind(this));
+    map.create(digCallback.bind(this));
 
     this._generateBoxes(freeCells);
 
     this._drawWholeMap();
+    console.log("seed:", ROT.RNG.getSeed());
 
     var drawDoor = function(x, y) {
       let door = new Tile(x, y, 2, 'door_c', 'door_closed');
@@ -355,7 +368,7 @@ Dungeon = {
       collision_map.push(door);
     }
 
-    var rooms = digger.getRooms();
+    var rooms = map.getRooms();
     for (var i = 0; i < rooms.length; i++) {
       var room = rooms[i];
       room.getDoors(drawDoor);

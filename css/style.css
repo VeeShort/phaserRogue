@@ -263,7 +263,26 @@ body{
 
 /*inventory*/
 .inventory{
-  width: 50%
+  width: 50%;
+  margin-bottom: 15px;
+}
+.inventory .inv-tile{
+  float: left;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #333;
+  border-collapse: collapse;
+  position: relative;
+}
+.inventory .inv-tile .inv-equiped{
+  display: block;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  color: #00ff16;
+  font-weight: bold;
+  background-color: rgba(0,0,0,.5);
+  font-size: 16px;
 }
 .inventory span{
   display: inline-block;

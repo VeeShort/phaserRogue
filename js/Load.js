@@ -269,6 +269,11 @@ function create() {
       case "warrior":
         player.setHealth(500); // def: 50
         player.setMagic(500); // def: 5
+        player.giveItem(iron_sword);
+        player.giveItem(scroll_of_fire);
+        player.giveItem(iron_chest);
+        player.giveItem(iron_boots);
+
         player.equipItem(iron_sword);
         player.equipItem(scroll_of_fire);
         player.equipItem(iron_chest);
@@ -278,6 +283,11 @@ function create() {
       case "wizard":
         player.setHealth(25);
         player.setMagic(25);
+        player.giveItem(iron_sword);
+        player.giveItem(fireball_sp);
+        player.giveItem(magic_robe);
+        player.giveItem(magic_socks);
+
         player.equipItem(iron_sword);
         player.equipItem(fireball_sp);
         player.equipItem(magic_robe);
@@ -288,6 +298,16 @@ function create() {
         player.rangedR = 8;
       break;
     }
+
+    let plInv = $(".inventory");
+    for(let i = 0; i < player.inventory.maxLength; i++){
+        plInv.append($("<div/>",{
+          class: "inv-tile",
+          id: "inv-"+i
+        }));
+    }
+    
+    updateInvInfo();
 
     $("#current-hp").text(player.health);
     $("#max-hp").text(player.maxHealth);
@@ -374,11 +394,11 @@ function create() {
 
     // INPUTS
     // enabled ranged mode
-    rKey = stage.input.keyboard.addKey(Phaser.Keyboard.R);
-
-    rKey.onDown.add(function(){
-      player.changeActiveWeapon();
-    }, this);
+    // rKey = stage.input.keyboard.addKey(Phaser.Keyboard.R);
+    //
+    // rKey.onDown.add(function(){
+    //   player.changeActiveWeapon();
+    // }, this);
 
     spaceKey = stage.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
@@ -392,39 +412,39 @@ function create() {
     // player.sprite.animations.add('up', [12, 13, 14, 15], 10, true);
     // player.sprite.animations.add('down', [0, 1, 2, 3], 10, true);
 
-    let info = $(".info");
-    $(".slot").hover(function(){
-      let self = $(this);
-      let container;
-
-      if(self.parent().hasClass("slots")){
-        container = player.equiped[self.attr("id")];
-        for(let i in container){
-          if(i != "icon" && i != "equipable" && i)
-            info.append($("<span/>",{
-              text: i + ": " + container[i]
-            }));
-        }
-      }
-      if(self.parent().hasClass("inventory")){
-        container = player.inventory;
-        for(let i in container[self.data("num")]){
-          if(i != "icon" && i != "equipable" && i){
-            info.append($("<span/>",{
-              text: i + ": " + container[self.data("num")][i]
-            }));
-          }
-        }
-      }
-
-      info.show();
-
-    }, function(){
-      if(info.is(":visible")){
-        info.empty();
-        info.hide();
-      }
-    });
+    // let info = $(".info");
+    // $(".slot").hover(function(){
+    //   let self = $(this);
+    //   let container;
+    //
+    //   if(self.parent().hasClass("slots")){
+    //     container = player.equiped[self.attr("id")];
+    //     for(let i in container){
+    //       if(i != "icon" && i != "equipable" && i)
+    //         info.append($("<span/>",{
+    //           text: i + ": " + container[i]
+    //         }));
+    //     }
+    //   }
+    //   if(self.parent().hasClass("inventory")){
+    //     container = player.inventory.container;
+    //     for(let i in container[self.data("num")]){
+    //       if(i != "icon" && i != "equipable" && i){
+    //         info.append($("<span/>",{
+    //           text: i + ": " + container[self.data("num")][i]
+    //         }));
+    //       }
+    //     }
+    //   }
+    //
+    //   info.show();
+    //
+    // }, function(){
+    //   if(info.is(":visible")){
+    //     info.empty();
+    //     info.hide();
+    //   }
+    // });
 
     updateMiniMap();
 

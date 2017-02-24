@@ -33,7 +33,10 @@ class Player extends Tile{
     this.inRangedCombat = false;
     this.activeWeapon = undefined;
 
-    this.inventory = [];
+    this.inventory = {
+      container: [],
+      maxLength: 30
+    };
 
     this.equiped = {
       main_hand: undefined,
@@ -44,7 +47,7 @@ class Player extends Tile{
       waist: undefined,
       pants: undefined,
       helm: undefined
-    }
+    };
 
     this.hasActiveSigns = false;
   }
@@ -94,23 +97,24 @@ class Player extends Tile{
   }
 
   giveItem(item){
-    this.inventory.push(item);
+    this.inventory.container.push(item);
     updateInvInfo();
   }
 
   equipItem(item){
     if(item.equipable){
       this.equiped[item.slot] = item;
-      if((item.type == "melee" || item.type == "ranged") && item.slot == "main_hand"){
+      if(item.slot == "main_hand"){
         this.activeWeapon = item;
       }
+      updateInvInfo();
 
       // updateUI
-      if(this.name == "player" && item.type == "armor")
-        $("#"+item.slot).css("background", "url("+item.icon+")").css("background-color", "#009688");
-      if((item.type == "melee" || item.type == "ranged") && this.name === "player"){
-        $("#"+item.slot).css("background", "url("+item.icon+")").css("background-color", "#009688");
-      }
+      // if(this.name == "player" && item.type == "armor")
+      //   $("#"+item.slot).css("background", "url("+item.icon+")").css("background-color", "#009688");
+      // if((item.type == "melee" || item.type == "ranged") && this.name === "player"){
+      //   $("#"+item.slot).css("background", "url("+item.icon+")").css("background-color", "#009688");
+      // }
     }
   }
 

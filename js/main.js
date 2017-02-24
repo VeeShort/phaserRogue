@@ -335,8 +335,8 @@ Dungeon = {
   _generateMap: function() {
     var map = new ROT.Map.Digger(
       this.map_size, this.map_size, {
-      roomWidth: [4,10],
-      roomHeight: [4, 10],
+      roomWidth: [4,6],
+      roomHeight: [4, 6],
       timeLimit: 4000
     }
   );

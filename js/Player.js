@@ -98,7 +98,6 @@ class Player extends Tile{
   }
 
   giveItem(item){
-    console.log(item.isEquiped);
     this.inventory.container.push(item);
     updateInvInfo();
   }
@@ -109,7 +108,8 @@ class Player extends Tile{
       if(item.slot == "main_hand"){
         this.activeWeapon = item;
       }
-      item.isEquiped = true;
+      if(this.name == 'player')
+        item.isEquiped = true;
       // updateUI (inventory)
       updateInvInfo();
     }
@@ -130,6 +130,7 @@ class Player extends Tile{
         item.isEquiped = true;
       }
       updateInvInfo();
+      $("#pl-arm").text("+"+player.getTotalArmorPoints());
     }
   }
 

@@ -35,15 +35,16 @@ html{
 body{
   font-family: "iso9", sans-serif;
   background: #000;
-  max-width: 1100px;
-  margin: auto;
-  position: relative;
 }
 
 .scene-container:after{
   content: '';
   clear: both;
   display: block;
+}
+.scene-container{
+  position: relative;
+  margin: auto;
 }
 #container{
   width: 256px;
@@ -254,19 +255,26 @@ body{
   display: none;
   position: absolute;
   padding: 3px 5px;
-  background: #2c241d;
+  background: #333;
+  border: 1px solid #ddd;
+  border-radius: 2px;
   width: 200px;
   margin: 5px;
+  color: #fff;
+}
+.info .name{
+  color: #fff;
+  font-weight: bold;
+}
+.info .type{
+  color: #2196F3;
+}
+.info .armor{
+  color: #52ff52;
 }
 .container.inf{
   width: 50%;
   height: 170px;
-}
-
-.info span{
-  color: #ffc112;
-  display: block;
-  text-transform: capitalize;
 }
 
 /*inventory*/
@@ -290,7 +298,9 @@ body{
   bottom: 0px;
   color: #00ff16;
   font-weight: bold;
-  background-color: rgba(0,0,0,.5);
+  padding-left: 4px;
+  padding-top: 3px;
+  background-color: rgba(0, 0, 0, .65);
   font-size: 16px;
 }
 .inventory span{
@@ -331,4 +341,16 @@ body{
   margin-left: 4px;
   margin-bottom: 4px;
   background-color: #52ff52;
+}
+
+/*CONTEXT MENU*/
+.context-menu-list{
+  box-shadow: none;
+  background: #333;
+  border-radius: 1px;
+}
+.context-menu-item{
+  color: #fff;
+  background-color: transparent;
+  padding: 2px 10px;
 }

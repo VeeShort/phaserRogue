@@ -216,7 +216,7 @@ function create() {
       minDamage: 20,
       maxDamage: 25,
       type: "ranged",
-      manaCost: 1,
+      manaCost: 0,
       nature: "fire",
       equipable: true,
       slot: "main_hand"
@@ -234,7 +234,7 @@ function create() {
       manaCost: 1,
       nature: "fire",
       equipable: true,
-      slot: "off_hand"
+      slot: "main_hand"
     });
 
     // ARMOR
@@ -276,7 +276,6 @@ function create() {
         player.giveItem(wand_of_curse);
 
         player.equipItem(iron_sword);
-        player.equipItem(scroll_of_fire);
         player.equipItem(iron_chest);
         player.equipItem(iron_boots);
         player.stat.dexterity = 15;
@@ -304,7 +303,8 @@ function create() {
     for(let i = 0; i < player.inventory.maxLength; i++){
         plInv.append($("<div/>",{
           class: "inv-tile",
-          id: "inv-"+i
+          id: "inv-"+i,
+          "data-index" : i
         }));
     }
 
@@ -321,7 +321,7 @@ function create() {
     $("#pl-weapon").text(player.activeWeapon.name+" ["+player.activeWeapon.minDamage+"-"+player.activeWeapon.maxDamage+"]");
 
     $("#pl-dex").text(player.stat.dexterity);
-    $("#pl-arm").text(player.getTotalArmorPoints());
+    $("#pl-arm").text("+"+player.getTotalArmorPoints());
 
     for(let i = 0; i < 7; i++){
       let rand_pos = getRandomPos();
@@ -474,6 +474,24 @@ function create() {
       }
     });
 
+    $(".inv-tile").hover(function(e){
+      let item = player.inventory.container[$(this).data("index")];
+      if(item){
+        $(".info").show();
+        $(".info").css("left", e.pageX+"px").css("top", e.pageY + "px");
+        $(".info p").html("");
+        $(".info .name").html(item.name);
+        $(".info .type").html(item.type);
+        if(item.type == "melee" || item.type == "ranged"){
+          $(".info .misc").html("Damage: " + item.minDamage + "-" + item.maxDamage);
+        }
+        else if(item.type == "armor"){
+          $(".info .armor").html("+" + item.armorValue + " armor");
+        }
+      }
+    }, function(){
+      $(".info").hide();
+    });
 }
 
 function update(){

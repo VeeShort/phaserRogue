@@ -273,6 +273,7 @@ function getRandomPos() {
   let posBuf;
   while (rand_pos === undefined) {
     let point = all_sprites[getRandomInt(0, all_sprites.length - 1)];
+
     posBuf = undefined;
     if (collision_map.indexOf(point) == -1 &&
       point.x != player.x &&

@@ -98,6 +98,7 @@ class Player extends Tile{
   }
 
   giveItem(item){
+    console.log(item.isEquiped);
     this.inventory.container.push(item);
     updateInvInfo();
   }
@@ -257,7 +258,7 @@ class Player extends Tile{
       // calculating final damage dealt to the target
       damage = Math.floor(damage * d_mult);
 
-      switch (this.activeWeapon.nature) {
+      switch (this.equiped["main_hand"].nature) {
         case "fire":
           fire_hit.play();
         break;
@@ -276,7 +277,7 @@ class Player extends Tile{
       }
 
       // recalculating players magic points relative to mana cost of the used weapon
-      this.magic = this.magic - this.activeWeapon.manaCost;
+      this.magic = this.magic - this.equiped["main_hand"].manaCost;
 
       // calculating hit/miss rates relative to target's dexterity stat
       if(getRandomInt(1,100) > target.stat.dexterity) {

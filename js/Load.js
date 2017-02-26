@@ -233,7 +233,7 @@ function create() {
       type: "ranged",
       manaCost: 1,
       nature: "fire",
-      equipable: "true",
+      equipable: true,
       slot: "off_hand"
     });
 
@@ -273,6 +273,7 @@ function create() {
         player.giveItem(scroll_of_fire);
         player.giveItem(iron_chest);
         player.giveItem(iron_boots);
+        player.giveItem(wand_of_curse);
 
         player.equipItem(iron_sword);
         player.equipItem(scroll_of_fire);

@@ -43,7 +43,7 @@ body{
   display: block;
 }
 .scene-container{
-  position: relative;
+  max-width: 1100px;
   margin: auto;
 }
 #container{

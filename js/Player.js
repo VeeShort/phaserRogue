@@ -35,7 +35,7 @@ class Player extends Tile{
     this.activeWeapon = undefined;
 
     this.inventory = {
-      container: [],
+      container: new Array(30),
       maxLength: 30
     };
 
@@ -98,7 +98,12 @@ class Player extends Tile{
   }
 
   giveItem(item){
-    this.inventory.container.push(item);
+    for(let i = 0; i < this.inventory.container.length; i++){
+      if(!this.inventory.container[i]){
+        this.inventory.container[i] = item;
+        break;
+      }
+    }
     updateInvInfo();
   }
 
@@ -122,8 +127,8 @@ class Player extends Tile{
         this.equiped[item.slot] = undefined;
       }else{
         this.equiped[item.slot] = item;
-        for(let i in this.inventory.container){
-          if(item.slot == this.inventory.container[i].slot){
+        for(let i = 0; i < this.inventory.container.length; i++){
+          if(this.inventory.container[i] && item.slot == this.inventory.container[i].slot){
             this.inventory.container[i].isEquiped = false;
           }
         }

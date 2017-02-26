@@ -62,6 +62,9 @@ function updateInvInfo() {
       if(!inv[i].icon){
         inv[i].icon = "./images/icons/noico.png";
       }
+    }else{
+      $("#inv-"+i).css("background", "transparent");
+      $("#inv-"+i).removeClass("isEquiped")
     }
   }
 }

@@ -301,6 +301,9 @@ function create() {
 
     let plInv = $(".inventory");
     for(let i = 0; i < player.inventory.maxLength; i++){
+      if(!player.inventory.container[i]){
+        player.inventory.container[i] == "";
+      }
         plInv.append($("<div/>",{
           class: "inv-tile",
           id: "inv-"+i,
@@ -449,6 +452,10 @@ function create() {
 
     updateMiniMap();
 
+    // -----------------
+    // CONTEXT MENU
+    // -----------------
+
     $.contextMenu({
       selector: '.inv-tile',
       callback: function(key, options, $element) {
@@ -456,6 +463,7 @@ function create() {
           // window.console && console.log(m) || alert(m);
       },
       build: function($triggerElement, e){
+        if(player.inventory.container[$("#"+$triggerElement.context.id).data("index")]){
         return {
           callback: function(){},
           items: {
@@ -463,14 +471,18 @@ function create() {
               return $("#"+$triggerElement.context.id).hasClass("isEquiped") ? "Unequip" : "Equip";
             }, callback: function($element){
               let elId = $triggerElement.context.id;
-              let invId = elId.substr(elId.indexOf("-")+1, elId.length - elId.indexOf("-"));
-              player.toggleEquiped(player.inventory.container[invId]);
+              // let invId = elId.substr(elId.indexOf("-")+1, elId.length - elId.indexOf("-"));
+              player.toggleEquiped(player.inventory.container[$("#"+elId).data("index")]);
             }},
             "throw": {name: "Throw"},
             "identify": {name: "Identify"},
             "destroy": {name: "Destroy"}
           }
         };
+      }
+        else{
+        return false;  
+        }
       }
     });
 
@@ -491,6 +503,30 @@ function create() {
       }
     }, function(){
       $(".info").hide();
+    });
+
+
+    // -----------------
+    // DRAG'N'DROP
+    // -----------------
+
+    $(".inv-tile").draggable({helper: "clone"});
+
+    $(".inv-tile").droppable({
+      accept: "div",
+      drop: function(event, ui){
+        let inv = player.inventory.container;
+        if(!inv[$(this).data("index")]){
+          inv[$(this).data("index")] = inv[$("#"+ui.helper.context.id).data("index")];
+          inv[$("#"+ui.helper.context.id).data("index")] = undefined;
+        }else if(inv[$(this).data("index")]){
+          let bufItemFrom = inv[$(this).data("index")];
+          let bufItemTo = inv[$("#"+ui.helper.context.id).data("index")];
+          inv[$(this).data("index")] = bufItemTo;
+          inv[$("#"+ui.helper.context.id).data("index")] = bufItemFrom;
+        }
+        updateInvInfo();
+      }
     });
 }
 

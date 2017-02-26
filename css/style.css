@@ -278,7 +278,14 @@ body{
 }
 
 /*inventory*/
+.inventory:after,
+.sort-btns:after{
+  content: '';
+  display: block;
+  clear: both;
+}
 .inventory{
+  float: left;
   width: 50%;
   margin-bottom: 15px;
 }
@@ -310,6 +317,25 @@ body{
   border: 1px solid #ccc;
   margin: -4px 1px 1px 0;
 }
+/*sort*/
+.sort-btns{
+  float: left;
+}
+.sort-btns button{
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 1px;
+  color: #fff;
+  background: #333;
+  transition: .3s;
+  outline: none;
+}
+.sort-btns button:hover{
+  cursor: pointer;
+  transform: scale(1.1);
+}
+
 
 /*minimap*/
 .container.minimap{

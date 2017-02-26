@@ -481,7 +481,7 @@ function create() {
         };
       }
         else{
-        return false;  
+        return false;
         }
       }
     });
@@ -527,6 +527,10 @@ function create() {
         }
         updateInvInfo();
       }
+    });
+
+    $(".sort-by-name").on("click", function(){
+      sortInvByName();
     });
 }
 

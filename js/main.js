@@ -48,6 +48,22 @@ function updateLog(message) {
   }
 }
 
+function sortInvByName(){
+  let inv = player.inventory.container;
+  inv.sort(function(a, b){
+    var nameA = a.name.toLowerCase(), nameB=b.name.toLowerCase();
+    if (nameA > nameB) //sort string ascending
+    return 1;
+    if (nameA < nameB)
+    return -1;
+    return 0; //default return value (no sorting)
+  });
+  player.inventory.sorted.by = "name";
+  player.inventory.sorted.oreder = "ascending";
+
+  updateInvInfo();
+}
+
 function updateInvInfo() {
   let inv = player.inventory.container;
   for(let i = 0; i < inv.length; i++){

@@ -36,7 +36,11 @@ class Player extends Tile{
 
     this.inventory = {
       container: new Array(30),
-      maxLength: 30
+      maxLength: 30,
+      sorted : {
+        by: undefined,
+        order: undefined
+      }
     };
 
     this.equiped = {

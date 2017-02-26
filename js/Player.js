@@ -104,13 +104,30 @@ class Player extends Tile{
 
   equipItem(item){
     if(item.equipable){
-      let dummyItem = item;
-      this.equiped[item.slot] = dummyItem;
-      if(dummyItem.slot == "main_hand"){
-        this.activeWeapon = dummyItem;
+      this.equiped[item.slot] = item;
+      if(item.slot == "main_hand"){
+        this.activeWeapon = item;
       }
-      dummyItem.isEquiped = true;
+      item.isEquiped = true;
       // updateUI (inventory)
+      updateInvInfo();
+    }
+  }
+
+  toggleEquiped(item){
+    if(item.equipable){
+      item.isEquiped = item.isEquiped ? false : true;
+      if(!item.isEquiped){
+        this.equiped[item.slot] = undefined;
+      }else{
+        this.equiped[item.slot] = item;
+        for(let i in this.inventory.container){
+          if(item.slot == this.inventory.container[i].slot){
+            this.inventory.container[i].isEquiped = false;
+          }
+        }
+        item.isEquiped = true;
+      }
       updateInvInfo();
     }
   }
@@ -129,6 +146,29 @@ class Player extends Tile{
         }
       }
     }
+  }
+  getRandomLoot(){
+    let loot = [];
+    let itemsToLoot = []; // index of items to loot
+    let totalToLoot = getRandomInt(1, Object.keys(this.equiped).length); // total number of looted items
+    itemsToLoot.push(getRandomInt(1, totalToLoot));
+    let currentLoot = undefined;
+
+    while(itemsToLoot.length < totalToLoot){
+      currentLoot = getRandomInt(1, totalToLoot);
+      if(!itemsToLoot.includes(currentLoot))
+        itemsToLoot.push(currentLoot);
+    }
+
+    let i = 0;
+    for(let currentLoot in this.equiped){
+      i++;
+      if(itemsToLoot.includes(i) && this.equiped[currentLoot]){
+        this.equiped[currentLoot].isEquiped = false;
+        loot.push(Object.assign({}, this.equiped[currentLoot]));
+      }
+    }
+    return loot;
   }
 
   centerCamera(){
@@ -168,7 +208,8 @@ class Player extends Tile{
   }
 
   checkHitAvailability(target){
-    if(this.activeWeapon.type == "melee" && this.activeWeapon.manaCost <= this.magic){
+    let eqWeap = this.equiped["main_hand"];
+    if(eqWeap && eqWeap.type == "melee" && eqWeap.manaCost <= this.magic){
       if(((target.sprite.x == this.sprite.x) && (target.sprite.y == this.sprite.y + this.tile_size.h))||                    // target is on top
          ((target.sprite.x == this.sprite.x) && (target.sprite.y == this.sprite.y - this.tile_size.h))||                    // target is on bottom
          ((target.sprite.y == this.sprite.y) && (target.sprite.x == this.sprite.x - this.tile_size.h))||                    // target is on left
@@ -183,38 +224,13 @@ class Player extends Tile{
       else{
         return false;
       }
-    }else if(this.activeWeapon.type == "ranged" && this.activeWeapon.manaCost <= this.magic){
+    }else if(eqWeap.type == "ranged" && eqWeap.manaCost <= this.magic){
       if(this.rangedR*this.tile_size.w >= Math.sqrt((target.sprite.x - this.sprite.x)*(target.sprite.x - this.sprite.x) + (target.sprite.y - this.sprite.y)*(target.sprite.y - this.sprite.y))){
         return true;
       }else{
         return false;
       }
     }
-  }
-
-  getRandomLoot(){
-    let loot = [];
-    let totalToLoot = getRandomInt(1, Object.keys(this.equiped).length); // total number of looted items
-    let itemsToLoot = [];
-    itemsToLoot.push(getRandomInt(1, totalToLoot)); // numbers of items to loot
-    let currentLoot = undefined;
-
-    while(itemsToLoot.length < totalToLoot){
-      currentLoot = getRandomInt(1, totalToLoot);
-      if(!itemsToLoot.includes(currentLoot))
-        itemsToLoot.push(currentLoot);
-    }
-
-    let i = 0;
-    for(let currentLoot in this.equiped){
-      i++;
-      if(itemsToLoot.includes(i) && this.equiped[currentLoot]){
-        this.equiped[currentLoot].isEquiped = false;
-        loot.push(this.equiped[currentLoot]);
-      }
-    }
-    console.log("loot:", loot);
-    return loot;
   }
 
   hitTarget(target){
@@ -233,7 +249,7 @@ class Player extends Tile{
       emitter.start(true, 800, null, 5);
 
       // calculating weapon damage
-      let damage = getRandomInt(this.activeWeapon.minDamage, this.activeWeapon.maxDamage);
+      let damage = getRandomInt(this.equiped["main_hand"].minDamage, this.equiped["main_hand"].maxDamage);
 
       // calculating damage multiplier
       let d_mult = 1 - 0.06 * target.getTotalArmorPoints()/(1 + (0.06*target.getTotalArmorPoints()));

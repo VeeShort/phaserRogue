@@ -448,6 +448,31 @@ function create() {
 
     updateMiniMap();
 
+    $.contextMenu({
+      selector: '.inv-tile',
+      callback: function(key, options, $element) {
+          // var m = "clicked: " + key;
+          // window.console && console.log(m) || alert(m);
+      },
+      build: function($triggerElement, e){
+        return {
+          callback: function(){},
+          items: {
+            "equip": {name: function($element){
+              return $("#"+$triggerElement.context.id).hasClass("isEquiped") ? "Unequip" : "Equip";
+            }, callback: function($element){
+              let elId = $triggerElement.context.id;
+              let invId = elId.substr(elId.indexOf("-")+1, elId.length - elId.indexOf("-"));
+              player.toggleEquiped(player.inventory.container[invId]);
+            }},
+            "throw": {name: "Throw"},
+            "identify": {name: "Identify"},
+            "destroy": {name: "Destroy"}
+          }
+        };
+      }
+    });
+
 }
 
 function update(){

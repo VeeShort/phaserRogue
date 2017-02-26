@@ -53,20 +53,16 @@ function updateInvInfo() {
   for(let i = 0; i < inv.length; i++){
     if(inv[i]){
       $("#inv-"+i).css("background", "url('"+inv[i].icon+"')").css("background-size", "cover");
-      if(inv[i].isEquiped && !$("#inv-"+i).hasClass("isEquiped")){
+      if(!inv[i].isEquiped){
+        $("#inv-"+i).removeClass("isEquiped")
+      }
+      if(inv[i].isEquiped){
         $("#inv-"+i).addClass("isEquiped");
       }
       if(!inv[i].icon){
         inv[i].icon = "./images/icons/noico.png";
       }
     }
-
-    $("#inv-"+i).off();
-    $("#inv-"+i).hover(function(){
-
-    }, function(){
-
-    });
   }
 }
 
@@ -282,8 +278,6 @@ function getRandomPos() {
       point.x != player.x &&
       point.y != player.y) {
       for (let i = 0; i < doors.length; i++) {
-        // console.log("=================");
-        // console.log(doors[i].x, doors[i].y);
         if (doors[i].x != point.x &&
           doors[i].y != point.y) {
           canSpawn = true;

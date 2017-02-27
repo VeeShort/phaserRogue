@@ -152,7 +152,8 @@ class Player extends Tile{
         if(this.x == lootArr[i].x && this.y == lootArr[i].y){
           for(let j = 0; j < lootArr[i].loot.length; j++){
             $(".loot-items").append($("<li/>", {
-              "data-index": i
+              "data-i": i,
+              "data-j": j
             }).append($("<img/>",{
               src: lootArr[i].loot[j].icon
             }), $("<span/>", {
@@ -162,12 +163,13 @@ class Player extends Tile{
         }
       }
       $(".loot-items li").on("click", function(){
-        let i = $(this).data("index");
+        let i = $(this).data("i");
         let j = $(".loot-items li").index($(this));
         player.giveItem(lootArr[i].loot[j]);
         lootArr[i].loot.splice(j, 1);
-        if(lootArr[i].loot.length == 0){
+        if(Object.keys(lootArr[i].loot).length == 0){
           lootArr[i].sprite.destroy();
+          lootArr.splice(i, 1);
           if($(".on-loot").is(":visible")) $(".on-loot").hide();
           $(".loot-container").hide();
         }
@@ -346,13 +348,25 @@ class Player extends Tile{
           // death of other stuff (like enemies)
 
           // spawn loot
-          if(getRandomInt(0, 100) <= this.stat.luck){
-            let loot_chest = new Chest(target.x/this.tile_size.w, target.y/this.tile_size.h, 3, "loot", "loot", target.getRandomLoot());
-            loot_chest.state = 2;
-            detectStateChange(loot_chest);
-            lootArr.push(loot_chest);
-            this.fov.push(loot_chest);
-          }
+          // if(getRandomInt(0, 100) <= this.stat.luck){
+            let drawLoot = true;
+            let randLoot = target.getRandomLoot();
+            for(let l = 0; l < lootArr.length; l++){
+              if(lootArr[l].x == target.x/this.tile_size.w &&
+                 lootArr[l].y == target.y/this.tile_size.h){
+                 lootArr[l].loot = lootArr[l].loot.concat(randLoot);
+                 drawLoot = false;
+                 break;
+              }
+            }
+            if(drawLoot){
+              let loot_chest = new Chest(target.x/this.tile_size.w, target.y/this.tile_size.h, 3, "loot", "loot", target.getRandomLoot());
+              loot_chest.state = 2;
+              detectStateChange(loot_chest);
+              lootArr.push(loot_chest);
+              this.fov.push(loot_chest);
+            }
+          // }
 
           // target.sprite.destroy();
           gr_players.remove(target.sprite);

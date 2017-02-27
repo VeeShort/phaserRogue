@@ -144,18 +144,37 @@ class Player extends Tile{
   }
 
   lootItems(){
+    $(".loot-items").empty();
+    $(".loot-container").show();
+    let self = this;
     if(!this.disableControl){
       for(let i = 0; i < lootArr.length; i++){
         if(this.x == lootArr[i].x && this.y == lootArr[i].y){
           for(let j = 0; j < lootArr[i].loot.length; j++){
-            this.giveItem(lootArr[i].loot[j]);
+            $(".loot-items").append($("<li/>", {
+              "data-index": i
+            }).append($("<img/>",{
+              src: lootArr[i].loot[j].icon
+            }), $("<span/>", {
+              text: lootArr[i].loot[j].name
+            })));
           }
-          updateInvInfo();
-          lootArr[i].sprite.destroy();
-          lootArr.splice(i, 1);
-          if($(".on-loot").is(":visible")) $(".on-loot").hide();
         }
       }
+      $(".loot-items li").on("click", function(){
+        let i = $(this).data("index");
+        let j = $(".loot-items li").index($(this));
+        player.giveItem(lootArr[i].loot[j]);
+        lootArr[i].loot.splice(j, 1);
+        if(lootArr[i].loot.length == 0){
+          lootArr[i].sprite.destroy();
+          if($(".on-loot").is(":visible")) $(".on-loot").hide();
+          $(".loot-container").hide();
+        }
+        $(this).remove();
+
+        updateInvInfo();
+      });
     }
   }
   getRandomLoot(){
@@ -216,6 +235,10 @@ class Player extends Tile{
     }else{
       return false;
     }
+  }
+
+  takeEffect(){
+
   }
 
   checkHitAvailability(target){
@@ -297,7 +320,7 @@ class Player extends Tile{
       } else {
         // target is missed
         miss.play();
-        updateLog("["+this.hero_name + "] misses ["+target.hero_name+"] with [" + this.activeWeapon.name + "]");
+        updateLog("["+this.hero_name + "] misses ["+target.hero_name+"] with [" + this.equiped["main_hand"].name + "]");
       }
 
       if(target.name == "enemy"){
@@ -309,7 +332,7 @@ class Player extends Tile{
 
       // if current hit was fatal
       if(target.health <= 0){
-        updateLog("["+this.hero_name + "] kills ["+target.hero_name+"] with [" + this.activeWeapon.name + "]");
+        updateLog("["+this.hero_name + "] kills ["+target.hero_name+"] with [" + this.equiped["main_hand"].name + "]");
 
         // death of the hero player
         if(target.name == "player"){

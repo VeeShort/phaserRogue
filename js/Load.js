@@ -529,8 +529,20 @@ function create() {
       }
     });
 
+    // -----------------
+    // INVENTORY SORT
+    // -----------------
+
     $(".sort-by-name").on("click", function(){
       sortInvByName();
+    });
+
+    // -----------------
+    // LOOT WINDOW
+    // -----------------
+
+    $(".loot-container .close").on("click", function(){
+      $(this).parent(".loot-container").hide();
     });
 }
 

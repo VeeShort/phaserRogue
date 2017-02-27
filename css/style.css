@@ -380,3 +380,59 @@ body{
   background-color: transparent;
   padding: 2px 10px;
 }
+
+/*loot container*/
+.loot-container{
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: url("../images/GUI/loot-window.png") no-repeat center;
+  background-size: contain;
+  top: 50%;
+  margin-top: -50px;
+  left: 50%;
+  margin-left: -180px;
+  padding: 10px;
+  display: none;
+}
+.loot-container .close{
+  position: absolute;
+  right: 0px;
+  top: -22px;
+  display: block;
+  height: 16px;
+  width: 16px;
+  text-align: center;
+  color: red;
+  background: rgba(0, 0, 0, .65);
+  padding: 2px 0 0 2px;
+}
+.loot-container .close:hover{
+  background: red;
+  color: #fff;
+  cursor: pointer;
+}
+.loot-container .loot-items li img{
+  float: left;
+  display: block;
+  max-width: 16px;
+  margin-right: 5px;
+  background-color: rgba(255, 255, 255, .2);
+}
+.loot-container .loot-items li{
+  list-style-type: none;
+  color: #fff;
+  font-size: 14px;
+  border-bottom: 1px solid #333;
+  padding: 2px 0;
+}
+.loot-container .loot-items li:last-child{
+  border-bottom: none;
+}
+.loot-container .loot-items li:hover{
+  cursor: pointer;
+  background: rgba(255,255,255, .2);
+}
+.loot-container .loot-items li:hover img{
+  background-color: transparent;
+}

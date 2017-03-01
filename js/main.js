@@ -295,25 +295,22 @@ function getRandomInt(min, max) {
 
 function getRandomPos() {
   let rand_pos;
-  let canSpawn = false;
-  let posBuf;
   while (rand_pos === undefined) {
     let point = all_sprites[getRandomInt(0, all_sprites.length - 1)];
-    posBuf = undefined;
-    canSpawn = false;
     if (point && point.name &&
         point.name != "collision" &&
         point.name != "door_closed" &&
         point.name != "destructible" &&
+        collision_map.indexOf(point) == -1 &&
         point.x != player.x &&
         point.y != player.y) {
-      let j = 0;
+      let d = 0;
       for(let i = 0; i < doors.length; i++){
         if(doors[i].x != point.x && doors[i].y != point.y){
-          j++;
+          d++;
         }
       }
-      if(j == doors.length - 1){
+      if(d == doors.length){
         rand_pos = {
           x: point.x,
           y: point.y

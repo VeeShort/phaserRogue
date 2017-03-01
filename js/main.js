@@ -161,6 +161,14 @@ function doStep(path) {
           }
         }
 
+        for (let j in lootArr) {
+          if(player.x != lootArr[j].x && player.y != lootArr[j].y){
+            console.log("need to hide!");
+            $(".loot-container").hide();
+            $(".loot-items").empty();
+          }
+        }
+
       }
 
       player.setVisible();

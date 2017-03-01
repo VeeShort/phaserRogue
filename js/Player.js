@@ -144,6 +144,7 @@ class Player extends Tile{
   }
 
   lootItems(){
+
     $(".loot-items").empty();
     $(".loot-container").show();
     let self = this;
@@ -162,12 +163,14 @@ class Player extends Tile{
           }
         }
       }
+
       $(".loot-items li").on("click", function(){
         let i = $(this).data("i");
         let j = $(".loot-items li").index($(this));
         player.giveItem(lootArr[i].loot[j]);
         lootArr[i].loot.splice(j, 1);
-        if(Object.keys(lootArr[i].loot).length == 0){
+
+        if(lootArr[i].loot.length == 0){
           lootArr[i].sprite.destroy();
           lootArr.splice(i, 1);
           if($(".on-loot").is(":visible")) $(".on-loot").hide();
@@ -349,17 +352,17 @@ class Player extends Tile{
 
           // spawn loot
           // if(getRandomInt(0, 100) <= this.stat.luck){
-            let drawLoot = true;
+            let spawnLoot = true;
             let randLoot = target.getRandomLoot();
-            for(let l = 0; l < lootArr.length; l++){
-              if(lootArr[l].x == target.x/this.tile_size.w &&
-                 lootArr[l].y == target.y/this.tile_size.h){
-                 lootArr[l].loot = lootArr[l].loot.concat(randLoot);
-                 drawLoot = false;
+            for(let i = 0; i < lootArr.length; i++){
+              if(lootArr[i].x == target.x &&
+                 lootArr[i].y == target.y){
+                 lootArr[i].loot = lootArr[i].loot.concat(randLoot);
+                 spawnLoot = false;
                  break;
               }
             }
-            if(drawLoot){
+            if(spawnLoot){
               let loot_chest = new Chest(target.x/this.tile_size.w, target.y/this.tile_size.h, 3, "loot", "loot", target.getRandomLoot());
               loot_chest.state = 2;
               detectStateChange(loot_chest);

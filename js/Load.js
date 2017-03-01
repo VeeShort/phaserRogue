@@ -407,7 +407,8 @@ function create() {
     spaceKey = stage.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
     spaceKey.onDown.add(function(){
-      player.lootItems();
+      if($(".on-loot").is(":visible"))
+        player.lootItems();
     }, this);
 
     // player movement animation

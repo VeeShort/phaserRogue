@@ -189,7 +189,7 @@ function create() {
       manaCost: 1,
       nature: "fire",
       equipable: true,
-      slot: "off_hand"
+      slot: "main_hand"
     });
 
     let wand_of_curse = new Weapon({

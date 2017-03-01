@@ -739,7 +739,6 @@ function doStep(path){
             doors[j].name = "door_closed";
             doors[j].sprite.loadTexture("door_c");
             doorclosed.play();
-            // break;
           }
         }
 
@@ -753,7 +752,6 @@ function doStep(path){
             doors[j].name = "door_opened";
             doors[j].sprite.loadTexture("door_o");
             dooropened.play();
-            // break;
           }
         }
 
@@ -786,35 +784,35 @@ function doStep(path){
 
         if(enemy.targetFound){
 
-          if($(".warning").not(":visible"))
-            $(".warning").css("display", "block");
-          if($(".wait").is(":visible"))
-              $(".wait").hide();
+            if($(".warning").not(":visible"))
+              $(".warning").css("display", "block");
+            if($(".wait").is(":visible"))
+                $(".wait").hide();
 
-          clearInterval(player.moveTimer);
-          player.disableControl = false;
-          if(enemy.activeWeapon.type == "melee"){
-            let epath = enemy.moveToPoint(player.x, player.y);
+            clearInterval(player.moveTimer);
+            player.disableControl = false;
+            if(enemy.activeWeapon.type == "melee"){
+              let epath = enemy.moveToPoint(player.x, player.y);
 
-            if(epath && enemy.counter < epath.length - 1){
-              grid.setWalkableAt(enemy.x/enemy.tile_size.w, enemy.y/enemy.tile_size.h, true);
+              if(epath && enemy.counter < epath.length - 1){
+                grid.setWalkableAt(enemy.x/enemy.tile_size.w, enemy.y/enemy.tile_size.h, true);
 
-              enemy.sprite.x = epath[enemy.counter][0] * enemy.tile_size.w;
-              enemy.sprite.y = epath[enemy.counter][1] * enemy.tile_size.h;
-              enemy.x = enemy.sprite.x;
-              enemy.y = enemy.sprite.y;
+                enemy.sprite.x = epath[enemy.counter][0] * enemy.tile_size.w;
+                enemy.sprite.y = epath[enemy.counter][1] * enemy.tile_size.h;
+                enemy.x = enemy.sprite.x;
+                enemy.y = enemy.sprite.y;
 
-              enemy.moved = true;
+                enemy.moved = true;
 
-              grid.setWalkableAt(enemy.x/enemy.tile_size.w, enemy.y/enemy.tile_size.h, false);
-              enemy.counter++;
+                grid.setWalkableAt(enemy.x/enemy.tile_size.w, enemy.y/enemy.tile_size.h, false);
+                enemy.counter++;
+              }
             }
-          }
-          if(!enemy.moved){
-            setTimeout(function(){
-              enemy.hitTarget(player);
-            }, 200);
-          }
+            if(!enemy.moved){
+              setTimeout(function(){
+                enemy.hitTarget(player);
+              }, 200);
+            }
         }
       }
 

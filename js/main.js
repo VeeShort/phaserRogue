@@ -163,7 +163,6 @@ function doStep(path) {
 
         for (let j in lootArr) {
           if(player.x != lootArr[j].x && player.y != lootArr[j].y){
-            console.log("need to hide!");
             $(".loot-container").hide();
             $(".loot-items").empty();
           }
@@ -300,29 +299,29 @@ function getRandomPos() {
   let posBuf;
   while (rand_pos === undefined) {
     let point = all_sprites[getRandomInt(0, all_sprites.length - 1)];
-
     posBuf = undefined;
-    if (collision_map.indexOf(point) == -1 &&
-      point.x != player.x &&
-      point.y != player.y) {
-      for (let i = 0; i < doors.length; i++) {
-        if (doors[i].x != point.x &&
-          doors[i].y != point.y) {
-          canSpawn = true;
-          posBuf = point;
-        }
-        else{
-          canSpawn = false;
+    canSpawn = false;
+    if (point && point.name &&
+        point.name != "collision" &&
+        point.name != "door_closed" &&
+        point.name != "destructible" &&
+        point.x != player.x &&
+        point.y != player.y) {
+      let j = 0;
+      for(let i = 0; i < doors.length; i++){
+        if(doors[i].x != point.x && doors[i].y != point.y){
+          j++;
         }
       }
-      if(canSpawn){
+      if(j == doors.length - 1){
         rand_pos = {
-          x: posBuf.x,
-          y: posBuf.y
+          x: point.x,
+          y: point.y
         };
       }
     }
   }
+
   return rand_pos;
 }
 
@@ -390,7 +389,6 @@ Dungeon = {
     var drawDoor = function(x, y) {
       let door = new Tile(x, y, 2, 'door_c', 'door_closed');
       doors.push(door);
-      // door.addToStage();
       collision_map.push(door);
     }
 

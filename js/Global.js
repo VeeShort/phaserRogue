@@ -1,5 +1,10 @@
 'use strict';
 
+var upKey;
+var downKey;
+var leftKey;
+var rightKey;
+
 let renderer;
 let canvas;
 let target_sp;

@@ -1,50 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Rogue</title>
+  <link rel="stylesheet" href="css/lib/jquery.contextMenu.min.css">
+  <link rel="stylesheet" href="css/lib/jquery-ui.min.css">
+  <link rel="stylesheet" href="css/lib/jquery-ui.structure.min.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
+  <div id="main-scene" class="scene-container">
 
-  <img src="./images/wait.png" class="mini-icon wait">
-  <div class="ui-container">
-    
-    <div class="icon-container">
-      <img src="./images/warning.png" class="mini-icon warning">
-      <img src="./images/on-loot.png" class="mini-icon on-loot">
+    <div class="loot-container">
+      <span class="close">X</span>
+      <ul class="loot-items">
+        <!-- <li><img src="/images/icons/armor/iron_boots.png"> Iron sword</li>
+        <li><img src="/images/loot.png"> Magic wand</li>
+        <li><img src="/images/icons/weapon/wand_of_curse.png"> Boots with long name</li> -->
+      </ul>
     </div>
 
-    <div class="container">
-      <p class="player-name" id="pl-name"></p>
-      <p class="pl-text">Health: <span id="current-hp"></span>/<span id="max-hp"></span></p>
-      <div id="health_container" class="bar-container">
-        <div id="health" class="bar health"></div>
+    <img src="./images/wait.png" class="mini-icon wait">
+
+    <div class="enemy-list">
+    </div>
+
+    <div class="ui-container">
+
+      <div class="icon-container">
+        <img src="./images/warning.png" class="mini-icon warning">
+        <img src="./images/on-loot.png" class="mini-icon on-loot">
       </div>
-    </div>
 
-    <div class="container">
-      <p class="pl-text">Magic: <span id="current-mp"></span>/<span id="max-mp"></span></p>
-      <div id="magic_container" class="bar-container">
-        <div id="magic" class="bar magic"></div>
+      <div class="container">
+        <p class="player-name" id="pl-name"></p>
+        <p class="pl-text">Health: <span id="current-hp"></span>/<span id="max-hp"></span></p>
+        <div id="health_container" class="bar-container">
+          <div id="health" class="bar health"></div>
+        </div>
       </div>
-    </div>
 
-    <div class="container stats">
-      <p class="pl-text">Arm: <span id="pl-arm">-</span></p>
-      <p class="pl-text">Dex: <span id="pl-dex">-</span></p>
-    </div>
+      <div class="container">
+        <p class="pl-text">Magic: <span id="current-mp"></span>/<span id="max-mp"></span></p>
+        <div id="magic_container" class="bar-container">
+          <div id="magic" class="bar magic"></div>
+        </div>
+      </div>
 
-    <div class="container active-weapon">
-      <p class="pl-text">Wpn: <span id="pl-weapon">-</span></p>
-    </div>
+      <div class="container stats">
+        <p class="pl-text">Arm: <span id="pl-arm">-</span></p>
+        <p class="pl-text">Dex: <span id="pl-dex">-</span></p>
+      </div>
 
-    <div class="container weapon">
-      <p class="pl-text">MnH: <span id="pl-main_hand">-</span></p>
-      <p class="pl-text">OfH: <span id="pl-off_hand">-</span></p>
-    </div>
+      <div class="container active-weapon">
+        <p class="pl-text">Wpn: <span id="pl-weapon">-</span></p>
+      </div>
 
-    <!-- <div class="container armor">
+      <div class="container weapon">
+        <p class="pl-text">MnH: <span id="pl-main_hand">-</span></p>
+        <p class="pl-text">OfH: <span id="pl-off_hand">-</span></p>
+      </div>
+
+      <!-- <div class="container armor">
       <p class="pl-text">Hlm: <span id="pl-helm">-</span></p>
       <p class="pl-text">Cht: <span id="pl-chest">-</span></p>
       <p class="pl-text">Wrt: <span id="pl-wrist">-</span></p>
@@ -53,47 +72,58 @@
       <p class="pl-text">Bts: <span id="pl-boots">-</span></p>
     </div> -->
 
-    <div class="container target">
-      <img src="" alt="enemy portrait" id="en-port">
-      <p class="player-name" id="en-name"></p>
-      <p class="pl-text">Health: <span id="en-current-hp"></span>/<span id="en-max-hp"></span></p>
-      <div id="en-health_container" class="bar-container">
-        <div id="en-health" class="bar health"></div>
+      <div class="container target">
+        <img src="" alt="enemy portrait" id="en-port">
+        <p class="player-name" id="en-name"></p>
+        <p class="pl-text">Health: <span id="en-current-hp"></span>/<span id="en-max-hp"></span></p>
+        <div id="en-health_container" class="bar-container">
+          <div id="en-health" class="bar health"></div>
+        </div>
       </div>
+
+      <div class="container">
+        <div class="inventory"></div>
+        <div class="sort-btns">
+          <button type="button" name="button" class="sort-by-name">S</button>
+        </div>
+      </div>
+
+
+      <div class="container minimap">
+        <canvas id="minimap"></canvas>
+      </div>
+
+      <div class="log-container"></div>
+
     </div>
 
-    <div class="container slots">
-      <div class="slot" id="helm"></div>
-      <div class="slot" id="chest"></div>
-      <div class="slot" id="waist"></div>
-      <div class="slot" id="wrist"></div>
-      <div class="slot" id="pants"></div>
-      <div class="slot" id="boots"></div>
-
-      <div class="slot" id="main_hand"></div>
-      <div class="slot" id="off_hand"></div>
-    </div>
-
-    <div class="container inf">
-      <div class="info"></div>
-    </div>
-
-    <div class="container inventory">
-    </div>
-    <div class="container minimap">
-      <canvas id="minimap"></canvas>
+    <div class="info">
+      <p class="name"></p>
+      <p class="type"></p>
+      <p class="armor"></p>
+      <p class="misc"></p>
     </div>
 
   </div>
 
-
-  <div class="log-container"></div>
-
-  <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+  <script src="js/jquery-1.11.3.min.js"></script>
+  <script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="js/lib/jquery.contextMenu.min.js"></script>
   <script src="js/phaser.min.js" defer></script>
   <script src="js/pathfinding/visual/lib/pathfinding-browser.min.js"></script>
   <script src="js/rot.js" defer></script>
   <!-- <script src="js/dungeon.js"></script> -->
+  <script src="js/Load.js" defer></script>
+  <script src="js/Global.js" defer></script>
+  <script src="js/Tile.js" defer></script>
+  <script src="js/Chest.js" defer></script>
+  <script src="js/Player.js" defer></script>
+  <script src="js/Enemy.js" defer></script>
+  <script src="js/Item.js" defer></script>
+  <script src="js/Armor.js" defer></script>
+  <script src="js/Weapon.js" defer></script>
+
   <script src="js/main.js" defer></script>
 </body>
+
 </html>

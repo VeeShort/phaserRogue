@@ -12,9 +12,9 @@ var Dungeon = {
         }
 
         // var room_count = Helpers.GetRandom(10, 20);
-        var room_count = 15;
+        var room_count = 25; //def 10
         var min_size = 5;
-        var max_size = 8;
+        var max_size = 10;
 
         for (var i = 0; i < room_count; i++) {
             var room = {};

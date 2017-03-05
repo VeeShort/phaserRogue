@@ -1,2 +1,3 @@
 # phaserRogue
-<img src="http://image.prntscr.com/image/0cea75a1049641fa9bdb47897d74e181.png" alt="game preview">
+
+<img src="http://i67.tinypic.com/e8mvev.png" alt="game preview">

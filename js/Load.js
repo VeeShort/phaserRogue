@@ -404,52 +404,40 @@ function create() {
     //   player.changeActiveWeapon();
     // }, this);
 
+
+
+    upKey = stage.input.keyboard.addKey(Phaser.Keyboard.UP);
+    downKey = stage.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+    leftKey = stage.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+    rightKey = stage.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+    upKey.onDown.add(moveUp, this);
+    downKey.onDown.add(moveDown, this);
+    leftKey.onDown.add(moveLeft, this);
+    rightKey.onDown.add(moveRight, this);
+
+    function moveUp(){
+      player.sprite.y -= player.tile_size.w;
+      doStep();
+    }
+    function moveDown(){
+      player.sprite.y += player.tile_size.w;
+      doStep();
+    }
+    function moveRight(){
+      player.sprite.x += player.tile_size.w;
+      doStep();
+    }
+    function moveLeft(){
+      player.sprite.x -= player.tile_size.w;
+      doStep();
+    }
+
     spaceKey = stage.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
     spaceKey.onDown.add(function(){
       if($(".on-loot").is(":visible"))
         player.lootItems();
     }, this);
-
-    // player movement animation
-    // player.sprite.animations.add('left', [4, 5, 6, 7], 10, true);
-    // player.sprite.animations.add('right', [8, 9, 10, 11], 10, true);
-    // player.sprite.animations.add('up', [12, 13, 14, 15], 10, true);
-    // player.sprite.animations.add('down', [0, 1, 2, 3], 10, true);
-
-    // let info = $(".info");
-    // $(".slot").hover(function(){
-    //   let self = $(this);
-    //   let container;
-    //
-    //   if(self.parent().hasClass("slots")){
-    //     container = player.equiped[self.attr("id")];
-    //     for(let i in container){
-    //       if(i != "icon" && i != "equipable" && i)
-    //         info.append($("<span/>",{
-    //           text: i + ": " + container[i]
-    //         }));
-    //     }
-    //   }
-    //   if(self.parent().hasClass("inventory")){
-    //     container = player.inventory.container;
-    //     for(let i in container[self.data("num")]){
-    //       if(i != "icon" && i != "equipable" && i){
-    //         info.append($("<span/>",{
-    //           text: i + ": " + container[self.data("num")][i]
-    //         }));
-    //       }
-    //     }
-    //   }
-    //
-    //   info.show();
-    //
-    // }, function(){
-    //   if(info.is(":visible")){
-    //     info.empty();
-    //     info.hide();
-    //   }
-    // });
 
     updateMiniMap();
 

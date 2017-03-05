@@ -109,19 +109,18 @@ function Timer(callback, delay) {
 
 function doStep(path) {
   let i = 1;
-
   player.disableControl = false;
   // clearInterval(player.moveTimer);
   // player.moveTimer = setInterval(function(){
 
-  player.moveTimer = new Timer(function() {
-    player.moveTimer.resume();
+  // player.moveTimer = new Timer(function() {
+    // player.moveTimer.resume();
     if (!gameIsPaused) {
       if ($(".warning").is(":visible"))
         $(".warning").hide();
 
       // move player to the next path section
-      if (path) {
+      // if (path) {
         if ($(".wait").not(":visible"))
           $(".wait").show();
 
@@ -134,8 +133,8 @@ function doStep(path) {
           }
         }
 
-        player.sprite.x = path[i][0] * player.tile_size.w;
-        player.sprite.y = path[i][1] * player.tile_size.h;
+        // player.sprite.x = path[i][0] * player.tile_size.w;
+        // player.sprite.y = path[i][1] * player.tile_size.h;
         player.x = player.sprite.x;
         player.y = player.sprite.y;
 
@@ -168,7 +167,7 @@ function doStep(path) {
           }
         }
 
-      }
+      // }
 
       player.setVisible();
       player.doFOV();
@@ -209,7 +208,7 @@ function doStep(path) {
             $(".wait").hide();
 
           // clearInterval(player.moveTimer);
-          player.moveTimer.clear();
+          // player.moveTimer.clear();
 
           player.disableControl = false;
 
@@ -243,9 +242,9 @@ function doStep(path) {
           }
           if (!enemy.moved) {
             // console.log(enemies.length);
-            setTimeout(function() {
+            // setTimeout(function() {
               enemy.hitTarget(player);
-            }, 200); //def: 200
+            // }, 200); //def: 200
           }
         }
       }
@@ -258,14 +257,14 @@ function doStep(path) {
         if ($(".wait").is(":visible"))
           $(".wait").hide();
         // clearInterval(player.moveTimer);
-        player.moveTimer.clear();
+        // player.moveTimer.clear();
       }
 
       i++;
       updateMiniMap();
 
     }
-  }, player.moveDelay);
+  // }, player.moveDelay);
 }
 
 function countStep() {

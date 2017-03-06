@@ -133,6 +133,7 @@ function create() {
       nature: "default",
       equipable: true,
       slot: "main_hand",
+      rarity: 3,
       aditionalDmgTo: {
         type: "wall",
         damage: {
@@ -565,7 +566,13 @@ function create() {
         $(".info").show();
         $(".info").css("left", e.pageX+"px").css("top", e.pageY + "px");
         $(".info p").html("");
+        $(".info .name").css("color", "#fff");
         $(".info .name").html(item.name);
+        switch(item.rarity){
+          case 3:
+          $(".info .name").css("color", "#19d229");
+          break;
+        }
         $(".info .type").html(item.type);
         if(item.type == "melee" || item.type == "ranged"){
           $(".info .misc").html("Damage: " + item.minDamage + "-" + item.maxDamage);

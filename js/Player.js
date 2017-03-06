@@ -57,6 +57,148 @@ class Player extends Tile{
     this.hasActiveSigns = false;
   }
 
+  detectCollision(pX, pY){
+    let col_wall = true;
+    let col_enemy = true;
+
+    for(let i = 0; i < collision_map.length; i++){
+      if(collision_map[i] && collision_map[i].name == "collision" && pX == collision_map[i].x && pY == collision_map[i].y){
+        col_wall = false;
+      }
+    }
+    for(let i = 0; i < enemies.length; i++){
+      if(pX == enemies[i].x && pY == enemies[i].y){
+        col_enemy = false;
+      }
+    }
+
+    return col_enemy + col_wall;
+  }
+
+  doStep(){
+    if (!gameIsPaused) {
+      if(this.name == "player"){
+        if ($(".warning").is(":visible"))
+          $(".warning").hide();
+
+          // move player to the next path section
+        if ($(".wait").not(":visible"))
+          $(".wait").show();
+
+        for (let j = 0; j < doors.length; j++) {
+          if (this.x == doors[j].x && this.y == doors[j].y) {
+            doors[j].name = "door_closed";
+            doors[j].sprite.loadTexture("door_c");
+            doorclosed.play();
+          }
+        }
+
+        // this.sprite.x = path[i][0] * this.tile_size.w;
+        // this.sprite.y = path[i][1] * this.tile_size.h;
+        this.x = this.sprite.x;
+        this.y = this.sprite.y;
+
+        this.destroyProp();
+
+        for (let j = 0; j < doors.length; j++) {
+          if (this.x == doors[j].x && this.y == doors[j].y) {
+            doors[j].name = "door_opened";
+            doors[j].sprite.loadTexture("door_o");
+            dooropened.play();
+            // break;
+          }
+        }
+
+        for (let j = 0; j < lootArr.length; j++) {
+          if (this.x == lootArr[j].x && this.y == lootArr[j].y) {
+            if ($(".on-loot").not(":visible")) {
+              $(".on-loot").css("display", "block");
+              break;
+            }
+          } else if ($(".on-loot").is(":visible")) {
+            $(".on-loot").hide();
+          }
+        }
+
+        for (let j in lootArr) {
+          if(this.x != lootArr[j].x && this.y != lootArr[j].y){
+            $(".loot-container").hide();
+            $(".loot-items").empty();
+          }
+        }
+
+        this.setVisible();
+        this.doFOV();
+        this.centerCamera();
+        this.moved = true;
+      }
+      for (let j = 0; j < enemies.length; j++) {
+        if (j == 0) {
+          en_priority = [];
+        }
+        let enemy = enemies[j];
+        enemy.counter = 1;
+        enemy.doFOV();
+        enemy.detectPlayer();
+        enemy.moved = false;
+
+        if (enemy.targetFound) {
+
+          en_priority.push(enemy);
+          if ($(".enemy-list img").length > 0)
+            $(".enemy-list").empty();
+
+          if ($(".warning").not(":visible"))
+            $(".warning").css("display", "block");
+          if ($(".wait").is(":visible"))
+            $(".wait").hide();
+
+          for (let z in en_priority) {
+            if (en_priority[z].portrait) {
+              $(".enemy-list").append($("<img/>", {
+                src: en_priority[z].portrait,
+                class: "enemy-list-ico",
+                id: "en-l-" + z
+              }));
+              $("#en-l-" + z).after("<div class='portrait-hp' style='width:" + en_priority[z].health * $("#en-l-" + z).width() / en_priority[z].maxHealth + "px'><div/>");
+            }
+          }
+
+          if (enemy.equiped["main_hand"].type == "melee") {
+            let epath = enemy.moveToPoint(player.x, player.y);
+
+            if (epath && enemy.counter < epath.length - 1) {
+              grid.setWalkableAt(enemy.x / enemy.tile_size.w, enemy.y / enemy.tile_size.h, true);
+
+              enemy.sprite.x = epath[enemy.counter][0] * enemy.tile_size.w;
+              enemy.sprite.y = epath[enemy.counter][1] * enemy.tile_size.h;
+              enemy.x = enemy.sprite.x;
+              enemy.y = enemy.sprite.y;
+
+              for (let j = 0; j < doors.length; j++) {
+                if (enemy.x == doors[j].x && enemy.y == doors[j].y) {
+                  doors[j].name = "door_opened";
+                  doors[j].sprite.loadTexture("door_o");
+                  dooropened.play();
+                }
+              }
+
+              enemy.destroyProp();
+
+              enemy.moved = true;
+
+              grid.setWalkableAt(enemy.x / enemy.tile_size.w, enemy.y / enemy.tile_size.h, false);
+              enemy.counter++;
+            }
+          }
+          if (!enemy.moved) {
+            enemy.hitTarget(player);
+          }
+        }
+      }
+    }
+  }
+
   destroyProp(){
     for(let j = 0; j < this.fov.length; j++){
       if(this.fov[j].name == "destructible" && this.fov[j].x == this.x && this.fov[j].y == this.y){
@@ -393,7 +535,7 @@ class Player extends Tile{
 
       // count current hit attempt as step
       if(this.name == "player")
-        doStep(false);
+        player.doStep();
 
     }
 

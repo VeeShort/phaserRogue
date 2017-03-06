@@ -31,7 +31,7 @@ class Tile {
     // 2 - visible
     detectStateChange(this);
 
-    this.tileOnClick();
+    // this.tileOnClick();
 
     // mouse over/out callbacks
     // if(this.sprite.interactive){
@@ -79,24 +79,24 @@ class Tile {
     // stage.add.sprite(this.sprite);
   }
 
-  tileOnClick(){
-    let self = this;
-    this.sprite.events.onInputDown.add(function(result){
-      if(self.state != 0 && !player.disableControl){
-        gameIsPaused = false;
-        if(this.name && this.name != "enemy" && this.name != "player"){
-          doStep(player.moveToPoint(this.x, this.y));
-        }
-        if(this.name && this.name == "enemy"){
-          player.hitTarget(this);
-        }
-        if(this.name && this.name == "player"){
-          updateLog("You choose to do nothing");
-          doStep(false);
-        }
-
-      }
-    }, this);
-  }
+  // tileOnClick(){
+  //   let self = this;
+  //   this.sprite.events.onInputDown.add(function(result){
+  //     if(self.state != 0 && !player.disableControl){
+  //       gameIsPaused = false;
+  //       if(this.name && this.name != "enemy" && this.name != "player"){
+  //         doStep(player.moveToPoint(this.x, this.y));
+  //       }
+  //       if(this.name && this.name == "enemy"){
+  //         player.hitTarget(this);
+  //       }
+  //       if(this.name && this.name == "player"){
+  //         updateLog("You choose to do nothing");
+  //         doStep(false);
+  //       }
+  //
+  //     }
+  //   }, this);
+  // }
 
 };

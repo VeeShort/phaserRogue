@@ -416,20 +416,29 @@ function create() {
     rightKey.onDown.add(moveRight, this);
 
     function moveUp(){
-      player.sprite.y -= player.tile_size.w;
-      doStep();
+
+      if(player.detectCollision(player.sprite.x, player.sprite.y - player.tile_size.w) == 2){
+        player.sprite.y -= player.tile_size.w;
+        player.doStep();
+      }
     }
     function moveDown(){
-      player.sprite.y += player.tile_size.w;
-      doStep();
+      if(player.detectCollision(player.sprite.x, player.sprite.y + player.tile_size.w) == 2){
+        player.sprite.y += player.tile_size.w;
+        player.doStep();
+      }
     }
     function moveRight(){
-      player.sprite.x += player.tile_size.w;
-      doStep();
+      if(player.detectCollision(player.sprite.x + player.tile_size.w, player.sprite.y) == 2){
+        player.sprite.x += player.tile_size.w;
+        player.doStep();
+      }
     }
     function moveLeft(){
-      player.sprite.x -= player.tile_size.w;
-      doStep();
+      if(player.detectCollision(player.sprite.x - player.tile_size.w, player.sprite.y) == 2){
+        player.sprite.x -= player.tile_size.w;
+        player.doStep();
+      }
     }
 
     spaceKey = stage.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);

@@ -34,7 +34,7 @@ class Enemy extends Player{
           }
 
           this.targetFound = true;
-          gameIsPaused = true;
+          // gameIsPaused = true;
           // player.removeWholePath();
           break;
           return true;

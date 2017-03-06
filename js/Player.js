@@ -57,6 +57,25 @@ class Player extends Tile{
     this.hasActiveSigns = false;
   }
 
+  hitCollision(target){
+    let damage = this.equiped["main_hand"].aditionalDmgTo.damage;
+    target.hp -= getRandomInt(damage.minDamage, damage.maxDamage);
+    hit_collision.play();
+    if(target.hp <= 0){
+      let z = collision_map.indexOf(target);
+      if(z != -1) {
+        collision_map.splice(z, 1);
+      }
+      target.name = "floor";
+      target.sprite.loadTexture("destr_wall");
+      grid.setWalkableAt(target.x/32, target.y/32, true);
+      target.structureType = undefined;
+      cmArr[target.x/32][target.y/32] = undefined;
+      smArr[target.x/32][target.y/32] = target;
+    }
+    this.doStep();
+  }
+
   detectCollision(pX, pY){
     let col_wall = true;
     let col_enemy = true;
@@ -64,6 +83,9 @@ class Player extends Tile{
     for(let i = 0; i < collision_map.length; i++){
       if(collision_map[i] && collision_map[i].name == "collision" && pX == collision_map[i].x && pY == collision_map[i].y){
         col_wall = false;
+        if(this.equiped["main_hand"].aditionalDmgTo && this.equiped["main_hand"].aditionalDmgTo.type == collision_map[i].structureType){
+          this.hitCollision(collision_map[i]);
+        }
       }
     }
     for(let i = 0; i < enemies.length; i++){
@@ -72,7 +94,6 @@ class Player extends Tile{
         this.hitTarget(enemies[i]);
       }
     }
-
     return col_enemy + col_wall;
   }
 

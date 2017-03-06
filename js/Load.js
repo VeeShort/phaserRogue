@@ -14,19 +14,18 @@ function preload() {
     stage.load.image('dummy', './images/test_dragon.png');
     stage.load.image("path_end", "./images/path_end.png")
     stage.load.image('t_alert', "./images/alert.png");
-
-    // particles
-    stage.load.image("t_hit", "./images/hit_particle.png");
-    stage.load.image("t_destr", "./images/destr_particle.png");
-    stage.load.image("pl_dead", "./images/pl_dead.png");
-
-    stage.load.image("loot", "./images/loot.png");
+    stage.load.image('t_alert', "./images/alert.png");
     stage.load.image("skeleton", "./images/skeleton.png");
     stage.load.image("skeleton2", "./images/skeleton_2.png");
     stage.load.image("dark_wizard", "./images/dark_wizard.png");
     stage.load.image("door_c", "./images/door_c.png");
     stage.load.image("door_o", "./images/door_o.png");
     stage.load.image("loot", "./images/loot.png");
+
+    // particles
+    stage.load.image("t_hit", "./images/hit_particle.png");
+    stage.load.image("t_destr", "./images/destr_particle.png");
+    stage.load.image("pl_dead", "./images/pl_dead.png");
 
     // destructible
     stage.load.image("barrel_wood1", "./images/barrel_wood1.png");
@@ -38,6 +37,7 @@ function preload() {
     stage.load.image("destr_wood1", "./images/destr_wood1.png");
     stage.load.image("destr_wood2", "./images/destr_wood2.png");
     stage.load.image("destr_wood3", "./images/destr_wood3.png");
+    stage.load.image("destr_wall", "./images/destr_wall.png")
 
     //AUDIO
     stage.load.audio('game_over', "./sound/ascending.mp3");
@@ -52,6 +52,7 @@ function preload() {
     stage.load.audio('bad_hit', "./sound/bad_hit.wav");
     stage.load.audio('dooropened', "./sound/dooropened.wav");
     stage.load.audio('doorclosed', "./sound/doorclosed.wav");
+    stage.load.audio('hit_collision', "./sound/hit-collision.wav");
 
     // destruction audio
     stage.load.audio('destr1', "./sound/destr1.wav");
@@ -103,6 +104,7 @@ function create() {
     game_over = stage.add.audio('game_over');
     dooropened = stage.add.audio('dooropened');
     doorclosed = stage.add.audio('doorclosed');
+    hit_collision = stage.add.audio('hit_collision');
 
     // target_sp = new Phaser.Sprite();
     // stage.add.sprite(target_sp);
@@ -117,6 +119,29 @@ function create() {
     // // ITEMS
     // WEAPONS
     // name, price, weight, description, icon, damage, type, mana cost, equipable
+
+    let pickaxeOfPower = new Weapon({
+      name: "Pickaxe of Power",
+      price: 500,
+      weight: 3,
+      description: "Holy s**t, you can break walls with this!",
+      icon: "./images/icons/weapon/pickaxe.png",
+      minDamage: 4,
+      maxDamage: 8,
+      type: "melee",
+      manaCost: 0,
+      nature: "default",
+      equipable: true,
+      slot: "main_hand",
+      aditionalDmgTo: {
+        type: "wall",
+        damage: {
+          minDamage: 25,
+          maxDamage: 45
+        }
+      }
+    });
+
     let dragon_claws = new Weapon({
       name: "Dragon Claws",
       price: 0,
@@ -274,6 +299,7 @@ function create() {
         player.giveItem(iron_chest);
         player.giveItem(iron_boots);
         player.giveItem(wand_of_curse);
+        player.giveItem(pickaxeOfPower);
 
         player.equipItem(iron_sword);
         player.equipItem(iron_chest);
@@ -415,7 +441,7 @@ function create() {
     Phaser.Keyboard.NUMPAD_8
     Phaser.Keyboard.NUMPAD_9
     */
-    
+
     bottomLeftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_1);
     downKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_2);
     bottomRightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_3);

@@ -37,8 +37,8 @@ let step_count = 0;
 let gameIsPaused = false;
 
 // SOUNDS
-let alert_s, pl_hit, en_hit, fire_hit, curse_hit, dead, pl_dead, game_over, miss, bad_hit,
-    dooropened, doorclosed;
+let alert_s, pl_hit, en_hit, fire_hit, curse_hit, dead, pl_dead, game_over, miss, bad_hit, dooropened, doorclosed,
+    hit_collision;
 
 let player_health, player_health_bg, pl_health_con = [];
 // PARTICLES

@@ -134,6 +134,7 @@ function getRandomInt(min, max) {
 
 function getRandomPos() {
   let rand_pos;
+
   while (rand_pos === undefined) {
     let point = all_sprites[getRandomInt(0, all_sprites.length - 1)];
     if (point && point.name &&
@@ -143,13 +144,27 @@ function getRandomPos() {
         collision_map.indexOf(point) == -1 &&
         point.x != player.x &&
         point.y != player.y) {
-      let d = 0;
+      let d = true;
+      let e = true;
+      let c = true;
       for(let i = 0; i < doors.length; i++){
-        if(doors[i].x != point.x && doors[i].y != point.y){
-          d++;
+        if(doors[i].x == point.x && doors[i].y == point.y){
+          d = false;
         }
       }
-      if(d == doors.length){
+      for(let i = 0; i < collision_map.length; i++){
+        if(collision_map[i].x == point.x && collision_map[i].y == point.y){
+          c = false;
+        }
+      }
+      if(enemies.length > 1){
+        for(let i = 0; i < enemies.length; i++){
+          if(enemies[i].x == point.x && enemies[i].y == point.y){
+            e = false;
+          }
+        }
+      }
+      if(d && e && c){
         rand_pos = {
           x: point.x,
           y: point.y
@@ -271,9 +286,9 @@ Dungeon = {
         let chance = getRandomInt(1, 100);
         let wall_01;
         if (chance <= 80) {
-          wall_01 = new Tile(x, y, 2, 't_wall', "collision");
+          wall_01 = new Tile(x, y, 2, 't_wall', "collision", 150, "wall");
         } else {
-          wall_01 = new Tile(x, y, 2, 't_wall2', "collision");
+          wall_01 = new Tile(x, y, 2, 't_wall2', "collision", 150, "wall");
         }
         collision_map.push(wall_01);
         wall_01.sprite.inputEnabled = false;

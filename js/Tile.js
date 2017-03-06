@@ -1,7 +1,7 @@
 'use strict';
 
 class Tile {
-  constructor(x, y, z_index, texture_path, name){
+  constructor(x, y, z_index, texture_path, name, hp, structureType){
     let self = this;
 
     // tile size
@@ -11,6 +11,8 @@ class Tile {
     };
 
     this.name = name;
+    this.hp = hp;
+    this.structureType = structureType;
 
     this.x = x * this.tile_size.w;
     this.y = y * this.tile_size.h;

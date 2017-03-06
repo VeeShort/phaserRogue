@@ -16,5 +16,6 @@ class Weapon{
     this.slot = obj.slot;
     this.wield = obj.wield;
     this.isEquiped = false;
+    this.aditionalDmgTo = obj.aditionalDmgTo;
   }
 };

@@ -25,11 +25,10 @@ class Enemy extends Player{
     if(this.fov.length > 0){
       for(let i = 0; i < this.fov.length; i++){
         if(this.fov[i].x == player.x && this.fov[i].y == player.y){
-          // console.log(this.meleeR, Math.floor(Math.sqrt(Math.pow(((player.sprite.x)/32 - (this.sprite.x)/32),2) + Math.pow(((player.sprite.y)/32 - (this.sprite.y)/32),2))));
-          if(this.activeWeapon && this.magic >= this.activeWeapon.manaCost && this.activeWeapon.type == "melee" &&
+          if(this.equiped["main_hand"] && this.magic >= this.equiped["main_hand"].manaCost && this.equiped["main_hand"].type == "melee" &&
              this.meleeR < Math.floor(Math.sqrt(Math.pow(((player.x)/32 - (this.x)/32),2) + Math.pow(((player.y)/32 - (this.y)/32),2)))){
             this.changeActiveWeapon();
-          }else if(this.activeWeapon && this.activeWeapon.type == "ranged" && this.magic < this.activeWeapon.manaCost){
+          }else if(this.equiped["main_hand"] && this.equiped["main_hand"].type == "ranged" && this.magic < this.equiped["main_hand"].manaCost){
             this.changeActiveWeapon();
           }
 

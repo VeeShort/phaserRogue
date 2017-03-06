@@ -404,40 +404,89 @@ function create() {
     //   player.changeActiveWeapon();
     // }, this);
 
+    /*
+    Phaser.Keyboard.NUMPAD_1
+    Phaser.Keyboard.NUMPAD_2
+    Phaser.Keyboard.NUMPAD_3
+    Phaser.Keyboard.NUMPAD_4
+    Phaser.Keyboard.NUMPAD_5
+    Phaser.Keyboard.NUMPAD_6
+    Phaser.Keyboard.NUMPAD_7
+    Phaser.Keyboard.NUMPAD_8
+    Phaser.Keyboard.NUMPAD_9
+    */
+    
+    bottomLeftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_1);
+    downKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_2);
+    bottomRightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_3);
+    leftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_4);
+    rightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_6);
+    topLeftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_7);
+    upKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_8);
+    topRightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_9);
+    upKey.onDown.add(move, this);
+    downKey.onDown.add(move, this);
+    leftKey.onDown.add(move, this);
+    rightKey.onDown.add(move, this);
+    topLeftKey.onDown.add(move, this);
+    topRightKey.onDown.add(move, this);
+    bottomLeftKey.onDown.add(move, this);
+    bottomRightKey.onDown.add(move, this);
 
-
-    upKey = stage.input.keyboard.addKey(Phaser.Keyboard.UP);
-    downKey = stage.input.keyboard.addKey(Phaser.Keyboard.DOWN);
-    leftKey = stage.input.keyboard.addKey(Phaser.Keyboard.LEFT);
-    rightKey = stage.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
-    upKey.onDown.add(moveUp, this);
-    downKey.onDown.add(moveDown, this);
-    leftKey.onDown.add(moveLeft, this);
-    rightKey.onDown.add(moveRight, this);
-
-    function moveUp(){
-
-      if(player.detectCollision(player.sprite.x, player.sprite.y - player.tile_size.w) == 2){
-        player.sprite.y -= player.tile_size.w;
-        player.doStep();
-      }
-    }
-    function moveDown(){
-      if(player.detectCollision(player.sprite.x, player.sprite.y + player.tile_size.w) == 2){
-        player.sprite.y += player.tile_size.w;
-        player.doStep();
-      }
-    }
-    function moveRight(){
-      if(player.detectCollision(player.sprite.x + player.tile_size.w, player.sprite.y) == 2){
-        player.sprite.x += player.tile_size.w;
-        player.doStep();
-      }
-    }
-    function moveLeft(){
-      if(player.detectCollision(player.sprite.x - player.tile_size.w, player.sprite.y) == 2){
-        player.sprite.x -= player.tile_size.w;
-        player.doStep();
+    function move(e){
+      switch(e.event.code){
+        case "Numpad1":
+        if(player.detectCollision(player.sprite.x - player.tile_size.w, player.sprite.y + player.tile_size.w) == 2 && !player.disableControl){
+          player.sprite.x -= player.tile_size.w;
+          player.sprite.y += player.tile_size.w;
+          player.doStep();
+        }
+        break;
+        case "Numpad2":
+          if(player.detectCollision(player.sprite.x, player.sprite.y + player.tile_size.w) == 2 && !player.disableControl){
+            player.sprite.y += player.tile_size.w;
+            player.doStep();
+          }
+        break;
+        case "Numpad3":
+          if(player.detectCollision(player.sprite.x + player.tile_size.w, player.sprite.y + player.tile_size.w) == 2 && !player.disableControl){
+            player.sprite.x += player.tile_size.w;
+            player.sprite.y += player.tile_size.w;
+            player.doStep();
+          }
+        break;
+        case "Numpad4":
+          if(player.detectCollision(player.sprite.x - player.tile_size.w, player.sprite.y) == 2 && !player.disableControl){
+            player.sprite.x -= player.tile_size.w;
+            player.doStep();
+          }
+        break;
+        case "Numpad6":
+          if(player.detectCollision(player.sprite.x + player.tile_size.w, player.sprite.y) == 2 && !player.disableControl){
+            player.sprite.x += player.tile_size.w;
+            player.doStep();
+          }
+        break;
+        case "Numpad7":
+          if(player.detectCollision(player.sprite.x - player.tile_size.w, player.sprite.y - player.tile_size.w) == 2 && !player.disableControl){
+            player.sprite.x -= player.tile_size.w;
+            player.sprite.y -= player.tile_size.w;
+            player.doStep();
+          }
+        break;
+        case "Numpad8":
+          if(player.detectCollision(player.sprite.x, player.sprite.y - player.tile_size.w) == 2 && !player.disableControl){
+            player.sprite.y -= player.tile_size.w;
+            player.doStep();
+          }
+        break;
+        case "Numpad9":
+        if(player.detectCollision(player.sprite.x + player.tile_size.w, player.sprite.y - player.tile_size.w) == 2 && !player.disableControl){
+          player.sprite.x += player.tile_size.w;
+          player.sprite.y -= player.tile_size.w;
+          player.doStep();
+        }
+        break;
       }
     }
 

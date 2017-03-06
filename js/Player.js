@@ -69,6 +69,7 @@ class Player extends Tile{
     for(let i = 0; i < enemies.length; i++){
       if(pX == enemies[i].x && pY == enemies[i].y){
         col_enemy = false;
+        this.hitTarget(enemies[i]);
       }
     }
 
@@ -82,8 +83,8 @@ class Player extends Tile{
           $(".warning").hide();
 
           // move player to the next path section
-        if ($(".wait").not(":visible"))
-          $(".wait").show();
+        // if ($(".wait").not(":visible"))
+        //   $(".wait").show();
 
         for (let j = 0; j < doors.length; j++) {
           if (this.x == doors[j].x && this.y == doors[j].y) {
@@ -133,6 +134,7 @@ class Player extends Tile{
         this.moved = true;
       }
       for (let j = 0; j < enemies.length; j++) {
+        let z = 0;
         if (j == 0) {
           en_priority = [];
         }
@@ -192,11 +194,16 @@ class Player extends Tile{
             }
           }
           if (!enemy.moved) {
+            player.disableControl = true;
+            z++;
             enemy.hitTarget(player);
+            setTimeout(function(){}, 200*z);
           }
         }
+        player.disableControl = false;
       }
     }
+    updateMiniMap();
   }
 
   destroyProp(){

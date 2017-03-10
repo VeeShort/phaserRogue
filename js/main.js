@@ -7,7 +7,7 @@ function detectStateChange(tile) {
         tile.sprite.tint = 0x000000;
         break;
       case 1:
-        tile.sprite.tint = 0x5e5e5e;
+        tile.sprite.tint = 0x444444;
         break;
       case 2:
         tile.sprite.tint = 0xFFFFFF;
@@ -191,6 +191,9 @@ function alignEquipedItems(item){
       break;
       case "boots":
         result = {x: 4, y: 28};
+      break;
+      case "shield":
+        result = {x: 0, y: 12};
       break;
     }
     return result;

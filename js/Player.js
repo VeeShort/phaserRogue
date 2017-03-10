@@ -51,7 +51,8 @@ class Player extends Tile{
       boots: undefined,
       waist: undefined,
       pants: undefined,
-      helm: undefined
+      helm: undefined,
+      shield: undefined
     };
 
     this.hasActiveSigns = false;
@@ -553,7 +554,7 @@ class Player extends Tile{
           // death of other stuff (like enemies)
 
           // spawn loot
-          // if(getRandomInt(0, 100) <= this.stat.luck){
+          if(getRandomInt(0, 100) <= this.stat.luck){
             let spawnLoot = true;
             let randLoot = target.getRandomLoot();
             for(let i = 0; i < lootArr.length; i++){
@@ -571,7 +572,7 @@ class Player extends Tile{
               lootArr.push(loot_chest);
               this.fov.push(loot_chest);
             }
-          // }
+          }
 
           // target.sprite.destroy();
           gr_players.remove(target.sprite);

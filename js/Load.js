@@ -32,6 +32,8 @@ function preload() {
     stage.load.image('pl_iron_sword', "./images/icons/scene/weapon/iron/iron_sword.png");
     stage.load.image('pl_iron_pickaxe', "./images/icons/scene/weapon/iron/iron_pickaxe.png");
     stage.load.image('pl_rusty_sword', "./images/icons/scene/weapon/iron/rusty_sword.png");
+    stage.load.image('pl_staff', "./images/icons/scene/weapon/staff/staff.png");
+    stage.load.image('pl_wooden_shield', "./images/icons/scene/armor/wood/wooden_shield.png");
 
     // particles
     stage.load.image("t_hit", "./images/hit_particle.png");
@@ -266,12 +268,13 @@ function create() {
       slot: "main_hand"
     });
 
-    let scroll_of_fire = new Weapon({
-      name: "Scroll of Fire",
+    let staff_of_fire = new Weapon({
+      name: "Staff of Fire",
       price: 0,
       weight: 0,
-      description: "Old scroll",
-      icon: "./images/icons/weapon/scroll_white.png",
+      description: "Old staf",
+      icon: "./images/icons/weapon/staff.png",
+      itemIcon: "pl_staff",
       minDamage: 15,
       maxDamage: 23,
       type: "ranged",
@@ -287,6 +290,7 @@ function create() {
     iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "./images/icons/armor/iron_boots.png", "armor", 5, true, "boots", "pl_iron_boots");
     let magic_robe = new Armor("Leather robe", 0, 0, "Wizards rule", "n/a", "armor", 5, true, "chest");
     let magic_socks = new Armor("Magic socks", 0, 0, "Stinks alot", "n/a", "armor", 3, true, "boots");
+    let wooden_shield = new Armor("Wooden Shield", 35, 5, "Smells realy good", "./images/icons/armor/wooden_shield.png", "armor", 19, true, "shield", "pl_wooden_shield");
     // test
     let holy_plates = new Armor("Admin Admin", 0, 0, "Not for balance", "n/a", "armor", 80, true, "pants");
 
@@ -316,11 +320,12 @@ function create() {
         player.setHealth(500); // def: 50
         player.setMagic(500); // def: 5
         player.giveItem(iron_sword);
-        player.giveItem(scroll_of_fire);
+        player.giveItem(staff_of_fire);
         player.giveItem(iron_chest);
         player.giveItem(iron_boots);
         player.giveItem(wand_of_curse);
         player.giveItem(pickaxeOfPower);
+        player.giveItem(wooden_shield);
 
         player.equipItem(iron_sword);
         player.equipItem(iron_chest);

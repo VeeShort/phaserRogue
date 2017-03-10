@@ -305,6 +305,7 @@ class Player extends Tile{
       item.isEquiped = item.isEquiped ? false : true;
       if(!item.isEquiped){
         this.equiped[item.slot] = undefined;
+        gr_playerItems.remove(equipedSprites[item.slot]);
       }else{
         if(equipedSprites[item.slot])
           gr_playerItems.remove(equipedSprites[item.slot]);

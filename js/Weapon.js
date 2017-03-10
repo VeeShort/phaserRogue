@@ -7,6 +7,7 @@ class Weapon{
     this.weight = obj.weight;
     this.description = obj.description;
     this.icon = obj.icon;
+    this.itemIcon = obj.itemIcon;
     this.type = obj.type;
     this.equipable = obj.equipable;
     this.minDamage = obj.minDamage;

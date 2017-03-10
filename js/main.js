@@ -176,6 +176,27 @@ function getRandomPos() {
   return rand_pos;
 }
 
+function alignEquipedItems(item){
+  if(item.slot){
+    let result;
+    switch(item.slot){
+      case "helm":
+        result = {x: 7, y: 0};
+      break;
+      case "main_hand":
+        result = {x: 28, y: 0};
+      break;
+      case "chest":
+        result = {x: 0, y: 16};
+      break;
+      case "boots":
+        result = {x: 4, y: 28};
+      break;
+    }
+    return result;
+  }
+}
+
 function updateMiniMap() {
   let scale = c.canvas.width / Dungeon.map_size;
   c.clearRect(0, 0, c.canvas.width, c.canvas.height);

@@ -119,6 +119,8 @@ class Player extends Tile{
         // this.sprite.y = path[i][1] * this.tile_size.h;
         this.x = this.sprite.x;
         this.y = this.sprite.y;
+        gr_playerItems.x = this.x;
+        gr_playerItems.y = this.y;
 
         this.destroyProp();
 
@@ -215,13 +217,9 @@ class Player extends Tile{
             }
           }
           if (!enemy.moved) {
-            player.disableControl = true;
-            z++;
             enemy.hitTarget(player);
-            setTimeout(function(){}, 200*z);
           }
         }
-        player.disableControl = false;
       }
     }
     updateMiniMap();
@@ -287,8 +285,16 @@ class Player extends Tile{
       if(item.slot == "main_hand"){
         this.activeWeapon = item;
       }
-      if(this.name == 'player')
+      if(this.name == 'player'){
+        console.log(item.name);
         item.isEquiped = true;
+
+        if(equipedSprites[item.slot])
+          gr_playerItems.remove(equipedSprites[item.slot]);
+        let eqIt = alignEquipedItems(item);
+        equipedSprites[item.slot] = gr_playerItems.create(eqIt.x, eqIt.y, item.itemIcon);
+
+      }
       // updateUI (inventory)
       updateInvInfo();
     }
@@ -300,6 +306,11 @@ class Player extends Tile{
       if(!item.isEquiped){
         this.equiped[item.slot] = undefined;
       }else{
+        if(equipedSprites[item.slot])
+          gr_playerItems.remove(equipedSprites[item.slot]);
+        let eqIt = alignEquipedItems(item);
+        equipedSprites[item.slot] = gr_playerItems.create(eqIt.x, eqIt.y, item.itemIcon);
+
         this.equiped[item.slot] = item;
         for(let i = 0; i < this.inventory.container.length; i++){
           if(this.inventory.container[i] && item.slot == this.inventory.container[i].slot){
@@ -352,6 +363,7 @@ class Player extends Tile{
       });
     }
   }
+
   getRandomLoot(){
     let loot = [];
     let itemsToLoot = []; // index of items to loot
@@ -410,6 +422,25 @@ class Player extends Tile{
     }else{
       return false;
     }
+  }
+
+  initAimMode(){
+    aimLine.l = 64;
+    aimLine.xo = this.x + 16;
+    aimLine.yo = this.y + 16;
+    aimLine.angle = 45*Math.PI/180;
+
+    aimLine.x1 = aimLine.xo + Math.cos(aimLine.angle)*aimLine.l;
+    aimLine.y1 = aimLine.yo + Math.sin(aimLine.angle)*aimLine.l;
+    aimLine.lineObj = new Phaser.Line(aimLine.xo, aimLine.yo, aimLine.x1, aimLine.y1);
+    let coord = [];
+    aimLine.lineObj.coordinatesOnLine(8, coord);
+
+    let cm = cmArr[Math.floor(aimLine.xo/this.tile_size.w)][Math.floor(aimLine.yo/this.tile_size.h)];
+    if(cm && cm.name == "collision"){
+
+    }
+
   }
 
   takeEffect(){

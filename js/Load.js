@@ -3,6 +3,9 @@ function preload() {
     // player walk animation
     stage.load.spritesheet('mc_player', './images/player_walk.png', 32, 32);
 
+    // PLAYER SPRITE
+    stage.load.image('pl', "./images/player.png");
+
     // SPRITES
     stage.load.image('t_floor', './images/test_floor.png');
     stage.load.image('t_floor2', './images/test_floor2.png');
@@ -21,6 +24,14 @@ function preload() {
     stage.load.image("door_c", "./images/door_c.png");
     stage.load.image("door_o", "./images/door_o.png");
     stage.load.image("loot", "./images/loot.png");
+
+    // ON SCENE ITEMS
+    stage.load.image('pl_iron_helmet', "./images/icons/scene/armor/iron/iron_helmet.png");
+    stage.load.image('pl_iron_boots', "./images/icons/scene/armor/iron/iron_boots.png");
+    stage.load.image('pl_iron_chest', "./images/icons/scene/armor/iron/iron_chest.png");
+    stage.load.image('pl_iron_sword', "./images/icons/scene/weapon/iron/iron_sword.png");
+    stage.load.image('pl_iron_pickaxe', "./images/icons/scene/weapon/iron/iron_pickaxe.png");
+    stage.load.image('pl_rusty_sword', "./images/icons/scene/weapon/iron/rusty_sword.png");
 
     // particles
     stage.load.image("t_hit", "./images/hit_particle.png");
@@ -69,6 +80,10 @@ function create() {
     gr_map = stage.add.group();
     gr_items = stage.add.group();
     gr_players = stage.add.group();
+
+    // all items that are visible on the player model
+    gr_playerItems = stage.add.group();
+
 
     Dungeon.init();
 
@@ -126,6 +141,7 @@ function create() {
       weight: 3,
       description: "Holy s**t, you can break walls with this!",
       icon: "./images/icons/weapon/pickaxe.png",
+      itemIcon: "pl_iron_pickaxe",
       minDamage: 4,
       maxDamage: 8,
       type: "melee",
@@ -179,6 +195,7 @@ function create() {
       weight: 0,
       description: "Regular iron sword for killing stuff",
       icon: "./images/icons/weapon/iron_sword.png",
+      itemIcon: "pl_iron_sword",
       minDamage: 10,
       maxDamage: 15,
       type: "melee",
@@ -194,6 +211,7 @@ function create() {
       weight: 0,
       description: "Ancient sword covered with rust",
       icon: "./images/icons/weapon/rusty_sword.png",
+      itemIcon: "pl_rusty_sword",
       minDamage: 3,
       maxDamage: 6,
       type: "melee",
@@ -265,8 +283,8 @@ function create() {
 
     // ARMOR
     // name, price, weight, description, icon, type, armorValue, equipable, slot
-    let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "./images/icons/armor/iron_chest.png", "armor", 15, true, "chest");
-    iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "./images/icons/armor/iron_boots.png", "armor", 5, true, "boots")
+    let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "./images/icons/armor/iron_chest.png", "armor", 15, true, "chest", "pl_iron_chest");
+    iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "./images/icons/armor/iron_boots.png", "armor", 5, true, "boots", "pl_iron_boots");
     let magic_robe = new Armor("Leather robe", 0, 0, "Wizards rule", "n/a", "armor", 5, true, "chest");
     let magic_socks = new Armor("Magic socks", 0, 0, "Stinks alot", "n/a", "armor", 3, true, "boots");
     // test
@@ -286,7 +304,9 @@ function create() {
         let parts = key.split(",");
         let x = parseInt(parts[0]);
         let y = parseInt(parts[1]);
-        player = new Player(x, y, 3, "pl_"+plClass, 4, "player", "Hero " + plClass);
+        player = new Player(x, y, 3, "pl", 4, "player", "Hero " + plClass);
+        gr_playerItems.x = player.x;
+        gr_playerItems.y = player.y;
         break;
       }
     }
@@ -425,11 +445,12 @@ function create() {
 
     // INPUTS
     // enabled ranged mode
-    // rKey = stage.input.keyboard.addKey(Phaser.Keyboard.R);
-    //
-    // rKey.onDown.add(function(){
-    //   player.changeActiveWeapon();
-    // }, this);
+    rKey = stage.input.keyboard.addKey(Phaser.Keyboard.R);
+
+    rKey.onDown.add(function(){
+      // player.changeActiveWeapon();
+      player.initAimMode();
+    }, this);
 
     /*
     Phaser.Keyboard.NUMPAD_1
@@ -443,14 +464,14 @@ function create() {
     Phaser.Keyboard.NUMPAD_9
     */
 
-    bottomLeftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_1);
-    downKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_2);
-    bottomRightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_3);
-    leftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_4);
-    rightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_6);
-    topLeftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_7);
-    upKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_8);
-    topRightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_9);
+    let bottomLeftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_1);
+    let downKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_2);
+    let bottomRightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_3);
+    let leftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_4);
+    let rightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_6);
+    let topLeftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_7);
+    let upKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_8);
+    let topRightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_9);
     upKey.onDown.add(move, this);
     downKey.onDown.add(move, this);
     leftKey.onDown.add(move, this);
@@ -633,4 +654,7 @@ function update(){
 }
 
 function render(){
+  stage.debug.geom(aimLine.lineObj);
+  if(aimLine.lineObj)
+    stage.debug.lineInfo(aimLine.lineObj, 32, 32);
 }

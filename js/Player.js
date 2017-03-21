@@ -339,23 +339,6 @@ class Player extends Tile{
           if($(".on-loot").is(":visible")) $(".on-loot").hide();
         }
       }
-
-      // $(".loot-items li").on("click", function(){
-      //   let i = $(this).data("i");
-      //   let j = $(".loot-items li").index($(this));
-      //   player.giveItem(lootArr[i].loot[j]);
-      //   lootArr[i].loot.splice(j, 1);
-      //
-      //   if(lootArr[i].loot.length == 0){
-      //     lootArr[i].sprite.destroy();
-      //     lootArr.splice(i, 1);
-      //     if($(".on-loot").is(":visible")) $(".on-loot").hide();
-      //     $(".loot-container").hide();
-      //   }
-      //   $(this).remove();
-      //
-      //   updateInvInfo();
-      // });
     }
   }
 

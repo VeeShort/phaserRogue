@@ -18,6 +18,8 @@ let Dungeon;
 
 let player;
 
+let filter_gray;
+
 let sprite_map = [];
 let collision_map = [];
 let item_map = [];
@@ -70,7 +72,7 @@ let isMage = false;
 let isWarrior = false;
 
 let gr_map, gr_players, gr_items,
-  gr_playerItems;
+    gr_playerItems, gr_loot_particles;
 
 // creating stage
 let stage = new Phaser.Game(608, 608, Phaser.AUTO, 'main-scene', { preload: preload, create: create, update: update, render: render });

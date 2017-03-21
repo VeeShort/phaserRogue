@@ -157,6 +157,7 @@ class Player extends Tile{
         this.centerCamera();
         this.moved = true;
       }
+
       for (let j = 0; j < enemies.length; j++) {
         let z = 0;
         if (j == 0) {
@@ -179,6 +180,7 @@ class Player extends Tile{
           if ($(".wait").is(":visible"))
             $(".wait").hide();
 
+          //  enemy portrait list
           for (let z in en_priority) {
             if (en_priority[z].portrait) {
               $(".enemy-list").append($("<img/>", {
@@ -566,8 +568,18 @@ class Player extends Tile{
               }
             }
             if(spawnLoot){
-              let loot_chest = new Chest(target.x/this.tile_size.w, target.y/this.tile_size.h, 3, "loot", "loot", target.getRandomLoot());
+              let loot_chest = new Chest(target.x/target.tile_size.w + 64, target.y/target.tile_size.w, 3, "loot", "loot", target.getRandomLoot());
               loot_chest.state = 2;
+              let path = getCurvePoints(target.x, target.y, target.x + 64, target.y, 64);
+              let lootSprite = stage.add.sprite(target.x, target.y, "loot");
+              lootSprite.path = path;
+              lootSprite.pi = 0;
+              lootSprite.anchor.x = 0.5;
+              lootSprite.anchor.y = 0.5;
+              lootSprite.animComplete = false;
+              gr_loot_particles.add(lootSprite);
+
+              // loot_chest.alpha = 0;
               detectStateChange(loot_chest);
               lootArr.push(loot_chest);
               this.fov.push(loot_chest);

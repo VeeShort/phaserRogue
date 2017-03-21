@@ -1,4 +1,5 @@
 function preload() {
+    stage.load.script('gray', '../js/filters/Gray.js');
     // SPRITSHEET
     // player walk animation
     stage.load.spritesheet('mc_player', './images/player_walk.png', 32, 32);
@@ -16,7 +17,6 @@ function preload() {
     stage.load.image('t_path', './images/path_01.png');
     stage.load.image('dummy', './images/test_dragon.png');
     stage.load.image("path_end", "./images/path_end.png")
-    stage.load.image('t_alert', "./images/alert.png");
     stage.load.image('t_alert', "./images/alert.png");
     stage.load.image("skeleton", "./images/skeleton.png");
     stage.load.image("skeleton2", "./images/skeleton_2.png");
@@ -75,13 +75,17 @@ function preload() {
 
 
 function create() {
+
+    filter_gray = stage.add.filter('Gray');
     grid = new PF.Grid(Dungeon.map_size, Dungeon.map_size);
 
     stage.world.setBounds(-Dungeon.map_size*32, -Dungeon.map_size*32, Dungeon.map_size*32*4, Dungeon.map_size*32*4);
 
     gr_map = stage.add.group();
     gr_items = stage.add.group();
+    gr_loot_particles = stage.add.group();
     gr_players = stage.add.group();
+
 
     // all items that are visible on the player model
     gr_playerItems = stage.add.group();
@@ -543,7 +547,7 @@ function create() {
       }
     }
 
-    spaceKey = stage.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    spaceKey = stage.input.keyboard.addKey(Phaser.Keyboard.G);
 
     spaceKey.onDown.add(function(){
       if($(".on-loot").is(":visible"))
@@ -656,6 +660,31 @@ function update(){
   emitter.forEachAlive(function(p){	p.tint = 0xCC1100; p.alpha = p.lifespan/emitter.lifespan; });
   // destruct_wood.forEachAlive(function(p){	p.tint = 0x633C14; p.alpha = p.lifespan/emitter.lifespan; });
   death_effect.forEachAlive(function(p){ p.tint = 0x333333; p.alpha = p.lifespan/emitter.lifespan; });
+  gr_loot_particles.forEachAlive(function(item){
+    if(!item.animComplete){
+      item.x = item.path[item.pi].x + 16;
+      item.y = item.path[item.pi].y + 16;
+      item.pi += 4; //default: 5
+      item.angle += 50;
+      if (item.pi >= item.path.length)
+      {
+        item.pi = 0;
+        item.animComplete = true;
+        item.angle = 0;
+        gr_loot_particles.remove(item);
+      }
+    }
+  });
+
+  // if(lootAnim){
+  //   this.x = this.path[this.pi].x;
+  //   this.y = this.path[this.pi].y;
+  //   this.pi++;
+  //   if (this.pi >= this.path.length)
+  //   {
+  //       this.pi = 0;
+  //   }
+  // }
 }
 
 function render(){

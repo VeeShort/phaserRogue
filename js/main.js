@@ -111,6 +111,41 @@ function countStep() {
   step_count++;
 }
 
+function getCurvePoints(x1, y1, x2, y2, h){
+  let center = {
+    x: (x1+x2)/2,
+    y: (y1+y2)/2
+  };
+
+  let top = {
+    x: center.x,
+    y: center.y - h
+  };
+
+  let points = {
+    'x': [x1, top.x, x2],
+    'y': [y1, top.y, y2]
+  };
+
+  let graphics = stage.add.graphics(0, 0);
+
+  let path = [];
+  let powX = Math.pow((x2 - x1), 2);
+  let powY = Math.pow((y2 - y1), 2);
+  let x = (powX >= powY ? (1/Math.sqrt(powX - powY)) : (1/Math.sqrt(powY - powX)));
+
+  for (let i = 0; i <= 1; i += x){
+    var px = stage.math.bezierInterpolation(points.x, i);
+    var py = stage.math.bezierInterpolation(points.y, i);
+    path.push( { x: px, y: py });
+
+    // graphics.beginFill(0xFF0000, 1);
+    // graphics.drawCircle(px, py, 1);
+  }
+
+  return path;
+}
+
 function unique(arr) {
   var result = [];
 

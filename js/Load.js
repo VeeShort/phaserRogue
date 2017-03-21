@@ -2,7 +2,7 @@ function preload() {
     stage.load.script('gray', '../js/filters/Gray.js');
     // SPRITSHEET
     // player walk animation
-    stage.load.spritesheet('mc_player', './images/player_walk.png', 32, 32);
+    stage.load.spritesheet('mc_player', './images/player_walk.png', 32, 32)
 
     // PLAYER SPRITE
     stage.load.image('pl', "./images/player.png");
@@ -24,6 +24,10 @@ function preload() {
     stage.load.image("door_c", "./images/door_c.png");
     stage.load.image("door_o", "./images/door_o.png");
     stage.load.image("loot", "./images/loot.png");
+
+    //loot drop sprites
+    stage.load.image("d_bone_fist", "./images/icons/weapon/skeleton_hand.png");
+    stage.load.image("d_rusty_sword", "./images/icons/weapon/rusty_sword.png");
 
     // ON SCENE ITEMS
     stage.load.image('pl_iron_helmet', "./images/icons/scene/armor/iron/iron_helmet.png");
@@ -186,6 +190,7 @@ function create() {
       weight: 0,
       description: "Skeletons have these",
       icon: "./images/icons/weapon/skeleton_hand.png",
+      lootIcon: "d_bone_fist",
       minDamage: 1,
       maxDamage: 3,
       type: "melee",
@@ -218,6 +223,7 @@ function create() {
       description: "Ancient sword covered with rust",
       icon: "./images/icons/weapon/rusty_sword.png",
       itemIcon: "pl_rusty_sword",
+      lootIcon: "d_rusty_sword",
       minDamage: 3,
       maxDamage: 6,
       type: "melee",
@@ -664,27 +670,16 @@ function update(){
     if(!item.animComplete){
       item.x = item.path[item.pi].x + 16;
       item.y = item.path[item.pi].y + 16;
-      item.pi += 4; //default: 5
+      item.pi += 4; // default: 5
       item.angle += 50;
       if (item.pi >= item.path.length)
       {
         item.pi = 0;
         item.animComplete = true;
         item.angle = 0;
-        gr_loot_particles.remove(item);
       }
     }
   });
-
-  // if(lootAnim){
-  //   this.x = this.path[this.pi].x;
-  //   this.y = this.path[this.pi].y;
-  //   this.pi++;
-  //   if (this.pi >= this.path.length)
-  //   {
-  //       this.pi = 0;
-  //   }
-  // }
 }
 
 function render(){

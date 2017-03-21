@@ -329,42 +329,33 @@ class Player extends Tile{
   }
 
   lootItems(){
-
-    $(".loot-items").empty();
-    $(".loot-container").show();
     let self = this;
     if(!this.disableControl){
       for(let i = 0; i < lootArr.length; i++){
         if(this.x == lootArr[i].x && this.y == lootArr[i].y){
-          for(let j = 0; j < lootArr[i].loot.length; j++){
-            $(".loot-items").append($("<li/>", {
-              "data-i": i,
-              "data-j": j
-            }).append($("<img/>",{
-              src: lootArr[i].loot[j].icon
-            }), $("<span/>", {
-              text: lootArr[i].loot[j].name
-            })));
-          }
-        }
-      }
-
-      $(".loot-items li").on("click", function(){
-        let i = $(this).data("i");
-        let j = $(".loot-items li").index($(this));
-        player.giveItem(lootArr[i].loot[j]);
-        lootArr[i].loot.splice(j, 1);
-
-        if(lootArr[i].loot.length == 0){
+          this.giveItem(lootArr[i].loot);
           lootArr[i].sprite.destroy();
           lootArr.splice(i, 1);
           if($(".on-loot").is(":visible")) $(".on-loot").hide();
-          $(".loot-container").hide();
         }
-        $(this).remove();
+      }
 
-        updateInvInfo();
-      });
+      // $(".loot-items li").on("click", function(){
+      //   let i = $(this).data("i");
+      //   let j = $(".loot-items li").index($(this));
+      //   player.giveItem(lootArr[i].loot[j]);
+      //   lootArr[i].loot.splice(j, 1);
+      //
+      //   if(lootArr[i].loot.length == 0){
+      //     lootArr[i].sprite.destroy();
+      //     lootArr.splice(i, 1);
+      //     if($(".on-loot").is(":visible")) $(".on-loot").hide();
+      //     $(".loot-container").hide();
+      //   }
+      //   $(this).remove();
+      //
+      //   updateInvInfo();
+      // });
     }
   }
 
@@ -568,21 +559,23 @@ class Player extends Tile{
               }
             }
             if(spawnLoot){
-              let loot_chest = new Chest(target.x/target.tile_size.w + 64, target.y/target.tile_size.w, 3, "loot", "loot", target.getRandomLoot());
-              loot_chest.state = 2;
-              let path = getCurvePoints(target.x, target.y, target.x + 64, target.y, 64);
-              let lootSprite = stage.add.sprite(target.x, target.y, "loot");
-              lootSprite.path = path;
-              lootSprite.pi = 0;
-              lootSprite.anchor.x = 0.5;
-              lootSprite.anchor.y = 0.5;
-              lootSprite.animComplete = false;
-              gr_loot_particles.add(lootSprite);
+              let generatedLoot = target.getRandomLoot();
+              for(let i = 0; i < generatedLoot.length; i++){
+                console.log(generatedLoot[i]);
+                let lootSprite = new Chest(target.x/target.tile_size.w + 2, target.y/target.tile_size.w, 3, generatedLoot[i].lootIcon, "loot", generatedLoot[i]);
+                lootSprite.state = 1;
+                let path = getCurvePoints(target.x, target.y, target.x + 64, target.y, 64);
+                lootSprite.sprite.path = path;
+                lootSprite.sprite.pi = 0;
+                lootSprite.sprite.anchor.x = 0.5;
+                lootSprite.sprite.anchor.y = 0.5;
+                lootSprite.sprite.animComplete = false;
+                gr_loot_particles.add(lootSprite.sprite);
 
-              // loot_chest.alpha = 0;
-              detectStateChange(loot_chest);
-              lootArr.push(loot_chest);
-              this.fov.push(loot_chest);
+                detectStateChange(lootSprite);
+                lootArr.push(lootSprite);
+                this.fov.push(lootSprite);
+              }
             }
           }
 

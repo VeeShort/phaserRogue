@@ -8,6 +8,7 @@ class Weapon{
     this.description = obj.description;
     this.icon = obj.icon;
     this.itemIcon = obj.itemIcon;
+    this.lootIcon = obj.lootIcon;
     this.type = obj.type;
     this.equipable = obj.equipable;
     this.minDamage = obj.minDamage;

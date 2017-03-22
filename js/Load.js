@@ -1,8 +1,10 @@
 function preload() {
-    stage.load.script('gray', '../js/filters/Gray.js');
+    // filter grey
+    // stage.load.script('gray', '../js/filters/Gray.js');
+
     // SPRITSHEET
     // player walk animation
-    stage.load.spritesheet('mc_player', './images/player_walk.png', 32, 32)
+    // stage.load.spritesheet('mc_player', './images/player_walk.png', 32, 32)
 
     // PLAYER SPRITE
     stage.load.image('pl', "./images/player.png");
@@ -28,6 +30,8 @@ function preload() {
     //loot drop sprites
     stage.load.image("d_bone_fist", "./images/icons/weapon/skeleton_hand.png");
     stage.load.image("d_rusty_sword", "./images/icons/weapon/rusty_sword.png");
+    stage.load.image("d_iron_boots", "./images/icons/armor/iron_boots.png");
+    stage.load.image("d_wooden_shield", "./images/icons/armor/wooden_shield.png");
 
     // ON SCENE ITEMS
     stage.load.image('pl_iron_helmet', "./images/icons/scene/armor/iron/iron_helmet.png");
@@ -80,7 +84,7 @@ function preload() {
 
 function create() {
 
-    filter_gray = stage.add.filter('Gray');
+    // filter_gray = stage.add.filter('Gray');
     grid = new PF.Grid(Dungeon.map_size, Dungeon.map_size);
 
     stage.world.setBounds(-Dungeon.map_size*32, -Dungeon.map_size*32, Dungeon.map_size*32*4, Dungeon.map_size*32*4);
@@ -297,10 +301,10 @@ function create() {
     // ARMOR
     // name, price, weight, description, icon, type, armorValue, equipable, slot
     let iron_chest = new Armor("Iron chest", 0, 0, "Regular iron chest", "./images/icons/armor/iron_chest.png", "armor", 15, true, "chest", "pl_iron_chest");
-    iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "./images/icons/armor/iron_boots.png", "armor", 5, true, "boots", "pl_iron_boots");
+    iron_boots = new Armor("Iron boots", 0, 0, "Heavy stuff", "./images/icons/armor/iron_boots.png", "armor", 5, true, "boots", "pl_iron_boots", "d_iron_boots");
     let magic_robe = new Armor("Leather robe", 0, 0, "Wizards rule", "n/a", "armor", 5, true, "chest");
     let magic_socks = new Armor("Magic socks", 0, 0, "Stinks alot", "n/a", "armor", 3, true, "boots");
-    let wooden_shield = new Armor("Wooden Shield", 35, 5, "Smells realy good", "./images/icons/armor/wooden_shield.png", "armor", 19, true, "shield", "pl_wooden_shield");
+    let wooden_shield = new Armor("Wooden Shield", 35, 5, "Smells realy good", "./images/icons/armor/wooden_shield.png", "armor", 19, true, "shield", "pl_wooden_shield", "d_wooden_shield");
     // test
     let holy_plates = new Armor("Admin Admin", 0, 0, "Not for balance", "n/a", "armor", 80, true, "pants");
 
@@ -397,6 +401,8 @@ function create() {
       skeleton.setHealth(25);
       skeleton.setMagic(0);
       skeleton.equipItem(bone);
+      skeleton.equipItem(wooden_shield);
+      skeleton.equipItem(iron_boots);
       grid.setWalkableAt(skeleton.x/32, skeleton.y/32, false);
       // skeleton.addToStage();
     }

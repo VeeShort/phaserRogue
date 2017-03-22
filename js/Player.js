@@ -543,11 +543,12 @@ class Player extends Tile{
             }
             if(spawnLoot){
               let generatedLoot = target.getRandomLoot();
+              let place = scanAreaForLootSpawn(target.x, target.y, generatedLoot.length);
+              // console.log("place:", place);
               for(let i = 0; i < generatedLoot.length; i++){
-                let place = scanAreaForLootSpawn(target.x, target.y, generatedLoot.length);
-                let lootSprite = new Chest(place.x/target.tile_size.w, place.y/target.tile_size.h, 3, generatedLoot[i].lootIcon, "loot", generatedLoot[i]);
+                let lootSprite = new Chest(place[i].x/target.tile_size.w, place[i].y/target.tile_size.h, 3, generatedLoot[i].lootIcon, "loot", generatedLoot[i]);
                 lootSprite.state = 1;
-                let path = getCurvePoints(target.x, target.y, place.x, place.y, 64);
+                let path = getCurvePoints(target.x, target.y, place[i].x, place[i].y, 64);
                 lootSprite.sprite.path = path;
                 lootSprite.sprite.pi = 0;
                 lootSprite.sprite.anchor.x = 0.5;

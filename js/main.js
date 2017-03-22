@@ -212,17 +212,71 @@ function getRandomPos() {
 }
 
 function scanAreaForLootSpawn(tx, ty, items){
-  let res = {
-    x: undefined,
-    y: undefined
-  };
-  if(items == 1){
-    res.x = tx;
-    res.y = ty;
-  }else{
-    
+  let ts = 32; // tile step/size
+  let places = [];
+  let dirs = [true, false, false, false, false, false, false, false, false];
+
+  if(cmArr[(tx - ts)/ts][ty/ts] === undefined){
+    dirs[1] = true;
   }
-  return {x: res.x, y: res.y};
+  if(cmArr[(tx - ts)/ts][ty - ts/ts] === undefined){
+    dirs[2] = true;
+  }
+  if(cmArr[(tx)/ts][ty - ts/ts] === undefined){
+    dirs[3] = true;
+  }
+  if(cmArr[(tx + ts)/ts][ty - ts/ts] === undefined){
+    dirs[4] = true;
+  }
+  if(cmArr[(tx + ts)/ts][ty/ts] === undefined){
+    dirs[5] = true;
+  }
+  if(cmArr[(tx + ts)/ts][ty + ts/ts] === undefined){
+    dirs[6] = true;
+  }
+  if(cmArr[(tx)/ts][ty + ts/ts] === undefined){
+    dirs[7] = true;
+  }
+  if(cmArr[(tx - ts)/ts][ty + ts/ts] === undefined){
+    dirs[8] = true;
+  }
+
+  // console.log("dirs:", dirs);
+
+  for(let i = 0; i < dirs.length; i++){
+    if(dirs[i] === true){
+      switch (i) {
+        case 0:
+          places.push({x: tx, y: ty});
+        break;
+        case 1:
+          places.push({x: tx - ts, y: ty});
+        break;
+        case 2:
+          places.push({x: tx - ts, y: ty - ts});
+        break;
+        case 3:
+          places.push({x: tx, y: ty - ts});
+        break;
+        case 4:
+          places.push({x: tx + ts, y: ty - ts});
+        break;
+        case 5:
+          places.push({x: tx + ts, y: ty});
+        break;
+        case 6:
+          places.push({x: tx + ts, y: ty + ts});
+        break;
+        case 7:
+          places.push({x: tx, y: ty + ts});
+        break;
+        case 8:
+          places.push({x: tx - ts, y: ty + ts});
+        break;
+      }
+    }
+  }
+  return places;
 }
 
 function alignEquipedItems(item){

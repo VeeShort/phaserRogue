@@ -211,6 +211,20 @@ function getRandomPos() {
   return rand_pos;
 }
 
+function scanAreaForLootSpawn(tx, ty, items){
+  let res = {
+    x: undefined,
+    y: undefined
+  };
+  if(items == 1){
+    res.x = tx;
+    res.y = ty;
+  }else{
+    
+  }
+  return {x: res.x, y: res.y};
+}
+
 function alignEquipedItems(item){
   if(item.slot){
     let result;

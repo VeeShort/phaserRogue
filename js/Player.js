@@ -536,20 +536,8 @@ class Player extends Tile{
 
           // spawn loot
           if(getRandomInt(0, 100) <= this.stat.luck){
-            let spawnLoot = true;
-            let randLoot = target.getRandomLoot();
-            for(let i = 0; i < lootArr.length; i++){
-              if(lootArr[i].x == target.x &&
-                 lootArr[i].y == target.y){
-                 lootArr[i].loot = lootArr[i].loot.concat(randLoot);
-                 spawnLoot = false;
-                 break;
-              }
-            }
-            if(spawnLoot){
-              let generatedLoot = target.getRandomLoot();
-              scanAreaForLootSpawn(target.x, target.y, generatedLoot.length, generatedLoot, target);
-            }
+            let generatedLoot = target.getRandomLoot();
+            scanAreaForLootSpawn(target.x, target.y, generatedLoot.length, generatedLoot, target);
           }
 
           for(let z in en_priority){

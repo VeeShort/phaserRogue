@@ -214,26 +214,43 @@ function scanAreaForLootSpawn(tx, ty, items, loot, target){
   let places = [];
   let scanedArea = [];
   let area_d = 3; // 3 - 5 - 7 - 9 - etc...
+  let spawnPermit = true;
 
   while(scanedArea.length < items){
     for(let i = 0; i < area_d; i ++){
       for(let j = 0; j < area_d; j++){
-        if(cmArr[tx/ts - Math.floor(area_d/2) + i][ty/ts - Math.floor(area_d/2) + j] === undefined){
-          scanedArea.push({
-            x: (tx/ts - Math.floor(area_d/2) + i)*ts,
-            y: (ty/ts - Math.floor(area_d/2) + j)*ts
-          });
+        if(typeof cmArr[tx/ts - Math.floor(area_d/2) + i][ty/ts - Math.floor(area_d/2) + j] === "undefined" &&
+           typeof smArr[tx/ts - Math.floor(area_d/2) + i][ty/ts - Math.floor(area_d/2) + j] != "undefined"){
+          if(lootArr.length > 0){
+            for(let l = 0; l < lootArr.length; l++){
+              if(lootArr[l].x == (tx/ts - Math.floor(area_d/2) + i)*ts &&
+                 lootArr[l].y == (ty/ts - Math.floor(area_d/2) + j)*ts){
+                spawnPermit = false;
+              }
+            }
+            if(spawnPermit){
+              scanedArea.push({
+               x: (tx/ts - Math.floor(area_d/2) + i)*ts,
+               y: (ty/ts - Math.floor(area_d/2) + j)*ts
+              });
+            }
+          }else{
+            scanedArea.push({
+             x: (tx/ts - Math.floor(area_d/2) + i)*ts,
+             y: (ty/ts - Math.floor(area_d/2) + j)*ts
+            });
+          }
         }
       }
       if(i == area_d - 1 && scanedArea.length < items){
         area_d += 2;
-        dirs = [];
+        scanedArea = [];
       }
     }
   }
 
   while(places.length < items){
-    let gen = getRandomInt(0, items);
+    let gen = getRandomInt(0, scanedArea.length-1);
     let getPlace = true;
     for(let i = 0; i < places.length; i++){
       if(places[i].x == scanedArea[gen].x && places[i].y == scanedArea[gen].y){
@@ -243,6 +260,7 @@ function scanAreaForLootSpawn(tx, ty, items, loot, target){
     if(getPlace)
       places.push(scanedArea[gen]);
   }
+
 
   for(let i = 0; i < places.length; i++){
     let lootSprite = new Chest(places[i].x/target.tile_size.w, places[i].y/target.tile_size.h, 3, loot[i].lootIcon, "loot", loot[i]);

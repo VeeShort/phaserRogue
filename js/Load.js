@@ -32,6 +32,9 @@ function preload() {
     stage.load.image("d_rusty_sword", "./images/icons/weapon/rusty_sword.png");
     stage.load.image("d_iron_boots", "./images/icons/armor/iron_boots.png");
     stage.load.image("d_wooden_shield", "./images/icons/armor/wooden_shield.png");
+    stage.load.image("d_scroll", "./images/icons/weapon/scroll_white.png");
+    stage.load.image("d_claw", "./images/icons/weapon/claw.png");
+    stage.load.image("d_wand_black", "./images/icons/weapon/wand_of_curse.png")
 
     // ON SCENE ITEMS
     stage.load.image('pl_iron_helmet', "./images/icons/scene/armor/iron/iron_helmet.png");
@@ -74,6 +77,7 @@ function preload() {
     stage.load.audio('dooropened', "./sound/dooropened.wav");
     stage.load.audio('doorclosed', "./sound/doorclosed.wav");
     stage.load.audio('hit_collision', "./sound/hit-collision.wav");
+    stage.load.audio('drop', "./sound/drop.wav");
 
     // destruction audio
     stage.load.audio('destr1', "./sound/destr1.wav");
@@ -134,6 +138,7 @@ function create() {
     dooropened = stage.add.audio('dooropened');
     doorclosed = stage.add.audio('doorclosed');
     hit_collision = stage.add.audio('hit_collision');
+    drop = stage.add.audio('drop');
 
     // target_sp = new Phaser.Sprite();
     // stage.add.sprite(target_sp);
@@ -178,7 +183,7 @@ function create() {
       price: 0,
       weight: 0,
       description: "These are very sharp",
-      icon: undefined,
+      icon: "./images/icons/weapom/claw.png",
       minDamage: 7,
       maxDamage: 10,
       type: "melee",
@@ -238,11 +243,12 @@ function create() {
     });
 
     let fireball_sp = new Weapon({
-      name: "Sphere of Fire",
+      name: "Scroll of Fire",
       price: 0,
       weight: 0,
-      description: "Regular fireball",
-      icon: undefined,
+      description: "Regular fireball scroll",
+      icon: "./images/icons/weapon/scroll_white.png",
+      lootIcon: "d_scroll",
       minDamage: 13,
       maxDamage: 20,
       type: "ranged",
@@ -258,6 +264,7 @@ function create() {
       weight: 0,
       description: "Dark wizards make this at home",
       icon: "./images/icons/weapon/wand_of_curse.png",
+      lootIcon: "d_wand_black",
       minDamage: 8,
       maxDamage: 10,
       type: "ranged",

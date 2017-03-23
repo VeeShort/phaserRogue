@@ -676,7 +676,7 @@ function update(){
     if(!item.animComplete){
       item.x = item.path[item.pi].x + 16;
       item.y = item.path[item.pi].y + 16;
-      item.pi += 4; // default: 5
+      item.pi += 2; // default: 5
       item.angle += 50;
       if (item.pi >= item.path.length)
       {
@@ -689,7 +689,7 @@ function update(){
 }
 
 function render(){
-  stage.debug.geom(aimLine.lineObj);
-  if(aimLine.lineObj)
-    stage.debug.lineInfo(aimLine.lineObj, 32, 32);
+  // stage.debug.geom(aimLine.lineObj);
+  // if(aimLine.lineObj)
+  //   stage.debug.lineInfo(aimLine.lineObj, 32, 32);
 }

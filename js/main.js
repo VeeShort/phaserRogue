@@ -122,27 +122,25 @@ function getCurvePoints(x1, y1, x2, y2, h){
     y: center.y - h
   };
 
+  let xArr = [x1, top.x, x2];
+  let yArr = [y1, top.y, y2];
   let points = {
-    'x': [x1, top.x, x2],
-    'y': [y1, top.y, y2]
+    'x': xArr,
+    'y': yArr
   };
 
   let graphics = stage.add.graphics(0, 0);
 
   let path = [];
-  let powX = Math.pow((x2 - x1), 2);
-  let powY = Math.pow((y2 - y1), 2);
-  let x = (powX >= powY ? (1/Math.sqrt(powX - powY)) : (1/Math.sqrt(powY - powX)));
+  let powX = Math.pow(Math.abs(x2 - x1), 2);
+  let powY = Math.pow(Math.abs(y2 - y1), 2);
+  let x = 1/Math.sqrt(powX + powY);
 
   for (let i = 0; i <= 1; i += x){
     var px = stage.math.bezierInterpolation(points.x, i);
     var py = stage.math.bezierInterpolation(points.y, i);
     path.push( { x: px, y: py });
-
-    // graphics.beginFill(0xFF0000, 1);
-    // graphics.drawCircle(px, py, 1);
   }
-
   return path;
 }
 
@@ -211,72 +209,61 @@ function getRandomPos() {
   return rand_pos;
 }
 
-function scanAreaForLootSpawn(tx, ty, items){
+function scanAreaForLootSpawn(tx, ty, items, loot, target){
   let ts = 32; // tile step/size
   let places = [];
-  let dirs = [true, false, false, false, false, false, false, false, false];
+  let scanedArea = [];
+  let area_d = 3; // 3 - 5 - 7 - 9 - etc...
 
-  if(cmArr[(tx - ts)/ts][ty/ts] === undefined){
-    dirs[1] = true;
-  }
-  if(cmArr[(tx - ts)/ts][ty - ts/ts] === undefined){
-    dirs[2] = true;
-  }
-  if(cmArr[(tx)/ts][ty - ts/ts] === undefined){
-    dirs[3] = true;
-  }
-  if(cmArr[(tx + ts)/ts][ty - ts/ts] === undefined){
-    dirs[4] = true;
-  }
-  if(cmArr[(tx + ts)/ts][ty/ts] === undefined){
-    dirs[5] = true;
-  }
-  if(cmArr[(tx + ts)/ts][ty + ts/ts] === undefined){
-    dirs[6] = true;
-  }
-  if(cmArr[(tx)/ts][ty + ts/ts] === undefined){
-    dirs[7] = true;
-  }
-  if(cmArr[(tx - ts)/ts][ty + ts/ts] === undefined){
-    dirs[8] = true;
-  }
-
-  // console.log("dirs:", dirs);
-
-  for(let i = 0; i < dirs.length; i++){
-    if(dirs[i] === true){
-      switch (i) {
-        case 0:
-          places.push({x: tx, y: ty});
-        break;
-        case 1:
-          places.push({x: tx - ts, y: ty});
-        break;
-        case 2:
-          places.push({x: tx - ts, y: ty - ts});
-        break;
-        case 3:
-          places.push({x: tx, y: ty - ts});
-        break;
-        case 4:
-          places.push({x: tx + ts, y: ty - ts});
-        break;
-        case 5:
-          places.push({x: tx + ts, y: ty});
-        break;
-        case 6:
-          places.push({x: tx + ts, y: ty + ts});
-        break;
-        case 7:
-          places.push({x: tx, y: ty + ts});
-        break;
-        case 8:
-          places.push({x: tx - ts, y: ty + ts});
-        break;
+  while(scanedArea.length < items){
+    for(let i = 0; i < area_d; i ++){
+      for(let j = 0; j < area_d; j++){
+        if(cmArr[tx/ts - Math.floor(area_d/2) + i][ty/ts - Math.floor(area_d/2) + j] === undefined){
+          scanedArea.push({
+            x: (tx/ts - Math.floor(area_d/2) + i)*ts,
+            y: (ty/ts - Math.floor(area_d/2) + j)*ts
+          });
+        }
+      }
+      if(i == area_d - 1 && scanedArea.length < items){
+        area_d += 2;
+        dirs = [];
       }
     }
   }
-  return places;
+
+  while(places.length < items){
+    let gen = getRandomInt(0, items);
+    let getPlace = true;
+    for(let i = 0; i < places.length; i++){
+      if(places[i].x == scanedArea[gen].x && places[i].y == scanedArea[gen].y){
+        getPlace = false;
+      }
+    }
+    if(getPlace)
+      places.push(scanedArea[gen]);
+  }
+
+  for(let i = 0; i < places.length; i++){
+    let lootSprite = new Chest(places[i].x/target.tile_size.w, places[i].y/target.tile_size.h, 3, loot[i].lootIcon, "loot", loot[i]);
+    lootSprite.state = 2;
+    let path = getCurvePoints(target.x, target.y, places[i].x, places[i].y, 64);
+    lootSprite.sprite.path = path;
+    lootSprite.sprite.pi = 0;
+    lootSprite.sprite.anchor.x = 0.5;
+    lootSprite.sprite.anchor.y = 0.5;
+    lootSprite.sprite.animComplete = false;
+    gr_loot_particles.add(lootSprite.sprite);
+
+    detectStateChange(lootSprite);
+    lootArr.push(lootSprite);
+    player.fov.push(lootSprite);
+
+    // setTimeout(function(){
+    //   smArr[places[i].x/ts][places[i].y/ts].sprite.tint = 0x0052ff;
+    // }, 100);
+
+  }
 }
 
 function alignEquipedItems(item){

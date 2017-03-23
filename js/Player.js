@@ -535,7 +535,7 @@ class Player extends Tile{
           grid.setWalkableAt(target.x/target.tile_size.w, target.y/target.tile_size.h, true);
 
           // spawn loot
-          // if(getRandomInt(0, 100) <= this.stat.luck){
+          if(getRandomInt(0, 100) <= this.stat.luck){
             let spawnLoot = true;
             let randLoot = target.getRandomLoot();
             for(let i = 0; i < lootArr.length; i++){
@@ -550,7 +550,7 @@ class Player extends Tile{
               let generatedLoot = target.getRandomLoot();
               scanAreaForLootSpawn(target.x, target.y, generatedLoot.length, generatedLoot, target);
             }
-          // }
+          }
 
           for(let z in en_priority){
             if(en_priority[z].portrait && en_priority[z].health <= 0){

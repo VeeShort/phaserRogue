@@ -9,23 +9,23 @@ canvas {
 
 @font-face {
     font-family: 'iso9';
-    src: url('/fonts/Px437_IBM_ISO9.ttf');
+    src: url('./fonts/Px437_IBM_ISO9.ttf');
 }
 @font-face {
     font-family: 'pxl';
-    src: url('/fonts/Pxlvetica.ttf');
+    src: url('./fonts/Pxlvetica.ttf');
 }
 @font-face {
     font-family: 'munro narrow';
-    src: url('/fonts/MunroNarrow.ttf');
+    src: url('./fonts/MunroNarrow.ttf');
 }
 @font-face {
     font-family: 'munro';
-    src: url('/fonts/Munro.ttf');
+    src: url('./fonts/Munro.ttf');
 }
 @font-face {
     font-family: 'itt bios';
-    src: url('/fonts/Px437_ITT_BIOS.ttf');
+    src: url('./fonts/Px437_ITT_BIOS.ttf');
 }
 
 html {

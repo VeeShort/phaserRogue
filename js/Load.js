@@ -630,22 +630,22 @@ function create() {
     Phaser.Keyboard.NUMPAD_9
     */
 
-    let bottomLeftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_1);
-    let downKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_2);
-    let bottomRightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_3);
-    let leftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_4);
-    let rightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_6);
-    let topLeftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_7);
-    let upKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_8);
-    let topRightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_9);
+    // let bottomLeftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_1);
+    let downKey = stage.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+    // let bottomRightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_3);
+    let leftKey = stage.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+    let rightKey = stage.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+    // let topLeftKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_7);
+    let upKey = stage.input.keyboard.addKey(Phaser.Keyboard.UP);
+    // let topRightKey = stage.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_9);
     upKey.onDown.add(move, this);
     downKey.onDown.add(move, this);
     leftKey.onDown.add(move, this);
     rightKey.onDown.add(move, this);
-    topLeftKey.onDown.add(move, this);
-    topRightKey.onDown.add(move, this);
-    bottomLeftKey.onDown.add(move, this);
-    bottomRightKey.onDown.add(move, this);
+    // topLeftKey.onDown.add(move, this);
+    // topRightKey.onDown.add(move, this);
+    // bottomLeftKey.onDown.add(move, this);
+    // bottomRightKey.onDown.add(move, this);
 
     function move(e) {
         switch (e.event.code) {
@@ -662,7 +662,7 @@ function create() {
                     player.doStep();
                 }
                 break;
-            case 'Numpad2':
+            case 'ArrowDown':
                 if (
                     player.detectCollision(
                         player.sprite.x,
@@ -687,7 +687,7 @@ function create() {
                     player.doStep();
                 }
                 break;
-            case 'Numpad4':
+            case 'ArrowLeft':
                 if (
                     player.detectCollision(
                         player.sprite.x - player.tile_size.w,
@@ -699,7 +699,7 @@ function create() {
                     player.doStep();
                 }
                 break;
-            case 'Numpad6':
+            case 'ArrowRight':
                 if (
                     player.detectCollision(
                         player.sprite.x + player.tile_size.w,
@@ -724,7 +724,7 @@ function create() {
                     player.doStep();
                 }
                 break;
-            case 'Numpad8':
+            case 'ArrowUp':
                 if (
                     player.detectCollision(
                         player.sprite.x,

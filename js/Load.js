@@ -816,7 +816,7 @@ function create() {
                 $('.info')
                     .css('left', e.pageX + 'px')
                     .css('top', e.pageY + 'px');
-                $('.info p').html('');
+                $('.info p').html(item.description);
                 $('.info .name').css('color', '#fff');
                 $('.info .name').html(item.name);
                 switch (item.rarity) {

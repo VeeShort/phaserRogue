@@ -321,7 +321,7 @@ function create() {
         name: 'Staff of Fire',
         price: 0,
         weight: 0,
-        description: 'Old staf',
+        description: 'Old staff',
         icon: './images/icons/weapon/staff.png',
         itemIcon: 'pl_staff',
         minDamage: 15,

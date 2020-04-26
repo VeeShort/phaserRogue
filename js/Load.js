@@ -1,11 +1,4 @@
 function preload() {
-    // filter grey
-    // stage.load.script('gray', '../js/filters/Gray.js');
-
-    // SPRITSHEET
-    // player walk animation
-    // stage.load.spritesheet('mc_player', './images/player_walk.png', 32, 32)
-
     // PLAYER SPRITE
     stage.load.image('pl', './images/player.png');
 
@@ -110,7 +103,6 @@ function preload() {
 }
 
 function create() {
-    // filter_gray = stage.add.filter('Gray');
     grid = new PF.Grid(Dungeon.map_size, Dungeon.map_size);
 
     stage.world.setBounds(
@@ -152,7 +144,7 @@ function create() {
         }
     }
 
-    // // SOUNDS
+    // SOUNDS
     alert_s = stage.add.audio('alert');
     en_hit = stage.add.audio('en_hit');
     pl_hit = stage.add.audio('pl_hit');

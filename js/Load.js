@@ -203,7 +203,7 @@ function create() {
         price: 0,
         weight: 0,
         description: 'These are very sharp',
-        icon: './images/icons/weapom/claw.png',
+        icon: './images/icons/weapon/claw.png',
         minDamage: 7,
         maxDamage: 10,
         type: 'melee',
